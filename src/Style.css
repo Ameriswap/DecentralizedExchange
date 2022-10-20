@@ -1,0 +1,20 @@
+body {
+  background-image: radial-gradient(black, black, black);
+}
+
+header {
+  background: transparent!important;
+}
+
+button {
+  border-radius: 50px!important;
+}
+
+.MuiButtonBase-root{
+  color: #fff!important;
+}
+
+div.MuiPaper-root{
+  background: #171616!important;
+  color: #fff;
+}

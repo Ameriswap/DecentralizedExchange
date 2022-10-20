@@ -1,22 +1,23 @@
 import React, { Component }  from 'react';
 import { Outlet, Link } from "react-router-dom";
-import { styled, alpha } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import InputBase from '@mui/material/InputBase';
-import Badge from '@mui/material/Badge';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
+import MenuList from '@mui/material/MenuList';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 import Grow from '@mui/material/Grow';
 import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
-import MenuList from '@mui/material/MenuList';
+import MenuIcon from '@mui/icons-material/Menu';
+import Container from '@mui/material/Container';
+import AdbIcon from '@mui/icons-material/Adb';
+import Badge from '@mui/material/Badge';
 
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import MailIcon from '@mui/icons-material/Mail';
@@ -26,22 +27,21 @@ import Button from '@mui/material/Button';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import Eth from'../images/eth.png';
 
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: 'inherit',
-  '& .MuiInputBase-input': {
-    padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create('width'),
-    width: '100%',
-    [theme.breakpoints.up('md')]: {
-      width: '20ch',
-    },
-  },
-}));
+const pages = ['Swap'];
+const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
-export default function Layout() {
-  const [open, setOpen] = React.useState(false);
+function Layout() {
+  const [anchorElNav, setAnchorElNav] = React.useState(null);
+  const [anchorElUser, setAnchorElUser] = React.useState(null);
+
+  const handleOpenNavMenu = (event) => {
+    setAnchorElNav(event.currentTarget);
+  };
+  const handleCloseNavMenu = () => {
+    setAnchorElNav(null);
+  };
+
+    const [open, setOpen] = React.useState(false);
   const anchorRef = React.useRef(null);
   const [selectedIndex, setSelectedIndex] = React.useState(0);
 
@@ -165,89 +165,165 @@ export default function Layout() {
     </Menu>
   );
 
-  return (
-    <div>
-        <Box sx={{ flexGrow: 1 }}>
-        <AppBar position="static">
-            <Toolbar>
-            <Typography
-                variant="h6"
-                noWrap
-                component="div"
-                sx={{ display: { xs: 'none', sm: 'block' } }}
-            >
-                Title
-            </Typography>
-            <Box sx={{ flexGrow: 1 }} />
-            <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-                <ButtonGroup variant="outlined" ref={anchorRef} aria-label="split button">
-                    <Button onClick={handleToggle}>{options[selectedIndex]}<ArrowDropDownIcon /></Button>
-                </ButtonGroup>
-                <Popper
-                    sx={{
-                    zIndex: 1,
-                    }}
-                    open={open}
-                    anchorEl={anchorRef.current}
-                    role={undefined}
-                    transition
-                    disablePortal
-                >
-                    {({ TransitionProps, placement }) => (
-                    <Grow
-                        {...TransitionProps}
-                        style={{
-                        transformOrigin:
-                            placement === 'bottom' ? 'center top' : 'center bottom',
-                        }}
-                    >
-                        <Paper>
-                        <ClickAwayListener onClickAway={handleClose}>
-                            <MenuList id="split-button-menu" autoFocusItem>
-                            {options.map((option, index) => (
-                                <MenuItem
-                                key={option}
-                                disabled={index === 2}
-                                selected={index === selectedIndex}
-                                onClick={(event) => handleMenuItemClick(event, index)}
-                                >
-                                {option}
-                                </MenuItem>
-                            ))}
-                            </MenuList>
-                        </ClickAwayListener>
-                        </Paper>
-                    </Grow>
-                    )}
-                </Popper>
 
-                &nbsp;
-                <Button 
-                variant="outlined"
-                >
-                    <AccountBalanceWalletIcon/>&nbsp;
-                    Connect Wallet
-                </Button>
-            </Box>
-            <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
-                <IconButton
+  return (
+      <div>
+      <AppBar position="static">
+        <Container maxWidth="xl">
+          <Toolbar disableGutters>
+            <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+            <Typography
+              variant="h6"
+              noWrap
+              component="a"
+              href="/"
+              sx={{
+                mr: 2,
+                display: { xs: 'none', md: 'flex' },
+                fontFamily: 'monospace',
+                fontWeight: 700,
+                letterSpacing: '.3rem',
+                color: 'inherit',
+                textDecoration: 'none',
+              }}
+            >
+              LOGO
+            </Typography>
+
+            <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
+              <IconButton
                 size="large"
-                aria-label="show more"
-                aria-controls={mobileMenuId}
+                aria-label="account of current user"
+                aria-controls="menu-appbar"
                 aria-haspopup="true"
-                onClick={handleMobileMenuOpen}
+                onClick={handleOpenNavMenu}
                 color="inherit"
-                >
-                <MoreIcon />
-                </IconButton>
+              >
+                <MenuIcon />
+              </IconButton>
+              <Menu
+                id="menu-appbar"
+                anchorEl={anchorElNav}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'left',
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'left',
+                }}
+                open={Boolean(anchorElNav)}
+                onClose={handleCloseNavMenu}
+                sx={{
+                  display: { xs: 'block', md: 'none' },
+                }}
+              >
+                {pages.map((page) => (
+                  <MenuItem key={page} onClick={handleCloseNavMenu}>
+                    <Typography textAlign="center">{page}</Typography>
+                  </MenuItem>
+                ))}
+              </Menu>
             </Box>
-            </Toolbar>
-        </AppBar>
-        {renderMobileMenu}
-        {renderMenu}
-        </Box>
-        <Outlet />
+            <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
+            <Typography
+              variant="h5"
+              noWrap
+              component="a"
+              href=""
+              sx={{
+                mr: 2,
+                display: { xs: 'flex', md: 'none' },
+                flexGrow: 1,
+                fontFamily: 'monospace',
+                fontWeight: 700,
+                letterSpacing: '.3rem',
+                color: 'inherit',
+                textDecoration: 'none',
+              }}
+            >
+              LOGO
+            </Typography>
+            <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
+              {pages.map((page) => (
+                <Button
+                  key={page}
+                  onClick={handleCloseNavMenu}
+                  sx={{ my: 2, color: 'white', display: 'block' }}
+                >
+                  {page}
+                </Button>
+              ))}
+            </Box>
+            <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+                  <ButtonGroup variant="outlined" ref={anchorRef} aria-label="split button">
+                      <Button onClick={handleToggle}><img src={Eth} width={30} height={30} />&nbsp;{options[selectedIndex]}<ArrowDropDownIcon /></Button>
+                  </ButtonGroup>
+                  <Popper
+                      sx={{
+                      zIndex: 1,
+                      }}
+                      open={open}
+                      anchorEl={anchorRef.current}
+                      role={undefined}
+                      transition
+                      disablePortal
+                  >
+                      {({ TransitionProps, placement }) => (
+                      <Grow
+                          {...TransitionProps}
+                          style={{
+                          transformOrigin:
+                              placement === 'bottom' ? 'center top' : 'center bottom',
+                          }}
+                      >
+                          <Paper>
+                          <ClickAwayListener onClickAway={handleClose}>
+                              <MenuList id="split-button-menu" autoFocusItem>
+                              {options.map((option, index) => (
+                                  <MenuItem
+                                  key={option}
+                                  disabled={index === 2}
+                                  selected={index === selectedIndex}
+                                  onClick={(event) => handleMenuItemClick(event, index)}
+                                  >
+                                  <img src={Eth} width={30} height={30} />&nbsp;{option}
+                                  </MenuItem>
+                              ))}
+                              </MenuList>
+                          </ClickAwayListener>
+                          </Paper>
+                      </Grow>
+                      )}
+                  </Popper>
+
+                  &nbsp;
+                  <Button 
+                  variant="outlined"
+                  >
+                      <AccountBalanceWalletIcon/>&nbsp;
+                      Connect Wallet
+                  </Button>
+              </Box>
+              <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
+                  <IconButton
+                  size="large"
+                  aria-label="show more"
+                  aria-controls={mobileMenuId}
+                  aria-haspopup="true"
+                  onClick={handleMobileMenuOpen}
+                  color="inherit"
+                  >
+                  <MoreIcon />
+                  </IconButton>
+              </Box>
+          </Toolbar>
+        </Container>
+      </AppBar>
+      <Outlet/>
     </div>
+
   );
 }
-
+export default Layout;

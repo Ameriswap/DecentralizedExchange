@@ -18,3 +18,31 @@ div.MuiPaper-root{
   background: #171616!important;
   color: #fff;
 }
+
+div.MuiCardContent-root{
+  background: #4f4c4c;
+  border-radius: 27px;
+  margin: 0px 17px 0 15px;
+}
+
+div.MuiGrid-root{
+  color:#fff;
+}
+
+.sell_input{
+  font-size: 25px;
+  float: right;
+  margin-right: 14px;
+}
+
+.swap_icon{
+  text-align: center;
+}
+
+.swap_button{
+  text-align: center;
+  background: grey;
+  padding: 20px;
+  margin: 15px 15px 0 15px;
+  border-radius: 27px;
+}

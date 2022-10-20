@@ -2,9 +2,7 @@ import React, { Component }  from 'react';
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./pages/Layout";
-import Home from "./pages/Home";
-import Blogs from "./pages/Blogs";
-import Contact from "./pages/Contact";
+import Swap from "./pages/Swap";
 import NoPage from "./pages/NoPage";
 import './Style.css';
 
@@ -13,9 +11,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Layout />}>
-          <Route index element={<Home />} />
-          <Route path="blogs" element={<Blogs />} />
-          <Route path="contact" element={<Contact />} />
+          <Route index element={<Swap />} />
           <Route path="*" element={<NoPage />} />
         </Route>
       </Routes>

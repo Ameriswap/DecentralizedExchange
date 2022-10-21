@@ -27,6 +27,7 @@ import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
 import Divider from '@mui/material/Divider';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import TextField from '@mui/material/TextField';
 
 import Eth from'../images/eth.png';
 import OneInch from'../images/1inch.png';
@@ -42,7 +43,8 @@ const ExpandMore = styled((props) => {
   }),
 }));
 
-const options = ['ETH'];
+const options_sell = ['ETH'];
+const options_buy = ['1INCH'];
 
 export default function Swap() {
   const [expanded, setExpanded] = React.useState(false);
@@ -51,30 +53,48 @@ export default function Swap() {
     setExpanded(!expanded);
   };
 
-  const [open, setOpen] = React.useState(false);
-  const anchorRef = React.useRef(null);
-  const [selectedIndex, setSelectedIndex] = React.useState(0);
+  //Sell feature
+  const [openSell, setOpenSell] = React.useState(false);
+  const anchorRefSell = React.useRef(null);
+  const [selectedIndexSell, setSelectedIndexSell] = React.useState(0);
 
-  
-  const handleClick = () => {
-    console.info(`You clicked ${options[selectedIndex]}`);
+  const handleMenuItemClickSell = (event, index) => {
+    setSelectedIndexSell(index);
+    setOpenSell(false);
   };
 
-  const handleMenuItemClick = (event, index) => {
-    setSelectedIndex(index);
-    setOpen(false);
+  const handleToggleSell = () => {
+    setOpenSell((prevOpen) => !prevOpen);
   };
 
-  const handleToggle = () => {
-    setOpen((prevOpen) => !prevOpen);
-  };
-
-  const handleClose = (event) => {
-    if (anchorRef.current && anchorRef.current.contains(event.target)) {
+  const handleCloseSell = (event) => {
+    if (anchorRefSell.current && anchorRefSell.current.contains(event.target)) {
       return;
     }
 
-    setOpen(false);
+    setOpenSell(false);
+  };
+
+  //Buy Feature
+  const [openBuy, setOpenBuy] = React.useState(false);
+  const anchorRefBuy = React.useRef(null);
+  const [selectedIndexBuy, setSelectedIndexBuy] = React.useState(0);
+
+  const handleMenuItemClickBuy = (event, index) => {
+    setSelectedIndexBuy(index);
+    setOpenBuy(false);
+  };
+
+  const handleToggleBuy = () => {
+    setOpenBuy((prevOpen) => !prevOpen);
+  };
+
+  const handleCloseBuy = (event) => {
+    if (anchorRefBuy.current && anchorRefBuy.current.contains(event.target)) {
+      return;
+    }
+
+    setOpenBuy(false);
   };
 
 
@@ -105,15 +125,15 @@ export default function Swap() {
           <Divider />
           <Grid style={{position: 'relative',top: '3px'}} container spacing={15}>
             <Grid item xs={6}>
-            <ButtonGroup variant="outlined" ref={anchorRef} aria-label="split button">
-                <Button onClick={handleToggle}><img src={Eth} width={30} height={30} />&nbsp;{options[selectedIndex]}<ArrowDropDownIcon /></Button>
+            <ButtonGroup variant="outlined" ref={anchorRefSell} aria-label="split button">
+                <Button onClick={handleToggleSell}><img src={Eth} width={30} height={30} />&nbsp;{options_sell[selectedIndexSell]}<ArrowDropDownIcon /></Button>
             </ButtonGroup>
             <Popper
                 sx={{
                 zIndex: 1,
                 }}
-                open={open}
-                anchorEl={anchorRef.current}
+                open={openSell}
+                anchorEl={anchorRefSell.current}
                 role={undefined}
                 transition
                 disablePortal
@@ -127,14 +147,14 @@ export default function Swap() {
                     }}
                 >
                     <Paper>
-                    <ClickAwayListener onClickAway={handleClose}>
+                    <ClickAwayListener onClickAway={handleCloseSell}>
                         <MenuList id="split-button-menu" autoFocusItem>
-                        {options.map((option, index) => (
+                        {options_sell.map((option, index) => (
                             <MenuItem
                             key={option}
                             disabled={index === 2}
-                            selected={index === selectedIndex}
-                            onClick={(event) => handleMenuItemClick(event, index)}
+                            selected={index === selectedIndexSell}
+                            onClick={(event) => handleMenuItemClickSell(event, index)}
                             >
                             <img src={Eth} width={30} height={30} />&nbsp;{option}
                             </MenuItem>
@@ -166,17 +186,17 @@ export default function Swap() {
             </Grid>
           </Grid>
           <Divider />
-          <Grid style={{position: 'relative',top: '3px'}} container spacing={15}>
+          <Grid style={{position: 'relative',top: '3px'}}>
             <Grid item xs={6}>
-            <ButtonGroup variant="outlined" ref={anchorRef} aria-label="split button">
-                <Button onClick={handleToggle}><img src={OneInch} width={30} height={30} />&nbsp;{options[selectedIndex]}<ArrowDropDownIcon /></Button>
+            <ButtonGroup variant="outlined" ref={anchorRefBuy} aria-label="split button">
+                <Button onClick={handleToggleBuy}><img src={OneInch} width={30} height={30} />&nbsp;{options_buy[selectedIndexBuy]}<ArrowDropDownIcon /></Button>
             </ButtonGroup>
             <Popper
                 sx={{
                 zIndex: 1,
                 }}
-                open={open}
-                anchorEl={anchorRef.current}
+                open={openBuy}
+                anchorEl={anchorRefBuy.current}
                 role={undefined}
                 transition
                 disablePortal
@@ -190,14 +210,14 @@ export default function Swap() {
                     }}
                 >
                     <Paper>
-                    <ClickAwayListener onClickAway={handleClose}>
+                    <ClickAwayListener onClickAway={handleCloseBuy}>
                         <MenuList id="split-button-menu" autoFocusItem>
-                        {options.map((option, index) => (
+                        {options_buy.map((option, index) => (
                             <MenuItem
                             key={option}
                             disabled={index === 2}
-                            selected={index === selectedIndex}
-                            onClick={(event) => handleMenuItemClick(event, index)}
+                            selected={index === selectedIndexBuy}
+                            onClick={(event) => handleMenuItemClickBuy(event, index)}
                             >
                             <img src={OneInch} width={30} height={30} />&nbsp;{option}
                             </MenuItem>
@@ -210,7 +230,7 @@ export default function Swap() {
             </Popper>
             </Grid>
             <Grid style={{float:'right'}} item xs={6}>
-              <span className='sell_input' style={{fontSize:'25px'}}>0</span>
+              <span className='buy_input' style={{fontSize:'25px'}}>0</span>
             </Grid>
           </Grid>
         </Typography>
@@ -230,30 +250,9 @@ export default function Swap() {
       </CardActions>
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <CardContent>
-          <Typography paragraph>Method:</Typography>
+          <Typography paragraph>Lorem:</Typography>
           <Typography paragraph>
-            Heat 1/2 cup of the broth in a pot until simmering, add saffron and set
-            aside for 10 minutes.
-          </Typography>
-          <Typography paragraph>
-            Heat oil in a (14- to 16-inch) paella pan or a large, deep skillet over
-            medium-high heat. Add chicken, shrimp and chorizo, and cook, stirring
-            occasionally until lightly browned, 6 to 8 minutes. Transfer shrimp to a
-            large plate and set aside, leaving chicken and chorizo in the pan. Add
-            pimentón, bay leaves, garlic, tomatoes, onion, salt and pepper, and cook,
-            stirring often until thickened and fragrant, about 10 minutes. Add
-            saffron broth and remaining 4 1/2 cups chicken broth; bring to a boil.
-          </Typography>
-          <Typography paragraph>
-            Add rice and stir very gently to distribute. Top with artichokes and
-            peppers, and cook without stirring, until most of the liquid is absorbed,
-            15 to 18 minutes. Reduce heat to medium-low, add reserved shrimp and
-            mussels, tucking them down into the rice, and cook again without
-            stirring, until mussels have opened and rice is just tender, 5 to 7
-            minutes more. (Discard any mussels that don&apos;t open.)
-          </Typography>
-          <Typography>
-            Set aside off of the heat to let rest for 10 minutes, and then serve.
+            Lorem Epsum.
           </Typography>
         </CardContent>
       </Collapse>

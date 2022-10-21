@@ -35,6 +35,13 @@ div.MuiGrid-root{
   margin-right: 14px;
 }
 
+.buy_input{
+  font-size: 25px;
+  margin-right: 14px;
+  position: relative;
+  bottom: 34px;
+}
+
 .swap_icon{
   text-align: center;
 }

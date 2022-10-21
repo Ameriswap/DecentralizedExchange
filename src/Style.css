@@ -8,10 +8,16 @@ header {
 
 button {
   border-radius: 50px!important;
+
 }
 
 .MuiButtonBase-root{
   color: #fff!important;
+  border: none!important;
+}
+
+.css-1ptx2yq-MuiInputBase-root-MuiInput-root::before{
+  border: none!important;
 }
 
 div.MuiPaper-root{
@@ -29,21 +35,30 @@ div.MuiGrid-root{
   color:#fff;
 }
 
-.sell_input{
-  font-size: 25px;
-  float: right;
+#sell_input{
+  font-size: 20px;
   margin-right: 14px;
+  color: #fff;
+  text-align: right; 
 }
 
-.buy_input{
+#buy_input{
   font-size: 25px;
   margin-right: 14px;
-  position: relative;
-  bottom: 34px;
+  color: #fff;
+  text-align: right; 
 }
 
 .swap_icon{
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  bottom:15px;
+}
+
+.css-1vv4lmi::before{
+  border-bottom: none!important;
 }
 
 .swap_button{
@@ -52,4 +67,17 @@ div.MuiGrid-root{
   padding: 20px;
   margin: 15px 15px 0 15px;
   border-radius: 27px;
+}
+
+.swap_icon button:hover{
+  animation: rotate 0.7s ease-in-out both;
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0);
+  }
+  100% {
+    transform: rotate(180deg);
+  }
 }

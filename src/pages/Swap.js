@@ -57,6 +57,8 @@ export default function Swap() {
   const [openSell, setOpenSell] = React.useState(false);
   const anchorRefSell = React.useRef(null);
   const [selectedIndexSell, setSelectedIndexSell] = React.useState(0);
+  const [sellValue,setSellValue] = React.useState(0);
+  const [lengthInput,setLengthInput] = React.useState('');
 
   const handleMenuItemClickSell = (event, index) => {
     setSelectedIndexSell(index);
@@ -75,10 +77,31 @@ export default function Swap() {
     setOpenSell(false);
   };
 
+  const sellInputFunc = (event) => {
+    if(typeof event.target.value != 'number' && isNaN(event.target.value)){
+      setSellValue('');
+    }
+    else{
+      if(event.target.value % 1){
+        setLengthInput({
+          maxLength: 8
+        });
+      }
+      else{
+        setLengthInput({
+          maxLength: 16
+        });
+      }
+      setSellValue(event.target.value);
+    }
+  }
+
+
   //Buy Feature
   const [openBuy, setOpenBuy] = React.useState(false);
   const anchorRefBuy = React.useRef(null);
   const [selectedIndexBuy, setSelectedIndexBuy] = React.useState(0);
+  const [buyValue,setBuyValue] = React.useState(0);
 
   const handleMenuItemClickBuy = (event, index) => {
     setSelectedIndexBuy(index);
@@ -97,6 +120,25 @@ export default function Swap() {
     setOpenBuy(false);
   };
 
+  const buyInputFunc = (event) => {
+    if(typeof event.target.value != 'number' && isNaN(event.target.value)){
+      setSellValue('');
+    }else{
+      if(event.target.value % 1){
+        setLengthInput({
+          maxLength: 8
+        });
+      }
+      else{
+        setLengthInput({
+          maxLength: 16
+        });
+      }
+      setBuyValue(event.target.value);
+    }
+  }
+
+
 
   return (
     <Card style={{margin: '0 auto',marginTop:53,borderRadius:24}} sx={{ maxWidth: 418 }}>
@@ -114,17 +156,16 @@ export default function Swap() {
       />
       <CardContent>
         <Typography variant="body2" color="text.secondary">
-          <Grid container spacing={15}>
-            <Grid item xs={6}>
+        <Grid container spacing={0}>
+            <Grid item xs={3}>
               You Sell
             </Grid>
-            <Grid item xs={6}>
-              Balance: 0 MAX
+            <Grid item xs={9}>
+              <span style={{float:'right'}}>Balance: 0 <span>MAX</span></span> 
             </Grid>
           </Grid>
-          <Divider />
-          <Grid style={{position: 'relative',top: '3px'}} container spacing={15}>
-            <Grid item xs={6}>
+          <Grid style={{position: 'relative',top: '3px'}} container spacing={0}>
+            <Grid item xs={4}>
             <ButtonGroup variant="outlined" ref={anchorRefSell} aria-label="split button">
                 <Button onClick={handleToggleSell}><img src={Eth} width={30} height={30} />&nbsp;{options_sell[selectedIndexSell]}<ArrowDropDownIcon /></Button>
             </ButtonGroup>
@@ -166,8 +207,8 @@ export default function Swap() {
                 )}
             </Popper>
             </Grid>
-            <Grid style={{float:'right'}} item xs={6}>
-              <span className='sell_input' style={{fontSize:'25px'}}>0</span>
+            <Grid style={{float:'right'}} item xs={8}>
+            <TextField id="sell_input" inputProps={lengthInput} value={sellValue} onChange={sellInputFunc}  variant="standard" />
             </Grid>
           </Grid>
         </Typography>
@@ -175,19 +216,18 @@ export default function Swap() {
       <div className='swap_icon'>
         <Button><ArrowDownwardIcon/></Button>
       </div>
-      <CardContent style={{marginTop: '1px'}}>
+      <CardContent style={{marginTop: '-30px'}}>
         <Typography variant="body2" color="text.secondary">
-          <Grid container spacing={23}>
-            <Grid item xs={6}>
+          <Grid container spacing={0}>
+            <Grid item xs={3}>
               You Buy
             </Grid>
-            <Grid item xs={6}>
-              Balance: 0 
+            <Grid item xs={9}>
+              <span style={{float:'right'}}>Balance: 0</span> 
             </Grid>
           </Grid>
-          <Divider />
-          <Grid style={{position: 'relative',top: '3px'}}>
-            <Grid item xs={6}>
+          <Grid style={{position: 'relative',top: '3px'}} container spacing={0}>
+            <Grid item xs={4}>
             <ButtonGroup variant="outlined" ref={anchorRefBuy} aria-label="split button">
                 <Button onClick={handleToggleBuy}><img src={OneInch} width={30} height={30} />&nbsp;{options_buy[selectedIndexBuy]}<ArrowDropDownIcon /></Button>
             </ButtonGroup>
@@ -229,8 +269,8 @@ export default function Swap() {
                 )}
             </Popper>
             </Grid>
-            <Grid style={{float:'right'}} item xs={6}>
-              <span className='buy_input' style={{fontSize:'25px'}}>0</span>
+            <Grid style={{float:'right'}} item xs={8}>
+              <TextField id="sell_input" inputProps={lengthInput} value={buyValue} onChange={buyInputFunc}  variant="standard" />
             </Grid>
           </Grid>
         </Typography>

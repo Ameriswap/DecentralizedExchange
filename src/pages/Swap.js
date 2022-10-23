@@ -31,6 +31,10 @@ import TextField from '@mui/material/TextField';
 
 import Eth from'../images/eth.png';
 import OneInch from'../images/1inch.png';
+import { useSelector, useDispatch } from 'react-redux'
+
+//fetchTokens
+import Tokens from '../api/Tokens';
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -48,6 +52,7 @@ const options_buy = ['1INCH'];
 
 export default function Swap() {
   const [expanded, setExpanded] = React.useState(false);
+  const [status,setStatus] = React.useState('Enter amount to swap');
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
@@ -59,6 +64,9 @@ export default function Swap() {
   const [selectedIndexSell, setSelectedIndexSell] = React.useState(0);
   const [sellValue,setSellValue] = React.useState(0);
   const [lengthInput,setLengthInput] = React.useState('');
+  
+  //metamask eth balance
+  const balance = useSelector((state) => state.counter.value)
 
   const handleMenuItemClickSell = (event, index) => {
     setSelectedIndexSell(index);
@@ -82,18 +90,28 @@ export default function Swap() {
       setSellValue('');
     }
     else{
-      if(event.target.value % 1){
-        setLengthInput({
-          maxLength: 8
-        });
+      if(event.target.value > balance){
+        setStatus('Insufficient Balance');
       }
       else{
-        setLengthInput({
-          maxLength: 16
-        });
+        if(event.target.value % 1){
+          setLengthInput({
+            maxLength: 8
+          });
+        }
+        else{
+          setLengthInput({
+            maxLength: 16
+          });
+        }
+        setSellValue(event.target.value);
+        setStatus('Enter amount to swap');
       }
-      setSellValue(event.target.value);
     }
+  }
+
+  const balanceMax = () => {
+    setSellValue(balance);
   }
 
 
@@ -161,7 +179,7 @@ export default function Swap() {
               You Sell
             </Grid>
             <Grid item xs={9}>
-              <span style={{float:'right'}}>Balance: 0 <span>MAX</span></span> 
+              <span style={{float:'right'}}>Balance: {balance} <span style={{cursor: 'pointer'}} onClick={balanceMax}>MAX</span></span> 
             </Grid>
           </Grid>
           <Grid style={{position: 'relative',top: '3px'}} container spacing={0}>
@@ -213,10 +231,10 @@ export default function Swap() {
           </Grid>
         </Typography>
       </CardContent>
-      <div className='swap_icon'>
+      {/* <div className='swap_icon'>
         <Button><ArrowDownwardIcon/></Button>
-      </div>
-      <CardContent style={{marginTop: '-30px'}}>
+      </div> */}
+      <CardContent style={{marginTop: '5px'}}>
         <Typography variant="body2" color="text.secondary">
           <Grid container spacing={0}>
             <Grid item xs={3}>
@@ -272,11 +290,12 @@ export default function Swap() {
             <Grid style={{float:'right'}} item xs={8}>
               <TextField id="sell_input" inputProps={lengthInput} value={buyValue} onChange={buyInputFunc}  variant="standard" />
             </Grid>
+            <Tokens/>
           </Grid>
         </Typography>
       </CardContent>
       <div className='swap_button'>
-        <span>Enter amount to swap</span>
+        <span>{status}</span>
       </div>
       <CardActions disableSpacing>
         <ExpandMore

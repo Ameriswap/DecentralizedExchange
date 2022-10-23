@@ -20,6 +20,10 @@ button {
   border: none!important;
 }
 
+.css-1rwt2y5-MuiButtonBase-root-MuiButton-root{
+  text-transform: none!important;
+}
+
 div.MuiPaper-root{
   background: #171616!important;
   color: #fff;

@@ -26,6 +26,7 @@ import MoreIcon from '@mui/icons-material/MoreVert';
 import Button from '@mui/material/Button';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import Eth from'../images/eth.png';
+import Wallet from '../api/Metamask';
 
 const pages = ['Swap'];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
@@ -299,12 +300,7 @@ function Layout() {
                   </Popper>
 
                   &nbsp;
-                  <Button 
-                  variant="outlined"
-                  >
-                      <AccountBalanceWalletIcon/>&nbsp;
-                      Connect Wallet
-                  </Button>
+                  <Wallet/>
               </Box>
               <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
                   <IconButton

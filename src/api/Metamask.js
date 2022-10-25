@@ -1,9 +1,7 @@
 import React, { useState }  from 'react';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import { useSelector, useDispatch } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import {
-    decrement,
-    increment,
     fetchBalance,
   } from '../features/balance/metamaskBalanceReducer';
 import Button from '@mui/material/Button';
@@ -17,8 +15,6 @@ const  Metamask = () =>{
     const [boolIcon,setBoolIcon] = useState(false);
     const dispatch = useDispatch()
 
-    const balance = useSelector((state) => state.counter.value)
-
     const connectWalletHandler = () => {
         if(window.ethereum){
             window.ethereum.request({ method: 'eth_requestAccounts' })
@@ -28,6 +24,7 @@ const  Metamask = () =>{
         }
         else{
             setErrorMessage('Install Metamask');
+            alert('Non-Ethereum browser detected. You should consider trying MetaMask!');
         }
     }
 
@@ -54,9 +51,12 @@ const  Metamask = () =>{
         window.location.reload();
     }
 
-    window.ethereum.on('accountsChanged', accountChangedHandler);
 
-    window.ethereum.on('chainChanged', chainChangedHandler);
+    if (typeof window.ethereum !== 'undefined') {
+        window.ethereum.on('accountsChanged', accountChangedHandler);
+
+        window.ethereum.on('chainChanged', chainChangedHandler);
+    }
 
     return (
         <div>

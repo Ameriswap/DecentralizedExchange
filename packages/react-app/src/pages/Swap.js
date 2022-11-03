@@ -27,7 +27,7 @@ import axios from "axios";
 import Eth from'../images/eth.png';
 import OneInch from'../images/1inch.png';
 import { useSelector } from 'react-redux'
-import Tokens from '../api/Tokens';
+import Tokens from './tokens.json';
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -49,18 +49,14 @@ const options_sell = ['ETH'];
 const options_buy = ['1INCH'];
 
 export default function Swap() {
-  var token = [];
-  var getTokens = [];
-  useEffect(() => {
-    Tokens.getTokens().then(
-      (response) => {
-        console.log(JSON.stringify(response.data.tokens).split(":"));
-      },
-      (error) => {
-        console.log(error);
-      }
-    );
-  }, []);
+  // var getTokens = [];
+  // useEffect(() => {
+  //   var tokenList = Object.keys(Tokens)
+  //   for(var x=0;x<=tokenList.length;x++){
+  //     getTokens.push(Tokens[tokenList[x]]);
+  //   }
+  //   console.log(getTokens);
+  // }, []);
 
   const userAccount = localStorage.getItem('userAccount');
   const userBalance = localStorage.getItem('userBalance');

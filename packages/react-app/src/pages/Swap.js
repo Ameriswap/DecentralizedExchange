@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect }  from 'react';
 import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
@@ -27,6 +27,7 @@ import axios from "axios";
 import Eth from'../images/eth.png';
 import OneInch from'../images/1inch.png';
 import { useSelector } from 'react-redux'
+import Tokens from '../api/Tokens';
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -48,9 +49,25 @@ const options_sell = ['ETH'];
 const options_buy = ['1INCH'];
 
 export default function Swap() {
+  var token = [];
+  var getTokens = [];
+  useEffect(() => {
+    Tokens.getTokens().then(
+      (response) => {
+        console.log(JSON.stringify(response.data.tokens).split(":"));
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
+  }, []);
+
   const userAccount = localStorage.getItem('userAccount');
   const userBalance = localStorage.getItem('userBalance');
-  const toWeiAmountBal = web3.utils.toWei(userBalance.toString(), 'ether');
+  var toWeiAmountBal = 0;
+  if(userBalance){
+    toWeiAmountBal = web3.utils.toWei(userBalance.toString(), 'ether');
+  }
   const [expanded, setExpanded] = React.useState(false);
   const [status,setStatus] = React.useState('Enter amount to swap');
 

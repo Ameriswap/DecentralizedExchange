@@ -37,7 +37,7 @@ const Sell = () =>{
     }
 
     useEffect(() => {
-        fetchTokens();
+        // fetchTokens();
     }, []);
 
 }

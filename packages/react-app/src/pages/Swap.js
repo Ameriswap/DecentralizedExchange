@@ -27,7 +27,8 @@ import axios from "axios";
 import Eth from'../images/eth.png';
 import OneInch from'../images/1inch.png';
 import { useSelector } from 'react-redux'
-import Tokens from './tokens.json';
+
+import UIToken from './UIToken';
 
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -49,15 +50,6 @@ const options_sell = ['ETH'];
 const options_buy = ['1INCH'];
 
 export default function Swap() {
-  // var getTokens = [];
-  // useEffect(() => {
-  //   var tokenList = Object.keys(Tokens)
-  //   for(var x=0;x<=tokenList.length;x++){
-  //     getTokens.push(Tokens[tokenList[x]]);
-  //   }
-  //   console.log(getTokens);
-  // }, []);
-
   const userAccount = localStorage.getItem('userAccount');
   const userBalance = localStorage.getItem('userBalance');
   var toWeiAmountBal = 0;
@@ -71,58 +63,7 @@ export default function Swap() {
     setExpanded(!expanded);
   };
 
-  //Sell feature
-  const [openSell, setOpenSell] = React.useState(false);
-  const anchorRefSell = React.useRef(null);
-  const [selectedIndexSell, setSelectedIndexSell] = React.useState(0);
-  const [sellValue,setSellValue] = React.useState(0);
   const [lengthinput,setLengthInput] = React.useState('');
-  
-  //metamask eth balance
-  const balance = useSelector((state) => state.counter.value)
-
-  const handleMenuItemClickSell = (event, index) => {
-    setSelectedIndexSell(index);
-    setOpenSell(false);
-  };
-
-  const handleToggleSell = () => {
-    setOpenSell((prevOpen) => !prevOpen);
-  };
-
-  const handleCloseSell = (event) => {
-    if (anchorRefSell.current && anchorRefSell.current.contains(event.target)) {
-      return;
-    }
-
-    setOpenSell(false);
-  };
-
-  const sellInputFunc = (event) => {
-    if(typeof event.target.value !== 'number' && isNaN(event.target.value)){
-      setSellValue('');
-    }
-    else{
-      if(event.target.value > balance){
-        setStatus('Insufficient Balance');
-      }
-      else{
-        if(event.target.value % 1){
-          setLengthInput({
-            maxLength: 8
-          });
-        }
-        else{
-          setLengthInput({
-            maxLength: 16
-          });
-        }
-        setSellValue(event.target.value);
-        approveTransaction(event.target.value);
-        setStatus('Enter amount to swap');
-      }
-    }
-  }
 
   const approveTransaction = async (sellInput) => {
     let sellToWei = web3.utils.toWei(sellInput.toString(), 'ether');
@@ -142,21 +83,6 @@ export default function Swap() {
         console.log(err);
       }
     }
-  }
-
-  const balanceMax = () => {
-    setSellValue(balance);
-        try{
-            axios.get(`https://api.1inch.io/v4.0/1/quote?fromTokenAddress=0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee&toTokenAddress=0x6b175474e89094c44da98b954eedeac495271d0f&amount=${toWeiAmountBal}&fromAddress=${userAccount}`)
-            .then(response => {
-              let gasfee = response.data.estimatedGas*1e9;
-              console.log(toWeiAmountBal - gasfee);
-              console.log(response.data);
-            })
-        }catch(err){
-            console.log("swapper encountered an error below")
-            console.log(err)
-        }
   }
 
   //Buy Feature
@@ -184,7 +110,7 @@ export default function Swap() {
 
   const buyInputFunc = (event) => {
     if(typeof event.target.value !== 'number' && isNaN(event.target.value)){
-      setSellValue('');
+      // setSellValue('');
     }else{
       if(event.target.value % 1){
         setLengthInput({
@@ -218,60 +144,7 @@ export default function Swap() {
       />
       <CardContent>
         <Typography variant="body2" component={'div'} color="text.secondary">
-        <Grid container spacing={0}>
-            <Grid item xs={3}>
-              You Sell
-            </Grid>
-            <Grid item xs={9}>
-              <span style={{float:'right'}}>Balance: {balance} <span style={{cursor: 'pointer'}} onClick={balanceMax}>MAX</span></span> 
-            </Grid>
-          </Grid>
-          <Grid style={{position: 'relative',top: '3px'}} container spacing={0}>
-            <Grid item xs={4}>
-            <ButtonGroup variant="outlined" ref={anchorRefSell} aria-label="split button">
-                <Button onClick={handleToggleSell}><img alt={'Logo'} src={Eth} width={30} height={30} />&nbsp;{options_sell[selectedIndexSell]}<ArrowDropDownIcon /></Button>
-            </ButtonGroup>
-            <Popper
-                sx={{
-                zIndex: 1,
-                }}
-                open={openSell}
-                anchorEl={anchorRefSell.current}
-                transition
-                disablePortal
-            >
-                {({ TransitionProps, placement }) => (
-                <Grow
-                    {...TransitionProps}
-                    style={{
-                    transformOrigin:
-                        placement === 'bottom' ? 'center top' : 'center bottom',
-                    }}
-                >
-                    <Paper>
-                    <ClickAwayListener onClickAway={handleCloseSell}>
-                        <MenuList id="split-button-menu" autoFocusItem>
-                        {options_sell.map((option, index) => (
-                            <MenuItem
-                            key={option}
-                            disabled={index === 2}
-                            selected={index === selectedIndexSell}
-                            onClick={(event) => handleMenuItemClickSell(event, index)}
-                            >
-                            <img alt={'Logo'} src={Eth} width={30} height={30} />&nbsp;{option}
-                            </MenuItem>
-                        ))}
-                        </MenuList>
-                    </ClickAwayListener>
-                    </Paper>
-                </Grow>
-                )}
-            </Popper>
-            </Grid>
-            <Grid style={{float:'right'}} item xs={8}>
-              <TextField inputProps={{lengthinput}} id="sell_input" value={sellValue} onChange={sellInputFunc}  variant="standard" />
-            </Grid>
-          </Grid>
+          <UIToken/>
         </Typography>
       </CardContent>
       <div className='swap_icon'>

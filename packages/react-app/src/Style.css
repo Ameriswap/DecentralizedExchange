@@ -73,6 +73,10 @@ div.MuiGrid-root{
   border-radius: 27px;
 }
 
+.css-ittuaa-MuiInputAdornment-root,.css-1x51dt5-MuiInputBase-input-MuiInput-input{
+  color: #fff!important;
+}
+
 .swap_icon button:hover{
   animation: rotate 0.7s ease-in-out both;
 }

@@ -7,7 +7,6 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 // web.cjs is required for IE11 support
 import { useSpring, animated } from '@react-spring/web';
-import Eth from'../images/eth.png';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import Grid from '@mui/material/Grid';
@@ -16,10 +15,46 @@ import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 import SearchIcon from '@mui/icons-material/Search';
 import Divider from '@mui/material/Divider';
-
-import Web3 from "web3";
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import CardContent from '@mui/material/CardContent';
 import axios from "axios";
-import Tokens from './tokens.json';
+import SwapService from "../api/Swap";
+
+const rpcUrls = {
+  ethereum: 'https://mainnet.infura.io/v3/c17d58aa246644759e20b6c0647121cf',
+  polygon: 'https://polygon.infura.io',
+  xdai: 'https://xdai.infura.io'
+}
+
+const slugToChainId = 1;
+
+const tokenDecimals = {
+  USDC: 6,
+  ETH: 18
+}
+
+const addresses = {
+  ethereum: {
+    USDC: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+    ETH: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'
+  },
+  polygon: {
+    USDC: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
+    ETH: '0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619'
+  },
+  xdai: {
+    USDC: '0xDDAfbb505ad214D7b80b1f830fcCc89B60fb7A83',
+    ETH: '0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1'
+  }
+}
+
+
+const fetch = require('isomorphic-fetch')
+const { providers, BigNumber, Wallet } = require('ethers')
+const { formatUnits, parseUnits } = require('ethers/lib/utils')
 
 const Fade = React.forwardRef(function Fade(props, ref) {
   const { in: open, children, onEnter, onExited, ...other } = props;
@@ -67,38 +102,62 @@ const style = {
 };
 
 export default function UIToken() {
-  var getTokens = [];
-  var renderToken = [];
-  useEffect(() => {
-    var tokenList = Object.keys(Tokens)
-    for(var x=0;x<=tokenList.length;x++){
-      getTokens.push(Tokens[tokenList[x]]);
+  const [open, setOpen] = React.useState(false);
+  const [methods,setMethods] = React.useState();
+  const handleOpen = (method) => {
+    setMethods(method);
+    setOpen(true);
+  }
+  const handleClose = () => setOpen(false);
+  const [getTokens,setGetToken] = React.useState([]);
+  const [searchToken,setSearchToken] = React.useState();
+  const [sellSelectedToken, setSellSelectedToken] = React.useState('ETH');
+  const [sellSelectedTokenIMG, setSellSelectedTokenIMG] = React.useState("https://tokens.1inch.io/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png");
+  const [sellSelectedTokenADDR, setSellSelectedTokenADDR] = React.useState('0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee');
+
+  const [buySelectedToken, setbuySelectedToken] = React.useState('1INCH');
+  const [buySelectedTokenIMG, setbuySelectedTokenIMG] = React.useState("https://tokens.1inch.io/0x111111111117dc0aa78b770fa6a738034120c302.png");
+  const [buySelectedTokenADDR, setBuySelectedTokenADDR] = React.useState('0x111111111117dc0aa78b770fa6a738034120c302');
+
+
+  const filterToken = (value) => {
+    console.log(value);
+    if(value.length > 10){
+      setSearchToken(value);
     }
-    console.log(JSON.parse(getTokens));
+    else{
+      setSearchToken(value.toUpperCase());
+    }
+    
+  }
+
+  const getData = getTokens.filter(data => data.symbol == searchToken || data.address == searchToken).map((option, index) => (
+    <List>
+      <ListItem disablePadding>
+        <ListItemButton key={index} onClick={e => clickToken(option.logoURI,option.symbol,option.address,option.decimals)}>
+          <img key={index} alt={'Logo'} src={option.logoURI} width={30} height={30} />&nbsp;{option.symbol}
+        </ListItemButton>
+      </ListItem>
+    </List>
+  ));
+  
+
+  useEffect( async() => {
+    try{
+        await axios.get('token.json')
+        .then(response => {
+          setGetToken(response.data);
+        })
+    }catch(err){
+        console.log(err)
+    }
   }, []);
 
-  const todoItems = (
-    <h1>aw</h1>
-  );
 
-  const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-
-  const RPC_URL = "https://mainnet.infura.io/v3/c17d58aa246644759e20b6c0647121cf";
-  const web3Provider = new Web3.providers.HttpProvider(RPC_URL);
-  const web3 = new Web3(web3Provider);
-  const wallet = web3.eth.accounts.wallet.add("093b35ebf2bc40b228b7687beda61f6ed8a91607fb1b9849dc9ba2d08b751443");
 
   //metamask eth balance
   const balance = useSelector((state) => state.counter.value);
-  const [status,setStatus] = React.useState('Enter amount to swap');
-  const userAccount = localStorage.getItem('userAccount');
-  const userBalance = localStorage.getItem('userBalance');
-  var toWeiAmountBal = 0;
-  if(userBalance){
-    toWeiAmountBal = web3.utils.toWei(userBalance.toString(), 'ether');
-  }
+  const [status,setStatus] = React.useState('Enter amount to swap')
 
   //Sell feature
   const [sellValue,setSellValue] = React.useState(0);
@@ -106,17 +165,6 @@ export default function UIToken() {
 
   const balanceMax = () => {
     setSellValue(balance);
-        try{
-            axios.get(`https://api.1inch.io/v4.0/1/quote?fromTokenAddress=0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee&toTokenAddress=0x6b175474e89094c44da98b954eedeac495271d0f&amount=${toWeiAmountBal}&fromAddress=${userAccount}`)
-            .then(response => {
-              let gasfee = response.data.estimatedGas*1e9;
-              console.log(toWeiAmountBal - gasfee);
-              console.log(response.data);
-            })
-        }catch(err){
-            console.log("swapper encountered an error below")
-            console.log(err)
-        }
   }
 
   const sellInputFunc = (event) => {
@@ -143,26 +191,122 @@ export default function UIToken() {
     }
   }
 
+  //Buy Feature
+  const [buyValue,setBuyValue] = React.useState(0);
+
+  const buyInputFunc = (event) => {
+    if(typeof event.target.value !== 'number' && isNaN(event.target.value)){
+      // setSellValue('');
+    }else{
+      if(event.target.value % 1){
+        setLengthInput({
+          maxLength: 8
+        });
+      }
+      else{
+        setLengthInput({
+          maxLength: 16
+        });
+      }
+      setBuyValue(event.target.value);
+    }
+  }  
+
+  const clickToken = async (img,token,address,decimals) => {
+    setOpen(false);
+    if(methods == 'sell'){
+      setSellSelectedToken(token);
+      setSellSelectedTokenIMG(img);
+      setSellSelectedTokenADDR(address);
+
+      const priv = "";
+      const chain = 'ethereum';
+      const chainId = 1;
+      const rpcUrl = rpcUrls[chain]
+      const provider = new providers.StaticJsonRpcProvider(rpcUrl)
+      const wallet = new Wallet(priv, provider)
+      const walletAddress = await wallet.getAddress()
+      const formattedAmount = sellValue.toString();
+      const amount = parseUnits(formattedAmount, decimals).toString();
+      const userAddress = window.localStorage.getItem('userAccount');
+      // console.log(await SwapService.getQuote(chainId, sellSelectedTokenADDR, buySelectedTokenADDR, amount));
+      // console.log(await SwapService.getApproveTx(chainId,sellSelectedTokenADDR,amount));
+      const allowance = await SwapService.getAllowance(chainId, sellSelectedTokenADDR, walletAddress);
+      if (BigNumber.from(allowance).lt(amount)) {
+        const txData = await SwapService.getApproveTx(chainId,sellSelectedTokenADDR,amount);
+        console.log('approval data:', txData)
+    
+        const tx = await wallet.sendTransaction(txData)
+        console.log('approval tx:', tx.hash)
+        await tx.wait()
+      }
+    }
+    else{
+      setbuySelectedToken(token);
+      setbuySelectedTokenIMG(img);
+      setBuySelectedTokenADDR(address);
+    }
+  }
+
+  const swapToken = async () => {
+    const txData = await SwapService.getSwapTx(chainId, fromTokenAddress, toTokenAddress, fromAddress, amount, slippage)
+    console.log('swap data:', txData)
+    const tx = await wallet.sendTransaction(txData)
+    console.log('swap tx:', tx.hash)
+    await tx.wait()
+  
+    console.log('done')
+  }
+
 
   return (
     <div>
-      <Grid container spacing={0}>
-        <Grid item xs={3}>
-          You Sell
-        </Grid>
-        <Grid item xs={9}>
-          <span style={{float:'right'}}>Balance: {balance} <span style={{cursor: 'pointer'}} onClick={balanceMax}>MAX</span></span> 
-        </Grid>
-      </Grid>
-      <Grid style={{position: 'relative',top: '3px'}} container spacing={0}>
-        <Grid item xs={4}>
-          <Button onClick={handleOpen}><img alt={'Logo'} src={Eth} width={30} height={30} />&nbsp;ETH<ArrowDropDownIcon /></Button>
-        </Grid>
-        <Grid style={{float:'right'}} item xs={8}>
-          <TextField inputProps={{lengthinput}} id="sell_input" value={sellValue} onChange={sellInputFunc}  variant="standard" />
-        </Grid>
-      </Grid>
-
+      <CardContent>
+        <Typography variant="body2" component={'div'} color="text.secondary">
+          <Grid container spacing={0}>
+            <Grid item xs={3}>
+              You Sell
+            </Grid>
+            <Grid item xs={9}>
+              <span style={{float:'right'}}>Balance: {balance} <span style={{cursor: 'pointer'}} onClick={balanceMax}>MAX</span></span> 
+            </Grid>
+          </Grid>
+          <Grid style={{position: 'relative',top: '3px'}} container spacing={0}>
+            <Grid item xs={4}>
+              <Button onClick={e => handleOpen('sell')}><img alt={'Logo'} src={sellSelectedTokenIMG} width={30} height={30} />&nbsp;{sellSelectedToken}<ArrowDropDownIcon /></Button>
+            </Grid>
+            <Grid style={{float:'right'}} item xs={8}>
+              <TextField inputProps={{lengthinput}} id="sell_input" value={sellValue} onChange={sellInputFunc}  variant="standard" />
+            </Grid>
+          </Grid>
+        </Typography>
+      </CardContent>
+      <div className='swap_icon'>
+        <Button><ArrowDownwardIcon/></Button>
+      </div>
+      <CardContent style={{marginTop: '-31px'}}>
+        <Typography variant="body2" component={'div'} color="text.secondary">
+          <Grid container spacing={0}>
+            <Grid item xs={3}>
+              You Buy
+            </Grid>
+            <Grid item xs={9}>
+              <span style={{float:'right'}}>Balance: 0</span> 
+            </Grid>
+          </Grid>
+          <Grid style={{position: 'relative',top: '3px'}} container spacing={0}>
+            <Grid item xs={4}>
+              <Button onClick={e => handleOpen('buy')}><img alt={'Logo'} src={buySelectedTokenIMG} width={30} height={30} />&nbsp;{buySelectedToken}<ArrowDropDownIcon /></Button>
+            </Grid>
+            <Grid style={{float:'right'}} item xs={8}>
+              <TextField inputProps={{lengthinput}} id="sell_input" value={buyValue} onChange={buyInputFunc}  variant="standard" />
+            </Grid>
+          </Grid>
+        </Typography>
+      </CardContent>
+      <div className='swap_button'>
+        <span>{status}</span>
+      </div>
       <Modal
         aria-labelledby="spring-modal-title"
         aria-describedby="spring-modal-description"
@@ -200,9 +344,12 @@ export default function UIToken() {
                 ),
               }}
               variant="standard"
+              onChange={e => filterToken(e.target.value)}
             />
             <Divider/>
-            <h1>{todoItems}</h1>
+            <div style={{overflowY: 'auto',height:'274px'}}>
+              {getData}
+            </div>
           </Box>
         </Fade>
       </Modal>

@@ -1,3 +1,4 @@
+import React, {useEffect} from 'react';
 import axios from "axios";
 const fetch = require('isomorphic-fetch')
 const { providers, BigNumber, Wallet } = require('ethers')
@@ -38,8 +39,8 @@ const addresses = {
 }
 
 
-const getQuote = async (chainId, fromTokenAddress, toTokenAddress, amount) => {
-    if (!chainId) {
+const getQuote = async (fromTokenAddress, toTokenAddress, amount) => {
+    if (!slugToChainId['ethereum']) {
       throw new Error('chainId is required')
     }
     if (!fromTokenAddress) {
@@ -51,7 +52,7 @@ const getQuote = async (chainId, fromTokenAddress, toTokenAddress, amount) => {
     if (!amount) {
       throw new Error('amount is required')
     }
-    const url = `${API_URL}/${chainId}/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount}`
+    const url = `${API_URL}/${slugToChainId['ethereum']}/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount}`
     const result = await getJson(url)
     if (!result.toTokenAmount) {
       console.log(result)
@@ -63,8 +64,8 @@ const getQuote = async (chainId, fromTokenAddress, toTokenAddress, amount) => {
     return toTokenAmount
 };
 
-const getAllowance = async (chainId, tokenAddress, walletAddress) => {
-    if (!chainId) {
+const getAllowance = async (tokenAddress, walletAddress) => {
+    if (!slugToChainId['ethereum']) {
       throw new Error('chainId is required')
     }
     if (!tokenAddress) {
@@ -74,7 +75,7 @@ const getAllowance = async (chainId, tokenAddress, walletAddress) => {
       throw new Error('walletAddress is required')
     }
 
-    const url = `${API_URL}/${chainId}/approve/allowance?tokenAddress=${tokenAddress}&walletAddress=${walletAddress}`
+    const url = `${API_URL}/${slugToChainId['ethereum']}/approve/allowance?tokenAddress=${tokenAddress}&walletAddress=${walletAddress}`
     const result = await getJson(url)
     if (result.allowance === undefined) {
       console.log(result)
@@ -84,8 +85,8 @@ const getAllowance = async (chainId, tokenAddress, walletAddress) => {
     return result.allowance
 };
 
-const getApproveTx = async (chainId, tokenAddress, amount) => {
-    if (!chainId) {
+const getApproveTx = async (tokenAddress, amount) => {
+    if (!slugToChainId['ethereum']) {
       throw new Error('chainId is required')
     }
     if (!tokenAddress) {
@@ -95,7 +96,7 @@ const getApproveTx = async (chainId, tokenAddress, amount) => {
       throw new Error('amount is required')
     }
 
-    const url = `${API_URL}/${chainId}/approve/transaction?&amount=${amount}&tokenAddress=${tokenAddress}`
+    const url = `${API_URL}/${slugToChainId['ethereum']}/approve/transaction?&amount=${amount}&tokenAddress=${tokenAddress}`
     const result = await getJson(url)
     if (!result.data) {
       console.log(result)
@@ -111,8 +112,8 @@ const getApproveTx = async (chainId, tokenAddress, amount) => {
     }
 };
 
-const getSwapTx = async (chainId, fromTokenAddress, toTokenAddress, fromAddress, amount, slippage) => {
-    if (!chainId) {
+const getSwapTx = async (fromTokenAddress, toTokenAddress, fromAddress, amount, slippage) => {
+    if (!slugToChainId['ethereum']) {
       throw new Error('chainId is required')
     }
     if (!fromTokenAddress) {
@@ -130,7 +131,7 @@ const getSwapTx = async (chainId, fromTokenAddress, toTokenAddress, fromAddress,
     if (!slippage) {
       throw new Error('slippage is required')
     }
-    const url = `${API_URL}/${chainId}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount}&fromAddress=${fromAddress}&slippage=${slippage}`
+    const url = `${API_URL}/${slugToChainId['ethereum']}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount}&fromAddress=${fromAddress}&slippage=${slippage}`
     const result = await getJson(url)
     if (!result.tx) {
       console.log(result)

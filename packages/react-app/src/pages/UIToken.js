@@ -104,6 +104,7 @@ const style = {
 export default function UIToken() {
   const [open, setOpen] = React.useState(false);
   const [methods,setMethods] = React.useState();
+  const [decimal,setDecimal]= React.useState();
   const handleOpen = (method) => {
     setMethods(method);
     setOpen(true);
@@ -115,9 +116,9 @@ export default function UIToken() {
   const [sellSelectedTokenIMG, setSellSelectedTokenIMG] = React.useState("https://tokens.1inch.io/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png");
   const [sellSelectedTokenADDR, setSellSelectedTokenADDR] = React.useState('0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee');
 
-  const [buySelectedToken, setbuySelectedToken] = React.useState('1INCH');
-  const [buySelectedTokenIMG, setbuySelectedTokenIMG] = React.useState("https://tokens.1inch.io/0x111111111117dc0aa78b770fa6a738034120c302.png");
-  const [buySelectedTokenADDR, setBuySelectedTokenADDR] = React.useState('0x111111111117dc0aa78b770fa6a738034120c302');
+  const [buySelectedToken, setbuySelectedToken] = React.useState('Select Token');
+  const [buySelectedTokenIMG, setbuySelectedTokenIMG] = React.useState("");
+  const [buySelectedTokenADDR, setBuySelectedTokenADDR] = React.useState('');
 
 
   const filterToken = (value) => {
@@ -186,6 +187,11 @@ export default function UIToken() {
             maxLength: 16
           });
         }
+        if(event.target.value > 0){
+          if(buySelectedTokenADDR != ""){
+            getQuoteFunc();
+          }
+        }
         setSellValue(event.target.value);
       }
     }
@@ -214,48 +220,46 @@ export default function UIToken() {
 
   const clickToken = async (img,token,address,decimals) => {
     setOpen(false);
+    setDecimal(decimals);
     if(methods == 'sell'){
       setSellSelectedToken(token);
       setSellSelectedTokenIMG(img);
       setSellSelectedTokenADDR(address);
 
-      const priv = "";
-      const chain = 'ethereum';
-      const chainId = 1;
-      const rpcUrl = rpcUrls[chain]
-      const provider = new providers.StaticJsonRpcProvider(rpcUrl)
-      const wallet = new Wallet(priv, provider)
-      const walletAddress = await wallet.getAddress()
-      const formattedAmount = sellValue.toString();
-      const amount = parseUnits(formattedAmount, decimals).toString();
-      const userAddress = window.localStorage.getItem('userAccount');
-      // console.log(await SwapService.getQuote(chainId, sellSelectedTokenADDR, buySelectedTokenADDR, amount));
-      // console.log(await SwapService.getApproveTx(chainId,sellSelectedTokenADDR,amount));
-      const allowance = await SwapService.getAllowance(chainId, sellSelectedTokenADDR, walletAddress);
-      if (BigNumber.from(allowance).lt(amount)) {
-        const txData = await SwapService.getApproveTx(chainId,sellSelectedTokenADDR,amount);
-        console.log('approval data:', txData)
-    
-        const tx = await wallet.sendTransaction(txData)
-        console.log('approval tx:', tx.hash)
-        await tx.wait()
+      if(sellValue > 0){
+        getQuoteFunc()
       }
     }
     else{
       setbuySelectedToken(token);
       setbuySelectedTokenIMG(img);
       setBuySelectedTokenADDR(address);
+
+      const userAddress = window.localStorage.getItem('userAccount');
+      if(sellValue > 0){
+        getQuoteFunc()
+      }
     }
   }
 
   const swapToken = async () => {
-    const txData = await SwapService.getSwapTx(chainId, fromTokenAddress, toTokenAddress, fromAddress, amount, slippage)
-    console.log('swap data:', txData)
-    const tx = await wallet.sendTransaction(txData)
-    console.log('swap tx:', tx.hash)
-    await tx.wait()
+    // const txData = await SwapService.getSwapTx(chainId, fromTokenAddress, toTokenAddress, fromAddress, amount, slippage)
+    // console.log('swap data:', txData)
+    // const tx = await wallet.sendTransaction(txData)
+    // console.log('swap tx:', tx.hash)
+    // await tx.wait()
   
-    console.log('done')
+    // console.log('done')
+  }
+
+  const getQuoteFunc = async () => {
+    const formattedAmount = sellValue.toString();
+    const amount = parseUnits(formattedAmount, decimal).toString();
+    const userAddress = window.localStorage.getItem('userAccount');
+    setTimeout(async function(){
+      setBuyValue(await SwapService.getQuote(sellSelectedTokenADDR, buySelectedTokenADDR, amount));
+    }, 4000);
+    
   }
 
 
@@ -296,10 +300,25 @@ export default function UIToken() {
           </Grid>
           <Grid style={{position: 'relative',top: '3px'}} container spacing={0}>
             <Grid item xs={4}>
-              <Button onClick={e => handleOpen('buy')}><img alt={'Logo'} src={buySelectedTokenIMG} width={30} height={30} />&nbsp;{buySelectedToken}<ArrowDropDownIcon /></Button>
+              <Button onClick={e => handleOpen('buy')}>
+                {buySelectedTokenIMG?
+                  <img alt={'Logo'} src={buySelectedTokenIMG} width={30} height={30} />
+                :
+                  []
+                }
+                
+                &nbsp;{buySelectedToken}
+                <ArrowDropDownIcon /></Button>
             </Grid>
             <Grid style={{float:'right'}} item xs={8}>
-              <TextField inputProps={{lengthinput}} id="sell_input" value={buyValue} onChange={buyInputFunc}  variant="standard" />
+              <TextField 
+              id="sell_input" 
+              value={buyValue} 
+              onChange={buyInputFunc}  
+              InputProps={{
+                readOnly: true,
+              }}
+              variant="standard" />
             </Grid>
           </Grid>
         </Typography>

@@ -22,6 +22,8 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import CardContent from '@mui/material/CardContent';
 import axios from "axios";
 import SwapService from "../api/Swap";
+import Skeleton from '@mui/material/Skeleton';
+import {ethers} from 'ethers';
 
 const rpcUrls = {
   ethereum: 'https://mainnet.infura.io/v3/c17d58aa246644759e20b6c0647121cf',
@@ -104,7 +106,8 @@ const style = {
 export default function UIToken() {
   const [open, setOpen] = React.useState(false);
   const [methods,setMethods] = React.useState();
-  const [decimal,setDecimal]= React.useState();
+  const [decimal,setDecimal] = React.useState();
+  const [loading,setLoading] = React.useState(false);
   const handleOpen = (method) => {
     setMethods(method);
     setOpen(true);
@@ -169,12 +172,15 @@ export default function UIToken() {
   }
 
   const sellInputFunc = (event) => {
+    setLoading(true);
     if(typeof event.target.value !== 'number' && isNaN(event.target.value)){
       setSellValue('');
+      setLoading(false);
     }
     else{
       if(event.target.value > balance){
         setStatus('Insufficient Balance');
+        setLoading(false);
       }
       else{
         if(event.target.value % 1){
@@ -189,7 +195,10 @@ export default function UIToken() {
         }
         if(event.target.value > 0){
           if(buySelectedTokenADDR != ""){
-            getQuoteFunc();
+            setTimeout(async function(){
+              setLoading(false);
+              getQuoteFuncOnKey(buySelectedTokenADDR,event.target.value)
+            }, 2000);
           }
         }
         setSellValue(event.target.value);
@@ -220,6 +229,7 @@ export default function UIToken() {
 
   const clickToken = async (img,token,address,decimals) => {
     setOpen(false);
+    setLoading(true);
     setDecimal(decimals);
     if(methods == 'sell'){
       setSellSelectedToken(token);
@@ -227,17 +237,22 @@ export default function UIToken() {
       setSellSelectedTokenADDR(address);
 
       if(sellValue > 0){
-        getQuoteFunc()
+        setTimeout(async function(){
+          setLoading(false);
+          getQuoteFunc(address)
+        }, 2000);
       }
     }
     else{
       setbuySelectedToken(token);
       setbuySelectedTokenIMG(img);
       setBuySelectedTokenADDR(address);
-
       const userAddress = window.localStorage.getItem('userAccount');
       if(sellValue > 0){
-        getQuoteFunc()
+        setTimeout(async function(){
+          setLoading(false);
+          getQuoteFunc(address)
+        }, 2000);
       }
     }
   }
@@ -252,15 +267,72 @@ export default function UIToken() {
     // console.log('done')
   }
 
-  const getQuoteFunc = async () => {
+  const getFlooredFixed = (v, d) => {
+      return (Math.floor(v * Math.pow(10, d)) / Math.pow(10, d)).toFixed(d);
+  }
+
+  const getQuoteFunc = async (address) => {
     const formattedAmount = sellValue.toString();
     const amount = parseUnits(formattedAmount, decimal).toString();
     const userAddress = window.localStorage.getItem('userAccount');
-    setTimeout(async function(){
-      setBuyValue(await SwapService.getQuote(sellSelectedTokenADDR, buySelectedTokenADDR, amount));
-    }, 4000);
+    if(methods == 'sell'){
+      
+      setBuyValue(getFlooredFixed(parseFloat(await SwapService.getQuote(address, buySelectedTokenADDR, amount) / 1e9 / 1e9), 4));
+      var totalBalance = balance - await SwapService.getQuoteGasFee(address, buySelectedTokenADDR, amount) / 1e9;
+      console.log(totalBalance);
+      console.log(balance);
+      if(totalBalance < 0){
+        setStatus('Insufficient Balance');
+      }
+      else{
+        setStatus('SWAP');
+      }
+    }
+    else{
+      setBuyValue(getFlooredFixed(parseFloat(await SwapService.getQuote(sellSelectedTokenADDR, address, amount) / 1e9 / 1e9), 4));
+      var totalBalance = balance - await SwapService.getQuoteGasFee(sellSelectedTokenADDR, address, amount) / 1e9;
+      console.log(totalBalance);
+      console.log(balance);
+      if(totalBalance < 0){
+        setStatus('Insufficient Balance');
+      }
+      else{
+        setStatus('SWAP');
+      }
+    }
     
   }
+
+  const getQuoteFuncOnKey = async (address,value) => {
+    const formattedAmount = value.toString();
+    const amount = parseUnits(formattedAmount, decimal).toString();
+    const userAddress = window.localStorage.getItem('userAccount');
+    if(methods == 'sell'){
+      setBuyValue(getFlooredFixed(parseFloat(await SwapService.getQuote(address, buySelectedTokenADDR, amount) / 1e9 / 1e9), 4));
+      var totalBalance = balance - await SwapService.getQuoteGasFee(address, buySelectedTokenADDR, amount) / 1e9;
+      console.log(totalBalance);
+      console.log(balance);
+      if(totalBalance < 0){
+        setStatus('Insufficient Balance');
+      }
+      else{
+        setStatus('SWAP');
+      }
+    }
+    else{
+      setBuyValue(getFlooredFixed(parseFloat(await SwapService.getQuote(sellSelectedTokenADDR, address, amount) / 1e9 / 1e9), 4));
+      var totalBalance = balance - await SwapService.getQuoteGasFee(sellSelectedTokenADDR, address, amount) / 1e9;
+      console.log(totalBalance);
+      console.log(balance);
+      if(totalBalance < 0){
+        setStatus('Insufficient Balance');
+      }
+      else{
+        setStatus('SWAP');
+      }
+    }
+  }
+
 
 
   return (
@@ -311,6 +383,7 @@ export default function UIToken() {
                 <ArrowDropDownIcon /></Button>
             </Grid>
             <Grid style={{float:'right'}} item xs={8}>
+            {loading === false?
               <TextField 
               id="sell_input" 
               value={buyValue} 
@@ -319,13 +392,31 @@ export default function UIToken() {
                 readOnly: true,
               }}
               variant="standard" />
+            :
+              <Skeleton variant="rectangular" width={240} height={30} />
+            }
+
             </Grid>
           </Grid>
         </Typography>
       </CardContent>
-      <div className='swap_button'>
-        <span>{status}</span>
+      {status == 'SWAP'?
+      <div onClick={e => alert(0)} className='swap_button_approved'>
+        {loading === false?
+            <span>{status}</span>
+        :
+          <Skeleton variant="rectangular" width={350} height={30} />
+        }
       </div>
+      :
+      <div className='swap_button'>
+        {loading === false?
+            <span>{status}</span>
+        :
+          <Skeleton variant="rectangular" width={350} height={30} />
+        }
+      </div>
+      }
       <Modal
         aria-labelledby="spring-modal-title"
         aria-describedby="spring-modal-description"

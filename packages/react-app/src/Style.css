@@ -73,6 +73,15 @@ div.MuiGrid-root{
   border-radius: 27px;
 }
 
+.swap_button_approved{
+  text-align: center;
+  background: rgb(15, 142, 201);
+  padding: 20px;
+  margin: 15px 15px 0 15px;
+  border-radius: 27px;
+  cursor: pointer;
+}
+
 .css-ittuaa-MuiInputAdornment-root,.css-1x51dt5-MuiInputBase-input-MuiInput-input,.css-1a6giau,.css-1vv4lmi{
   color: #fff!important;
 }

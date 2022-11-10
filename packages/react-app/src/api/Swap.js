@@ -64,6 +64,31 @@ const getQuote = async (fromTokenAddress, toTokenAddress, amount) => {
     return toTokenAmount
 };
 
+const getQuoteGasFee = async (fromTokenAddress, toTokenAddress, amount) => {
+  if (!slugToChainId['ethereum']) {
+    throw new Error('chainId is required')
+  }
+  if (!fromTokenAddress) {
+    throw new Error('fromTokenAddrss is required')
+  }
+  if (!toTokenAddress) {
+    throw new Error('toTokenAddress is required')
+  }
+  if (!amount) {
+    throw new Error('amount is required')
+  }
+  const url = `${API_URL}/${slugToChainId['ethereum']}/quote?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount}`
+  const result = await getJson(url)
+  if (!result.toTokenAmount) {
+    console.log(result)
+    throw new Error('expected tx data')
+  }
+
+  const { estimatedGas } = result
+
+  return estimatedGas
+};
+
 const getAllowance = async (tokenAddress, walletAddress) => {
     if (!slugToChainId['ethereum']) {
       throw new Error('chainId is required')
@@ -165,6 +190,7 @@ const SwapService = {
     getQuote,
     getAllowance,
     getApproveTx,
-    getSwapTx
+    getSwapTx,
+    getQuoteGasFee
 }
 export default SwapService;

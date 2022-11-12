@@ -24,6 +24,7 @@ import axios from "axios";
 import SwapService from "../api/Swap";
 import Skeleton from '@mui/material/Skeleton';
 import {ethers} from 'ethers';
+require('dotenv').config()
 
 const rpcUrls = {
   ethereum: 'https://mainnet.infura.io/v3/c17d58aa246644759e20b6c0647121cf',
@@ -108,6 +109,7 @@ export default function UIToken() {
   const [methods,setMethods] = React.useState();
   const [decimal,setDecimal] = React.useState();
   const [loading,setLoading] = React.useState(false);
+  const [amountSwap,setAmountSwap] = React.useState();
   const handleOpen = (method) => {
     setMethods(method);
     setOpen(true);
@@ -247,7 +249,7 @@ export default function UIToken() {
       setbuySelectedToken(token);
       setbuySelectedTokenIMG(img);
       setBuySelectedTokenADDR(address);
-      const userAddress = window.localStorage.getItem('userAccount');
+      
       if(sellValue > 0){
         setTimeout(async function(){
           setLoading(false);
@@ -258,8 +260,16 @@ export default function UIToken() {
   }
 
   const swapToken = async () => {
-    // const txData = await SwapService.getSwapTx(chainId, fromTokenAddress, toTokenAddress, fromAddress, amount, slippage)
-    // console.log('swap data:', txData)
+    const chain = 'ethereum'
+    const priv = "";
+    const rpcUrl = rpcUrls[chain]
+    const provider = new providers.StaticJsonRpcProvider(rpcUrl)
+    const wallet = new Wallet(priv, provider)
+
+    const userAddress = window.localStorage.getItem('userAccount');
+    const slippage = "0.1";
+    const txData = await SwapService.getSwapTx(sellSelectedTokenADDR, buySelectedTokenADDR, userAddress, amountSwap, slippage)
+    console.log('swap data:', txData)
     // const tx = await wallet.sendTransaction(txData)
     // console.log('swap tx:', tx.hash)
     // await tx.wait()
@@ -274,30 +284,31 @@ export default function UIToken() {
   const getQuoteFunc = async (address) => {
     const formattedAmount = sellValue.toString();
     const amount = parseUnits(formattedAmount, decimal).toString();
-    const userAddress = window.localStorage.getItem('userAccount');
     if(methods == 'sell'){
       
       setBuyValue(getFlooredFixed(parseFloat(await SwapService.getQuote(address, buySelectedTokenADDR, amount) / 1e9 / 1e9), 4));
       var totalBalance = balance - await SwapService.getQuoteGasFee(address, buySelectedTokenADDR, amount) / 1e9;
-      console.log(totalBalance);
+      console.log(amount);
       console.log(balance);
       if(totalBalance < 0){
         setStatus('Insufficient Balance');
       }
       else{
         setStatus('SWAP');
+        setAmountSwap(amount);
       }
     }
     else{
       setBuyValue(getFlooredFixed(parseFloat(await SwapService.getQuote(sellSelectedTokenADDR, address, amount) / 1e9 / 1e9), 4));
       var totalBalance = balance - await SwapService.getQuoteGasFee(sellSelectedTokenADDR, address, amount) / 1e9;
-      console.log(totalBalance);
+      console.log(amount);
       console.log(balance);
       if(totalBalance < 0){
         setStatus('Insufficient Balance');
       }
       else{
         setStatus('SWAP');
+        setAmountSwap(amount);
       }
     }
     
@@ -306,29 +317,30 @@ export default function UIToken() {
   const getQuoteFuncOnKey = async (address,value) => {
     const formattedAmount = value.toString();
     const amount = parseUnits(formattedAmount, decimal).toString();
-    const userAddress = window.localStorage.getItem('userAccount');
     if(methods == 'sell'){
       setBuyValue(getFlooredFixed(parseFloat(await SwapService.getQuote(address, buySelectedTokenADDR, amount) / 1e9 / 1e9), 4));
       var totalBalance = balance - await SwapService.getQuoteGasFee(address, buySelectedTokenADDR, amount) / 1e9;
-      console.log(totalBalance);
+      console.log(amount);
       console.log(balance);
       if(totalBalance < 0){
         setStatus('Insufficient Balance');
       }
       else{
         setStatus('SWAP');
+        setAmountSwap(amount);
       }
     }
     else{
       setBuyValue(getFlooredFixed(parseFloat(await SwapService.getQuote(sellSelectedTokenADDR, address, amount) / 1e9 / 1e9), 4));
       var totalBalance = balance - await SwapService.getQuoteGasFee(sellSelectedTokenADDR, address, amount) / 1e9;
-      console.log(totalBalance);
+      console.log(amount);
       console.log(balance);
       if(totalBalance < 0){
         setStatus('Insufficient Balance');
       }
       else{
         setStatus('SWAP');
+        setAmountSwap(amount);
       }
     }
   }
@@ -401,7 +413,7 @@ export default function UIToken() {
         </Typography>
       </CardContent>
       {status == 'SWAP'?
-      <div onClick={e => alert(0)} className='swap_button_approved'>
+      <div onClick={e => swapToken()} className='swap_button_approved'>
         {loading === false?
             <span>{status}</span>
         :

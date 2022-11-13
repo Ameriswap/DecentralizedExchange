@@ -40,6 +40,7 @@ const  Metamask = () =>{
     const getUserBalance = (address) => {
         window.ethereum.request({method: 'eth_getBalance', params: [address, 'latest']})
         .then(balance => {
+            console.log(ethers.utils.formatEther(balance));
             dispatch(fetchBalance(getFlooredFixed(parseFloat(ethers.utils.formatEther(balance)), 4)));
             userBalance(getFlooredFixed(parseFloat(ethers.utils.formatEther(balance)), 4));
         })

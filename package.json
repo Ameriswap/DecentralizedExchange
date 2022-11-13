@@ -17,7 +17,7 @@
     "react-app:eject": "yarn workspace @my-app/react-app eject",
     "react-app:ipfs": "yarn workspace @my-app/react-app ipfs",
     "react-app:start": "yarn workspace @my-app/react-app start",
-    "react-app:test": "yarn workspace @my-app/react-app test",
+    "react-app:test": "yarn workspace @my-app/react-app test"
   },
   "workspaces": {
     "packages": [
@@ -40,6 +40,7 @@
     "react-redux": "^8.0.4",
     "react-router-dom": "^6.4.2",
     "styled-components": "^5.3.6",
+    "sweetalert2": "^11.6.8",
     "web3": "^1.8.0",
     "webpack-cli": "^4.10.0"
   }

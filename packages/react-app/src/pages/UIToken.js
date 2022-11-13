@@ -10,7 +10,7 @@ import { useSpring, animated } from '@react-spring/web';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import Grid from '@mui/material/Grid';
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 import SearchIcon from '@mui/icons-material/Search';
@@ -23,8 +23,13 @@ import CardContent from '@mui/material/CardContent';
 import axios from "axios";
 import SwapService from "../api/Swap";
 import Skeleton from '@mui/material/Skeleton';
+import CircularProgress from '@mui/material/CircularProgress';
+import Swal from 'sweetalert2'
+import Web3 from "web3";
+import {
+  fetchBalance,
+} from '../features/balance/metamaskBalanceReducer';
 import {ethers} from 'ethers';
-require('dotenv').config()
 
 const rpcUrls = {
   ethereum: 'https://mainnet.infura.io/v3/c17d58aa246644759e20b6c0647121cf',
@@ -54,9 +59,6 @@ const addresses = {
   }
 }
 
-
-const fetch = require('isomorphic-fetch')
-const { providers, BigNumber, Wallet } = require('ethers')
 const { formatUnits, parseUnits } = require('ethers/lib/utils')
 
 const Fade = React.forwardRef(function Fade(props, ref) {
@@ -110,6 +112,8 @@ export default function UIToken() {
   const [decimal,setDecimal] = React.useState();
   const [loading,setLoading] = React.useState(false);
   const [amountSwap,setAmountSwap] = React.useState();
+  const [buyBalance,setBuyBalance] = React.useState(0);
+  const dispatch = useDispatch();
   const handleOpen = (method) => {
     setMethods(method);
     setOpen(true);
@@ -120,7 +124,7 @@ export default function UIToken() {
   const [sellSelectedToken, setSellSelectedToken] = React.useState('ETH');
   const [sellSelectedTokenIMG, setSellSelectedTokenIMG] = React.useState("https://tokens.1inch.io/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png");
   const [sellSelectedTokenADDR, setSellSelectedTokenADDR] = React.useState('0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee');
-
+  const userAddress = window.localStorage.getItem('userAccount');
   const [buySelectedToken, setbuySelectedToken] = React.useState('Select Token');
   const [buySelectedTokenIMG, setbuySelectedTokenIMG] = React.useState("");
   const [buySelectedTokenADDR, setBuySelectedTokenADDR] = React.useState('');
@@ -136,6 +140,36 @@ export default function UIToken() {
     }
     
   }
+
+  const dec2He = (dec) => {
+      return Math.abs(dec).toString(16);
+  }
+
+  const getFlooredFixed = (v, d) => {
+      return (Math.floor(v * Math.pow(10, d)) / Math.pow(10, d)).toFixed(d);
+  }
+
+  const tokenABI = [{
+    "constant": true,
+    "inputs": [
+      {
+        "name": "_owner",
+        "type": "address"
+      }
+    ],
+    "name": "balanceOf",
+    "outputs": [
+      {
+        "name": "balance",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "type": "function"
+  }]
+
+  const web3Provider = new Web3.providers.HttpProvider(rpcUrls["ethereum"]);
+  const web3 = new Web3(web3Provider);
 
   const getData = getTokens.filter(data => data.symbol == searchToken || data.address == searchToken).map((option, index) => (
     <List>
@@ -164,13 +198,22 @@ export default function UIToken() {
   //metamask eth balance
   const balance = useSelector((state) => state.counter.value);
   const [status,setStatus] = React.useState('Enter amount to swap')
+  const [statusAppr,setStatusAppr] = React.useState("Give Permission to swap "+sellSelectedToken);
 
   //Sell feature
   const [sellValue,setSellValue] = React.useState(0);
   const [lengthinput,setLengthInput] = React.useState('');
+  const [sellAllowanceApprove,setAllowanceApprove] = React.useState("");
 
-  const balanceMax = () => {
-    setSellValue(balance);
+  const balanceMax = async () => {
+    if(sellValue > balance){
+      setStatus('Insufficient Balance');
+    }
+    else{
+      getQuoteFuncOnKey(sellSelectedTokenADDR,buySelectedTokenADDR,balance)
+      setSellValue(balance);
+    }
+
   }
 
   const sellInputFunc = (event) => {
@@ -199,7 +242,7 @@ export default function UIToken() {
           if(buySelectedTokenADDR != ""){
             setTimeout(async function(){
               setLoading(false);
-              getQuoteFuncOnKey(buySelectedTokenADDR,event.target.value)
+              getQuoteFuncOnKey(sellSelectedTokenADDR,buySelectedTokenADDR,event.target.value)
             }, 2000);
           }
         }
@@ -234,51 +277,134 @@ export default function UIToken() {
     setLoading(true);
     setDecimal(decimals);
     if(methods == 'sell'){
+      if(token == buySelectedToken){
+        setLoading(false);
+        return Swal.fire(
+          'Error',
+          'The same token is prohibited.',
+          'error'
+        )
+      }
+
+      if(address != '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'){
+        try{
+          setStatusAppr("Give Permission to swap "+token);
+          const tokenInst = new web3.eth.Contract(tokenABI, address);
+          dispatch(fetchBalance(getFlooredFixed(parseFloat(await tokenInst.methods.balanceOf(userAddress).call() / 1e9 / 1e9), 4)));
+          const allowance = await SwapService.getAllowance(address,userAddress);
+          setAllowanceApprove(allowance);
+        }catch(err){
+          console.log(err);
+        }
+      }
       setSellSelectedToken(token);
       setSellSelectedTokenIMG(img);
       setSellSelectedTokenADDR(address);
 
       if(sellValue > 0){
+      
         setTimeout(async function(){
-          setLoading(false);
           getQuoteFunc(address)
         }, 2000);
       }
     }
     else{
+
+      if(sellSelectedToken == token){
+        setLoading(false);
+        return Swal.fire(
+          'Error',
+          'The same token is prohibited.',
+          'error'
+        )
+      }
+
+      if(address != '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'){
+        try{
+          const tokenInst = new web3.eth.Contract(tokenABI, address);
+          setBuyBalance(getFlooredFixed(parseFloat(await tokenInst.methods.balanceOf(userAddress).call() / 1e9 / 1e9), 4));
+        }catch(err){
+          console.log(err);
+        }
+      }else{
+        window.ethereum.request({method: 'eth_getBalance', params: [userAddress, 'latest']})
+        .then(balance => {
+          setBuyBalance(getFlooredFixed(parseFloat(ethers.utils.formatEther(balance)), 4));
+        })
+      }
+
       setbuySelectedToken(token);
       setbuySelectedTokenIMG(img);
       setBuySelectedTokenADDR(address);
       
       if(sellValue > 0){
+      
         setTimeout(async function(){
-          setLoading(false);
           getQuoteFunc(address)
         }, 2000);
       }
     }
   }
 
-  const swapToken = async () => {
-    const chain = 'ethereum'
-    const priv = "";
-    const rpcUrl = rpcUrls[chain]
-    const provider = new providers.StaticJsonRpcProvider(rpcUrl)
-    const wallet = new Wallet(priv, provider)
 
-    const userAddress = window.localStorage.getItem('userAccount');
+  const swapToken = async () => {
+    setStatus(<CircularProgress/>);
+    
     const slippage = "0.1";
     const txData = await SwapService.getSwapTx(sellSelectedTokenADDR, buySelectedTokenADDR, userAddress, amountSwap, slippage)
     console.log('swap data:', txData)
-    // const tx = await wallet.sendTransaction(txData)
-    // console.log('swap tx:', tx.hash)
-    // await tx.wait()
-  
-    // console.log('done')
-  }
+    const ethVal = '0x'+dec2He(txData.value);
+    console.log(ethVal.toString());
+    const transactionParameters = {
+      to: txData.to, // Required except during contract publications.
+      from: userAddress, // must match user's active address.
+      value: ethVal.toString(), // Only required to send ether to the recipient from the initiating external account.
+      data :txData.data, // Optional, but used for defining smart contract creation and interaction.
+    };
+    
+    try{
+      // txHash is a hex string
+      // As with any RPC call, it may throw an error
+      const txHash = await window.ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [transactionParameters],
+      });
+      console.log(txHash);
+      setStatus("Enter amount to swap");
+      setSellValue(0);
+      setBuyValue(0);
+      Swal.fire({
+        title: '<strong>Successfully Swap</strong>',
+        icon: 'success',
+        html:
+          'View transaction on ' +
+          '<a target="_blank" href="https://etherscan.io/tx/'+txHash+'">ETHERSCAN</a> ',
+        showCloseButton: false,
+        showCancelButton: false,
+        showConfirmButton: false,
+      })
+      window.ethereum.request({method: 'eth_getBalance', params: [userAddress, 'latest']})
+      .then(balance => {
+          dispatch(fetchBalance(getFlooredFixed(parseFloat(ethers.utils.formatEther(balance)), 4)));
+      })
 
-  const getFlooredFixed = (v, d) => {
-      return (Math.floor(v * Math.pow(10, d)) / Math.pow(10, d)).toFixed(d);
+      try{
+        const tokenInst = new web3.eth.Contract(tokenABI, buySelectedTokenADDR);
+        setBuyBalance(getFlooredFixed(parseFloat(await tokenInst.methods.balanceOf(userAddress).call() / 1e9 / 1e9), 4));
+      }catch(err){
+        console.log(err);
+        Swal.fire(
+          'Warning',
+          'Not enough allowance',
+          'warning'
+        )
+        setStatus('SWAP');
+      }
+      
+    }catch(err){
+      console.log(err);
+      setStatus('SWAP');
+    }
   }
 
   const getQuoteFunc = async (address) => {
@@ -288,12 +414,11 @@ export default function UIToken() {
       
       setBuyValue(getFlooredFixed(parseFloat(await SwapService.getQuote(address, buySelectedTokenADDR, amount) / 1e9 / 1e9), 4));
       var totalBalance = balance - await SwapService.getQuoteGasFee(address, buySelectedTokenADDR, amount) / 1e9;
-      console.log(amount);
-      console.log(balance);
       if(totalBalance < 0){
         setStatus('Insufficient Balance');
       }
       else{
+        setLoading(false);
         setStatus('SWAP');
         setAmountSwap(amount);
       }
@@ -301,12 +426,11 @@ export default function UIToken() {
     else{
       setBuyValue(getFlooredFixed(parseFloat(await SwapService.getQuote(sellSelectedTokenADDR, address, amount) / 1e9 / 1e9), 4));
       var totalBalance = balance - await SwapService.getQuoteGasFee(sellSelectedTokenADDR, address, amount) / 1e9;
-      console.log(amount);
-      console.log(balance);
       if(totalBalance < 0){
         setStatus('Insufficient Balance');
       }
       else{
+        setLoading(false);
         setStatus('SWAP');
         setAmountSwap(amount);
       }
@@ -314,38 +438,173 @@ export default function UIToken() {
     
   }
 
-  const getQuoteFuncOnKey = async (address,value) => {
+  const getQuoteFuncOnKey = async (from,to,value) => {
     const formattedAmount = value.toString();
     const amount = parseUnits(formattedAmount, decimal).toString();
-    if(methods == 'sell'){
-      setBuyValue(getFlooredFixed(parseFloat(await SwapService.getQuote(address, buySelectedTokenADDR, amount) / 1e9 / 1e9), 4));
-      var totalBalance = balance - await SwapService.getQuoteGasFee(address, buySelectedTokenADDR, amount) / 1e9;
-      console.log(amount);
-      console.log(balance);
-      if(totalBalance < 0){
-        setStatus('Insufficient Balance');
-      }
-      else{
-        setStatus('SWAP');
-        setAmountSwap(amount);
-      }
+    setBuyValue(getFlooredFixed(parseFloat(await SwapService.getQuote(from, to, amount) / 1e9 / 1e9), 4));
+    var totalBalance = balance - await SwapService.getQuoteGasFee(from, to, amount) / 1e9;
+    if(totalBalance < 0){
+      setLoading(false);
+      setStatus('Insufficient Balance');
     }
     else{
-      setBuyValue(getFlooredFixed(parseFloat(await SwapService.getQuote(sellSelectedTokenADDR, address, amount) / 1e9 / 1e9), 4));
-      var totalBalance = balance - await SwapService.getQuoteGasFee(sellSelectedTokenADDR, address, amount) / 1e9;
-      console.log(amount);
-      console.log(balance);
-      if(totalBalance < 0){
-        setStatus('Insufficient Balance');
-      }
-      else{
-        setStatus('SWAP');
-        setAmountSwap(amount);
-      }
+      setLoading(false);
+      setStatus('SWAP');
+      setAmountSwap(amount);
     }
   }
 
+  const getQuoteReverse = async (sellTokenAddr,buyTokenAddr,amountReverse) => {
+    const formattedAmount = amountReverse.toString();
+    const amount = parseUnits(formattedAmount, decimal).toString();
+    const swapAmount = getFlooredFixed(parseFloat(await SwapService.getQuote(sellTokenAddr, buyTokenAddr, amount) / 1e9 / 1e9), 5);
+    setBuyValue(swapAmount);
+    var totalBalance = balance - await SwapService.getQuoteGasFee(sellTokenAddr, buyTokenAddr, amount) / 1e9;
 
+    if(totalBalance < 0){
+      setStatus('Insufficient Balance');
+    }
+    else{
+      setLoading(false);
+      setStatus('SWAP');
+      setAmountSwap(swapAmount * 1e9 * 1e9);
+    }
+    
+  }
+
+  const swapReverse = async () => {
+    if(buySelectedToken == 'Select Token'){
+      Swal.fire(
+        'Warning',
+        'Please select a token to buy.',
+        'warning'
+      )
+    }
+    else{
+        if(sellValue > balance){
+          setStatus('Insufficient Balance');
+        }
+        else{
+          setStatus('SWAP');
+        }
+
+        if(buySelectedTokenADDR != '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'){
+          try{
+            setStatusAppr("Give Permission to swap "+buySelectedToken);
+            const tokenInst = new web3.eth.Contract(tokenABI, buySelectedTokenADDR);
+            dispatch(fetchBalance(getFlooredFixed(parseFloat(await tokenInst.methods.balanceOf(userAddress).call() / 1e9 / 1e9), 4)));
+            const allowance = await SwapService.getAllowance(buySelectedTokenADDR,userAddress);
+            setAllowanceApprove(allowance);
+          }catch(err){
+            console.log(err);
+          }
+        }
+  
+        setLoading(true);
+        dispatch(fetchBalance(buyBalance));
+        setBuyBalance(balance);
+  
+        setSellValue(buyValue);
+  
+        if(buyValue > 0){
+          setTimeout(async function(){
+            getQuoteReverse(buySelectedTokenADDR,sellSelectedTokenADDR,buyValue)
+          }, 2000);
+          
+        }
+        
+        setbuySelectedToken(sellSelectedToken);
+        setbuySelectedTokenIMG(sellSelectedTokenIMG);
+        setBuySelectedTokenADDR(sellSelectedTokenADDR);
+    
+        setSellSelectedToken(buySelectedToken);
+        setSellSelectedTokenIMG(buySelectedTokenIMG);
+        setSellSelectedTokenADDR(buySelectedTokenADDR);
+      
+    }
+  }
+
+  const tokenPreselected = [
+    {
+      token: "ETH",
+      url: "https://tokens.1inch.io/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png",
+      address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      decimals: 18
+    },
+    {
+      token: "WETH",
+      url: "https://tokens.1inch.io/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.png",
+      address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      decimals: 18
+    },
+    {
+      token: "USDC",
+      url: "https://tokens.1inch.io/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.png",
+      address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+      decimals: 18
+    },
+    {
+      token: "DAI",
+      url: "https://tokens.1inch.io/0x6b175474e89094c44da98b954eedeac495271d0f.png",
+      address: "0x6b175474e89094c44da98b954eedeac495271d0f",
+      decimals: 18
+    },
+    {
+      token: "USDT",
+      url: "https://tokens.1inch.io/0xdac17f958d2ee523a2206206994597c13d831ec7.png",
+      address: "0xdac17f958d2ee523a2206206994597c13d831ec7",
+      decimals: 18
+    },
+    {
+      token: "WBTC",
+      url: "https://tokens.1inch.io/0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.png",
+      address: "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
+      decimals: 18
+    },
+    {
+      token: "1INCH",
+      url: "https://tokens.1inch.io/0x111111111117dc0aa78b770fa6a738034120c302.png",
+      address: "0x111111111117dc0aa78b770fa6a738034120c302",
+      decimals: 18
+    }
+  ];
+
+  const swapPermit = async () => {
+    setStatusAppr(<CircularProgress/>);
+    const tx = await SwapService.getApproveTx(sellSelectedTokenADDR, amountSwap)
+    const ethVal = '0x'+dec2He(tx.value);
+    const transactionParametersApp = {
+      to: tx.to, // Required except during contract publications.
+      from: userAddress, // must match user's active address.
+      value: ethVal.toString(), // Only required to send ether to the recipient from the initiating external account.
+      data :tx.data, // Optional, but used for defining smart contract creation and interaction.
+    };
+
+    try{
+      const txHashApp = await window.ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [transactionParametersApp],
+      });
+
+      try{
+        if(txHashApp){
+          setStatusAppr("Give Permission to swap "+buySelectedToken);
+          const tokenInst = new web3.eth.Contract(tokenABI, buySelectedTokenADDR);
+          dispatch(fetchBalance(getFlooredFixed(parseFloat(await tokenInst.methods.balanceOf(userAddress).call() / 1e9 / 1e9), 4)));
+          const allowance = await SwapService.getAllowance(buySelectedTokenADDR,userAddress);
+          setAllowanceApprove(allowance);
+        }
+      }catch(err){
+        setStatusAppr("Give Permission to swap "+sellSelectedToken);
+      }
+
+      console.log(txHashApp);
+    }catch(err){
+      console.log(err);
+      setStatus('SWAP');
+      setStatusAppr("Give Permission to swap "+sellSelectedToken);
+    }
+  }
 
   return (
     <div>
@@ -370,7 +629,7 @@ export default function UIToken() {
         </Typography>
       </CardContent>
       <div className='swap_icon'>
-        <Button><ArrowDownwardIcon/></Button>
+        <Button onClick={e => swapReverse()}><ArrowDownwardIcon/></Button>
       </div>
       <CardContent style={{marginTop: '-31px'}}>
         <Typography variant="body2" component={'div'} color="text.secondary">
@@ -379,7 +638,7 @@ export default function UIToken() {
               You Buy
             </Grid>
             <Grid item xs={9}>
-              <span style={{float:'right'}}>Balance: 0</span> 
+              <span style={{float:'right'}}>Balance: {buyBalance}</span> 
             </Grid>
           </Grid>
           <Grid style={{position: 'relative',top: '3px'}} container spacing={0}>
@@ -412,21 +671,40 @@ export default function UIToken() {
           </Grid>
         </Typography>
       </CardContent>
-      {status == 'SWAP'?
-      <div onClick={e => swapToken()} className='swap_button_approved'>
-        {loading === false?
-            <span>{status}</span>
+      {sellSelectedTokenADDR != "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"?
+        <div>
+          {sellAllowanceApprove == 0?
+            <div onClick={e => swapPermit()} className='swap_button_approved'>
+              <span>{statusAppr}</span>
+            </div>
+            :
+            []
+          }
+        </div>
+
         :
-          <Skeleton variant="rectangular" width={350} height={30} />
+          []
+      }
+
+      {status == 'SWAP'?
+      <div>
+        {sellSelectedTokenADDR != "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" && sellAllowanceApprove == 0?
+          <div className='swap_button'>
+            <span>{status}</span>
+          </div>
+          :
+          <div onClick={e => swapToken()} className='swap_button_approved'>
+            {loading === false?
+                <span>{status}</span>
+            :
+              <Skeleton variant="rectangular" width={350} height={30} />
+            }
+          </div>
         }
       </div>
       :
       <div className='swap_button'>
-        {loading === false?
-            <span>{status}</span>
-        :
-          <Skeleton variant="rectangular" width={350} height={30} />
-        }
+        <span>{status}</span>
       </div>
       }
       <Modal
@@ -468,6 +746,15 @@ export default function UIToken() {
               variant="standard"
               onChange={e => filterToken(e.target.value)}
             />
+            <Divider/>
+            {tokenPreselected.map((option, index) => (
+                <Button
+                  onClick={e => clickToken(option.url,option.token,option.address,option.decimals)}
+                >
+                  <img src={option.url} alt={'Logo'} width={30} height={30} />&nbsp;
+                  {option.token}
+                </Button>
+            ))}
             <Divider/>
             <div style={{overflowY: 'auto',height:'274px'}}>
               {getData}

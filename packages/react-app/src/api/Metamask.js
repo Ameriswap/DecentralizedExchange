@@ -1,4 +1,4 @@
-import React, { useState }  from 'react';
+import React, { useState,useEffect }  from 'react';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import { useDispatch } from 'react-redux'
 import {
@@ -7,11 +7,24 @@ import {
 import Button from '@mui/material/Button';
 import {ethers} from 'ethers';
 import MetamaskLogo from '../images/metamask.png';
+import Swal from 'sweetalert2'
 
 const  Metamask = () =>{
     const [connBUttonText,setConnButtonText] = useState('Connect Wallet');
     const [boolIcon,setBoolIcon] = useState(false);
     const dispatch = useDispatch()
+
+    useEffect(() => {
+        saveUserInfo()
+    });
+
+    const saveUserInfo = () => {
+        let userAddress = window.localStorage.getItem('userAccount');
+        if(userAddress){
+            connectWalletHandler();
+            accountChangedHandler(userAddress);   
+        }
+    }
 
     const connectWalletHandler = () => {
         if(window.ethereum){
@@ -22,7 +35,11 @@ const  Metamask = () =>{
             })
         }
         else{
-            alert('Non-Ethereum browser detected. You should consider trying MetaMask!');
+            Swal.fire(
+                'Error',
+                'Non-Ethereum browser detected. You should consider trying MetaMask!',
+                'error'
+            )
         }
     }
 

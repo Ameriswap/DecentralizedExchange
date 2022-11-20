@@ -210,8 +210,13 @@ export default function UIToken() {
       setStatus('Insufficient Balance');
     }
     else{
-      getQuoteFuncOnKey(sellSelectedTokenADDR,buySelectedTokenADDR,balance)
-      setSellValue(balance);
+      if(buySelectedToken != 'Select Token'){
+        getQuoteFuncOnKey(sellSelectedTokenADDR,buySelectedTokenADDR,balance)
+        setSellValue(balance);
+      }
+      else{
+        setSellValue(balance);
+      }
     }
 
   }
@@ -322,7 +327,16 @@ export default function UIToken() {
       if(address != '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'){
         try{
           const tokenInst = new web3.eth.Contract(tokenABI, address);
-          setBuyBalance(getFlooredFixed(parseFloat(await tokenInst.methods.balanceOf(userAddress).call() / 1e9 / 1e9), 4));
+          let buyBal = await tokenInst.methods.balanceOf(userAddress).call();
+          //USDT USDC
+          if(address == "0xdac17f958d2ee523a2206206994597c13d831ec7" || address == "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"){
+            const formattedAmount = buyBal.toString();
+            const amounttest = parseUnits(formattedAmount, 12).toString();
+            setBuyBalance(amounttest / 1e9 / 1e9);
+          }
+          else{
+            setBuyBalance(getFlooredFixed(buyBal / 1e9 / 1e9,4));
+          }
         }catch(err){
           console.log(err);
         }
@@ -412,7 +426,7 @@ export default function UIToken() {
     const amount = parseUnits(formattedAmount, decimal).toString();
     if(methods == 'sell'){
       
-      setBuyValue(getFlooredFixed(parseFloat(await SwapService.getQuote(address, buySelectedTokenADDR, amount) / 1e9 / 1e9), 4));
+      setBuyValue(getFlooredFixed(parseFloat(await SwapService.getQuote(address, buySelectedTokenADDR, amount)), 4));
       var totalBalance = balance - await SwapService.getQuoteGasFee(address, buySelectedTokenADDR, amount) / 1e9;
       if(totalBalance < 0){
         setStatus('Insufficient Balance');
@@ -424,7 +438,19 @@ export default function UIToken() {
       }
     }
     else{
-      setBuyValue(getFlooredFixed(parseFloat(await SwapService.getQuote(sellSelectedTokenADDR, address, amount) / 1e9 / 1e9), 4));
+      let quoteVal = 0;
+      //USDT USDC
+      if(address == "0xdac17f958d2ee523a2206206994597c13d831ec7" || address == "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"){
+        quoteVal = await SwapService.getQuote(sellSelectedTokenADDR, address, amount);
+        const formattedAmount = quoteVal.toString();
+        const amounttest = parseUnits(formattedAmount, 12).toString();
+        setBuyValue(amounttest / 1e9 / 1e9);
+      }
+      else{
+        quoteVal = await SwapService.getQuote(sellSelectedTokenADDR, address, amount);
+        setBuyValue(getFlooredFixed(quoteVal / 1e9 / 1e9,4));
+      }
+
       var totalBalance = balance - await SwapService.getQuoteGasFee(sellSelectedTokenADDR, address, amount) / 1e9;
       if(totalBalance < 0){
         setStatus('Insufficient Balance');
@@ -439,10 +465,27 @@ export default function UIToken() {
   }
 
   const getQuoteFuncOnKey = async (from,to,value) => {
-    const formattedAmount = value.toString();
-    const amount = parseUnits(formattedAmount, decimal).toString();
-    setBuyValue(getFlooredFixed(parseFloat(await SwapService.getQuote(from, to, amount) / 1e9 / 1e9), 4));
-    var totalBalance = balance - await SwapService.getQuoteGasFee(from, to, amount) / 1e9;
+    let quoteVal = 0;
+    let amount1;
+    let totalBalance;
+    //USDT USDC
+    if(to == "0xdac17f958d2ee523a2206206994597c13d831ec7" || to == "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"){
+      const formattedAmount1 = value.toString();
+      amount1 = parseUnits(formattedAmount1, decimal).toString();
+      quoteVal = await SwapService.getQuote(from, to, amount1);
+      totalBalance = balance - await SwapService.getQuoteGasFee(from, to, amount1);
+      const formattedAmount = quoteVal.toString();
+      const amounttest = parseUnits(formattedAmount, 12).toString();
+      setBuyValue(amounttest / 1e9 / 1e9);
+    }
+    else{
+      const formattedAmount1 = value.toString();
+      amount1 = parseUnits(formattedAmount1, decimal).toString();
+      totalBalance = balance - await SwapService.getQuoteGasFee(from, to, amount1);
+      quoteVal = await SwapService.getQuote(from, to, amount1);
+      setBuyValue(getFlooredFixed(quoteVal / 1e9 / 1e9,4));
+    }
+    
     if(totalBalance < 0){
       setLoading(false);
       setStatus('Insufficient Balance');
@@ -450,7 +493,7 @@ export default function UIToken() {
     else{
       setLoading(false);
       setStatus('SWAP');
-      setAmountSwap(amount);
+      setAmountSwap(value);
     }
   }
 

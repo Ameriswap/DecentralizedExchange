@@ -1,9 +1,12 @@
 import React, {useEffect} from 'react';
+import { styled } from '@mui/material/styles';
 import PropTypes from 'prop-types';
 import Backdrop from '@mui/material/Backdrop';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
+import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Typography from '@mui/material/Typography';
 // web.cjs is required for IE11 support
 import { useSpring, animated } from '@react-spring/web';
@@ -20,6 +23,9 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import CardContent from '@mui/material/CardContent';
+import CardHeader from '@mui/material/CardHeader';
+import CardActions from '@mui/material/CardActions';
+import Collapse from '@mui/material/Collapse';
 import axios from "axios";
 import SwapService from "../api/Swap";
 import Skeleton from '@mui/material/Skeleton';
@@ -113,6 +119,8 @@ export default function UIToken() {
   const [loading,setLoading] = React.useState(false);
   const [amountSwap,setAmountSwap] = React.useState();
   const [buyBalance,setBuyBalance] = React.useState(0);
+  const [expanded, setExpanded] = React.useState(false);
+  const [gasFee,setGasFee] = React.useState(0);
   const dispatch = useDispatch();
   const handleOpen = (method) => {
     setMethods(method);
@@ -208,6 +216,7 @@ export default function UIToken() {
   const balanceMax = async () => {
     if(sellValue > balance){
       setStatus('Insufficient Balance');
+      setLoading(false);
     }
     else{
       if(buySelectedToken != 'Select Token'){
@@ -297,6 +306,7 @@ export default function UIToken() {
           const tokenInst = new web3.eth.Contract(tokenABI, address);
           dispatch(fetchBalance(getFlooredFixed(parseFloat(await tokenInst.methods.balanceOf(userAddress).call() / 1e9 / 1e9), 4)));
           const allowance = await SwapService.getAllowance(address,userAddress);
+          alert(allowance);
           setAllowanceApprove(allowance);
         }catch(err){
           console.log(err);
@@ -425,11 +435,12 @@ export default function UIToken() {
     const formattedAmount = sellValue.toString();
     const amount = parseUnits(formattedAmount, decimal).toString();
     if(methods == 'sell'){
-      
       setBuyValue(getFlooredFixed(parseFloat(await SwapService.getQuote(address, buySelectedTokenADDR, amount)), 4));
-      var totalBalance = balance - await SwapService.getQuoteGasFee(address, buySelectedTokenADDR, amount) / 1e9;
-      if(totalBalance < 0){
+      setGasFee(parseFloat((await SwapService.getQuoteGasFee(address, buySelectedTokenADDR, amount) / 1e9)))
+      var totalValue = parseFloat(sellValue) + parseFloat((await SwapService.getQuoteGasFee(address, buySelectedTokenADDR, amount) / 1e9));
+      if(totalValue > parseFloat(balance) ){
         setStatus('Insufficient Balance');
+        setLoading(false);
       }
       else{
         setLoading(false);
@@ -450,10 +461,12 @@ export default function UIToken() {
         quoteVal = await SwapService.getQuote(sellSelectedTokenADDR, address, amount);
         setBuyValue(getFlooredFixed(quoteVal / 1e9 / 1e9,4));
       }
-
-      var totalBalance = balance - await SwapService.getQuoteGasFee(sellSelectedTokenADDR, address, amount) / 1e9;
-      if(totalBalance < 0){
+      setGasFee(parseFloat((await SwapService.getQuoteGasFee(sellSelectedTokenADDR, address, amount) / 1e9)));
+      var totalValue = parseFloat(sellValue) + parseFloat((await SwapService.getQuoteGasFee(sellSelectedTokenADDR, address, amount) / 1e9));
+      
+      if(totalValue > parseFloat(balance)){
         setStatus('Insufficient Balance');
+        setLoading(false);
       }
       else{
         setLoading(false);
@@ -467,13 +480,14 @@ export default function UIToken() {
   const getQuoteFuncOnKey = async (from,to,value) => {
     let quoteVal = 0;
     let amount1;
-    let totalBalance;
+    let totalValue;
     //USDT USDC
     if(to == "0xdac17f958d2ee523a2206206994597c13d831ec7" || to == "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"){
       const formattedAmount1 = value.toString();
       amount1 = parseUnits(formattedAmount1, decimal).toString();
       quoteVal = await SwapService.getQuote(from, to, amount1);
-      totalBalance = balance - await SwapService.getQuoteGasFee(from, to, amount1);
+      setGasFee(parseFloat((await SwapService.getQuoteGasFee(from, to, amount1) / 1e9)));
+      totalValue = parseFloat(value) + parseFloat((await SwapService.getQuoteGasFee(from, to, amount1) / 1e9));
       const formattedAmount = quoteVal.toString();
       const amounttest = parseUnits(formattedAmount, 12).toString();
       setBuyValue(amounttest / 1e9 / 1e9);
@@ -481,19 +495,21 @@ export default function UIToken() {
     else{
       const formattedAmount1 = value.toString();
       amount1 = parseUnits(formattedAmount1, decimal).toString();
-      totalBalance = balance - await SwapService.getQuoteGasFee(from, to, amount1);
+      setGasFee(parseFloat((await SwapService.getQuoteGasFee(from, to, amount1) / 1e9)))
+      totalValue = parseFloat(value) + parseFloat((await SwapService.getQuoteGasFee(from, to, amount1) / 1e9));
       quoteVal = await SwapService.getQuote(from, to, amount1);
       setBuyValue(getFlooredFixed(quoteVal / 1e9 / 1e9,4));
     }
-    
-    if(totalBalance < 0){
+    if(totalValue > parseFloat(balance)){
       setLoading(false);
       setStatus('Insufficient Balance');
+      setLoading(false);
+      
     }
     else{
       setLoading(false);
       setStatus('SWAP');
-      setAmountSwap(value);
+      setAmountSwap(amount1);
     }
   }
 
@@ -502,10 +518,12 @@ export default function UIToken() {
     const amount = parseUnits(formattedAmount, decimal).toString();
     const swapAmount = getFlooredFixed(parseFloat(await SwapService.getQuote(sellTokenAddr, buyTokenAddr, amount) / 1e9 / 1e9), 5);
     setBuyValue(swapAmount);
-    var totalBalance = balance - await SwapService.getQuoteGasFee(sellTokenAddr, buyTokenAddr, amount) / 1e9;
+    setGasFee(parseFloat((await SwapService.getQuoteGasFee(sellTokenAddr, buyTokenAddr, amount) / 1e9)));
+    var totalValue = parseFloat(amountReverse) + parseFloat((await SwapService.getQuoteGasFee(sellTokenAddr, buyTokenAddr, amount) / 1e9));
 
-    if(totalBalance < 0){
+    if(totalValue < 0){
       setStatus('Insufficient Balance');
+      setLoading(false);
     }
     else{
       setLoading(false);
@@ -648,6 +666,21 @@ export default function UIToken() {
       setStatusAppr("Give Permission to swap "+sellSelectedToken);
     }
   }
+
+  const ExpandMore = styled((props) => {
+    const { expand, ...other } = props;
+    return <IconButton {...other} />;
+  })(({ theme, expand }) => ({
+    transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
+    marginLeft: 'auto',
+    transition: theme.transitions.create('transform', {
+      duration: theme.transitions.duration.shortest,
+    }),
+  }));
+
+  const handleExpandClick = () => {
+    setExpanded(!expanded);
+  };
 
   return (
     <div>
@@ -805,6 +838,28 @@ export default function UIToken() {
           </Box>
         </Fade>
       </Modal>
+      <CardActions disableSpacing>
+        <ExpandMore
+          expand={expanded}
+          onClick={handleExpandClick}
+          aria-expanded={expanded}
+          aria-label="show more"
+        >
+          <ExpandMoreIcon />
+        </ExpandMore>
+      </CardActions>
+      <Collapse in={expanded} timeout="auto" unmountOnExit>
+        <CardContent>
+            <Grid container spacing={0}>
+              <Grid item xs={8}>
+               Estimated Gas Fee
+              </Grid>
+              <Grid item xs={4}>
+                <span style={{float:'right'}}>{gasFee}</span>
+              </Grid>
+            </Grid>
+        </CardContent>
+      </Collapse>
     </div>
   );
 }

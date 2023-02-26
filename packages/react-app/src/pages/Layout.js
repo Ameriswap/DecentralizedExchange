@@ -21,7 +21,10 @@ import AdbIcon from '@mui/icons-material/Adb';
 import MoreIcon from '@mui/icons-material/MoreVert';
 import Button from '@mui/material/Button';
 import Eth from'../images/eth.png';
+import BnbChain from'../images/bnbchain.png';
+import Arbitrum from'../images/arbitrum.png';
 import Wallet from '../api/Metamask';
+import Network from '../api/Networks';
 
 const pages = ['Swap'];
 
@@ -36,11 +39,12 @@ function Layout() {
     setAnchorElNav(null);
   };
 
-    const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(false);
   const anchorRef = React.useRef(null);
   const [selectedIndex, setSelectedIndex] = React.useState(0);
 
-  const options = ['Ethereum'];
+  const options = ['Ethereum','BNB Chain','Arbitrum'];
+  const optionsIMG = [Eth,BnbChain,Arbitrum];
 
   const handleMenuItemClick = (event, index) => {
     setSelectedIndex(index);
@@ -151,51 +155,7 @@ function Layout() {
                 </Button>
               ))}
             </Box>
-            <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-                  <ButtonGroup variant="outlined" ref={anchorRef} aria-label="split button">
-                      <Button onClick={handleToggle}><img alt={'Logo'} src={Eth} width={30} height={30} />&nbsp;{options[selectedIndex]}<ArrowDropDownIcon /></Button>
-                  </ButtonGroup>
-                  <Popper
-                      sx={{
-                      zIndex: 1,
-                      }}
-                      open={open}
-                      anchorEl={anchorRef.current}
-                      role={undefined}
-                      transition
-                      disablePortal
-                  >
-                      {({ TransitionProps, placement }) => (
-                      <Grow
-                          {...TransitionProps}
-                          style={{
-                          transformOrigin:
-                              placement === 'bottom' ? 'center top' : 'center bottom',
-                          }}
-                      >
-                          <Paper>
-                          <ClickAwayListener onClickAway={handleClose}>
-                              <MenuList id="split-button-menu" autoFocusItem>
-                              {options.map((option, index) => (
-                                  <MenuItem
-                                  key={option}
-                                  disabled={index === 2}
-                                  selected={index === selectedIndex}
-                                  onClick={(event) => handleMenuItemClick(event, index)}
-                                  >
-                                  <img alt={'Logo'} src={Eth} width={30} height={30} />&nbsp;{option}
-                                  </MenuItem>
-                              ))}
-                              </MenuList>
-                          </ClickAwayListener>
-                          </Paper>
-                      </Grow>
-                      )}
-                  </Popper>
-
-                  &nbsp;
-                  <Wallet/>
-              </Box>
+            <Wallet/>
               <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
                   <IconButton
                   size="large"

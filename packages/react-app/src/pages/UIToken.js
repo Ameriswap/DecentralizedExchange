@@ -304,10 +304,33 @@ export default function UIToken() {
         try{
           setStatusAppr("Give Permission to swap "+token);
           const tokenInst = new web3.eth.Contract(tokenABI, address);
+          
           dispatch(fetchBalance(getFlooredFixed(parseFloat(await tokenInst.methods.balanceOf(userAddress).call() / 1e9 / 1e9), 4)));
           const allowance = await SwapService.getAllowance(address,userAddress);
-          alert(allowance);
           setAllowanceApprove(allowance);
+
+          //USDT USDC
+          if(address == "0xdac17f958d2ee523a2206206994597c13d831ec7" || address == "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"){
+            console.log(parseFloat(await tokenInst.methods.balanceOf(userAddress).call()))
+            let bals = parseFloat(await tokenInst.methods.balanceOf(userAddress).call())
+            if(bals % 1 != 0){
+              dispatch(fetchBalance(parseFloat(await tokenInst.methods.balanceOf(userAddress).call()).toFixed(4)));
+            }
+            else{
+              dispatch(fetchBalance(parseFloat(await tokenInst.methods.balanceOf(userAddress).call())));
+            }
+            
+          }
+          else{
+            console.log(parseFloat(await tokenInst.methods.balanceOf(userAddress).call() / 1e9 / 1e9))
+            let bals = parseFloat(await tokenInst.methods.balanceOf(userAddress).call())
+            if(bals % 1 != 0){
+              dispatch(fetchBalance(parseFloat(await tokenInst.methods.balanceOf(userAddress).call() / 1e9 / 1e9).toFixed(4)));
+            }
+            else{
+              dispatch(fetchBalance(parseFloat(await tokenInst.methods.balanceOf(userAddress).call() / 1e9 / 1e9)));
+            }
+          }
         }catch(err){
           console.log(err);
         }
@@ -838,7 +861,7 @@ export default function UIToken() {
           </Box>
         </Fade>
       </Modal>
-      <CardActions disableSpacing>
+      {/* <CardActions disableSpacing>
         <ExpandMore
           expand={expanded}
           onClick={handleExpandClick}
@@ -847,8 +870,8 @@ export default function UIToken() {
         >
           <ExpandMoreIcon />
         </ExpandMore>
-      </CardActions>
-      <Collapse in={expanded} timeout="auto" unmountOnExit>
+      </CardActions> */}
+      {/* <Collapse in={expanded} timeout="auto" unmountOnExit>
         <CardContent>
             <Grid container spacing={0}>
               <Grid item xs={8}>
@@ -859,7 +882,7 @@ export default function UIToken() {
               </Grid>
             </Grid>
         </CardContent>
-      </Collapse>
+      </Collapse> */}
     </div>
   );
 }

@@ -51,6 +51,14 @@ function Networks(){
       setOpen(false);
     };
 
+    const arbitrumFunc = () => {
+
+    }
+
+    const bnbChainFunc = () => {
+        
+    }
+
     return (
         <>
         <ButtonGroup variant="outlined" ref={anchorRef} aria-label="split button">

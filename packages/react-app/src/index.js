@@ -10,6 +10,8 @@ import Swap from "./pages/Swap";
 import NoPage from "./pages/NoPage";
 import { Provider } from 'react-redux';
 import { store } from './app/store';
+import { Web3ReactProvider } from '@web3-react/core'
+import { Web3Provider } from "@ethersproject/providers";
 import './Style.css';
 
 
@@ -30,23 +32,28 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
   uri: "https://api.thegraph.com/subgraphs/name/paulrberg/create-eth-app",
 });
+function getLibrary(provider) {
+  return new Web3Provider(provider);
+}
 
 ReactDOM.render(
   <React.StrictMode>
-    <DAppProvider config={config}>
-      <ApolloProvider client={client}>
-        <Provider store={store}>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Layout />}>
-                <Route index element={<Swap />} />
-                <Route path="*" element={<NoPage />} />
-              </Route>
-            </Routes>
-          </BrowserRouter>
-        </Provider>
-      </ApolloProvider>
-    </DAppProvider>
+    <Web3ReactProvider getLibrary={getLibrary}>
+      <DAppProvider config={config}>
+        <ApolloProvider client={client}>
+          <Provider store={store}>
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Layout />}>
+                  <Route index element={<Swap />} />
+                  <Route path="*" element={<NoPage />} />
+                </Route>
+              </Routes>
+            </BrowserRouter>
+          </Provider>
+        </ApolloProvider>
+      </DAppProvider>
+    </Web3ReactProvider>
   </React.StrictMode>,
   document.getElementById("root"),
 );

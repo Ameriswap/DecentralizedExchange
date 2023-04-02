@@ -20,6 +20,8 @@ import CoinBaseWallet from'../images/coinbase.png';
 import WalletConnect from'../images/walletconnect.png';
 import Box from '@mui/material/Box';
 import Networks from './Networks'
+import Wallet from './Wallet'
+import { useWeb3React } from '@web3-react/core'
 
 const  Metamask = () =>{
     let userAddress = window.localStorage.getItem('userAccount');
@@ -32,6 +34,8 @@ const  Metamask = () =>{
     const optionsIMG = [MetamaskLogo,TrustWallet,CoinBaseWallet,WalletConnect];
     const [accountCheck,setAccountCheck] = React.useState(false);
     const dispatch = useDispatch()
+    const { activate, deactivate } = useWeb3React();
+    const { active, chainId, account } = useWeb3React();
 
     useEffect(() => {
         saveUserInfo()
@@ -46,22 +50,25 @@ const  Metamask = () =>{
     }
 
     const connectWalletHandler = () => {
-        if(window.ethereum){
-            console.log(window.ethereum);
-            window.ethereum.request({ method: 'eth_requestAccounts' })
-            .then(result =>{
-                setAccountCheck(true)
-                accountChangedHandler(result[0]);
-            })
+        if(activate(Wallet.Injected)){
+            if(window.ethereum){
+                console.log(window.ethereum);
+                window.ethereum.request({ method: 'eth_requestAccounts' })
+                .then(result =>{
+                    setAccountCheck(true)
+                    accountChangedHandler(account);
+                })
+            }
+            else{
+                setAccountCheck(false)
+                Swal.fire(
+                    'Error',
+                    'Non-Ethereum browser detected. You should consider trying MetaMask!',
+                    'error'
+                )
+            }
         }
-        else{
-            setAccountCheck(false)
-            Swal.fire(
-                'Error',
-                'Non-Ethereum browser detected. You should consider trying MetaMask!',
-                'error'
-            )
-        }
+
     }
 
     const accountChangedHandler = (newAccount) => {
@@ -84,9 +91,9 @@ const  Metamask = () =>{
         })
     }
 
-    const account = (account) => {
-        window.localStorage.setItem('userAccount', account); //user persisted data
-    };
+    // const account = (account) => {
+    //     window.localStorage.setItem('userAccount', account); //user persisted data
+    // };
 
     const userBalance = (balance) => {
         window.localStorage.setItem('userBalance', balance); //user persisted data

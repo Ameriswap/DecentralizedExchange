@@ -131,80 +131,79 @@ const  Metamask = () =>{
     };    
 
     return (
-            <div>
-            <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-                {accountCheck === true
-                ?
-                <>
-                    <Networks/>
-                    <Button 
-                    variant="outlined"
-                    ref={anchorRef}
-                    >
-                        {boolIcon ? (
-                            <img src={MetamaskLogo} alt={'Logo'} width={30} height={30} />
-                        ) : (
-                            <AccountBalanceWalletIcon/>
-                        )}
-                        &nbsp;
-                        {connBUttonText}
-                    </Button>
-                </>
-                :
-                <>
-                    <Button 
-                    variant="outlined"
-                    ref={anchorRef}
-                    onClick={connectWalletList}
-                    >
-                        {boolIcon ? (
-                            <img src={MetamaskLogo} alt={'Logo'} width={30} height={30} />
-                        ) : (
-                            <AccountBalanceWalletIcon/>
-                        )}
-                        &nbsp;
-                        {connBUttonText}
-                    </Button>
-                </>
-                }
-
-                <Popper
-                    sx={{
-                    zIndex: 1,
-                    }}
-                    open={open}
-                    anchorEl={anchorRef.current}
-                    role={undefined}
-                    transition
-                    disablePortal
+        <div>
+            {accountCheck === true
+            ?
+            <>
+                <Networks/>
+                <button 
+                class="btn-wallet"
+                ref={anchorRef}
                 >
-                    {({ TransitionProps, placement }) => (
-                    <Grow
-                        {...TransitionProps}
-                        style={{
-                        transformOrigin:
-                            placement === 'bottom' ? 'center top' : 'center bottom',
-                        }}
-                    >
-                        <Paper>
-                        <ClickAwayListener onClickAway={handleClose}>
-                            <MenuList id="split-button-menu" autoFocusItem>
-                            {options.map((option, index) => (
-                                <MenuItem
-                                key={option}
-                                selected={index === selectedIndex}
-                                onClick={(event) => handleMenuItemClick(event, index)}
-                                >
-                                <img alt={'Logo'} src={optionsIMG[index]} width={30} height={30} />&nbsp;{option}
-                                </MenuItem>
-                            ))}
-                            </MenuList>
-                        </ClickAwayListener>
-                        </Paper>
-                    </Grow>
+                    {boolIcon ? (
+                        <img src={MetamaskLogo} alt={'Logo'} width={30} height={30} />
+                    ) : (
+                        <div class="conn-wallet"></div>
                     )}
-                </Popper>   
-            </Box>         
+                    &nbsp;
+                    {connBUttonText}
+                </button>
+            </>
+            :
+            <>
+                <button 
+                class="btn-wallet" 
+                onClick={connectWalletList}
+                ref={anchorRef}
+                >
+                    
+                    {boolIcon ? (
+                        <img src={MetamaskLogo} alt={'Logo'} width={30} height={30} />
+                    ) : (
+                        <div class="conn-wallet"></div>
+                    )}
+                    &nbsp;
+                    {connBUttonText}
+                </button>
+            </>
+            }
+
+            <Popper
+                sx={{
+                zIndex: 1,
+                }}
+                open={open}
+                anchorEl={anchorRef.current}
+                role={undefined}
+                transition
+                disablePortal
+            >
+                {({ TransitionProps, placement }) => (
+                <Grow
+                    {...TransitionProps}
+                    style={{
+                    transformOrigin:
+                        placement === 'bottom' ? 'center top' : 'center bottom',
+                    }}
+                >
+                    <Paper>
+                    <ClickAwayListener onClickAway={handleClose}>
+                        <MenuList id="split-button-menu" autoFocusItem>
+                        {options.map((option, index) => (
+                            <MenuItem
+                            key={option}
+                            selected={index === selectedIndex}
+                            onClick={(event) => handleMenuItemClick(event, index)}
+                            >
+                            <img alt={'Logo'} src={optionsIMG[index]} width={30} height={30} />&nbsp;{option}
+                            </MenuItem>
+                        ))}
+                        </MenuList>
+                    </ClickAwayListener>
+                    </Paper>
+                </Grow>
+                )}
+            </Popper>       
         </div>
     );
 }

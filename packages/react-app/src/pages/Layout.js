@@ -67,110 +67,190 @@ function Layout() {
 
   return (
       <div>
-      <AppBar position="static">
-        <Container maxWidth="xl">
-          <Toolbar disableGutters>
-            <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
-            <Typography
-              variant="h6"
-              noWrap
-              component="a"
-              href="/"
-              sx={{
-                mr: 2,
-                display: { xs: 'none', md: 'flex' },
-                fontFamily: 'monospace',
-                fontWeight: 700,
-                letterSpacing: '.3rem',
-                color: 'inherit',
-                textDecoration: 'none',
-              }}
-            >
-              LOGO
-            </Typography>
-
-            <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-              <IconButton
-                size="large"
-                aria-label="account of current user"
-                aria-controls="menu-appbar"
-                aria-haspopup="true"
-                onClick={handleOpenNavMenu}
-                color="inherit"
-              >
-                <MenuIcon />
-              </IconButton>
-              <Menu
-                id="menu-appbar"
-                anchorEl={anchorElNav}
-                anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'left',
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'left',
-                }}
-                open={Boolean(anchorElNav)}
-                onClose={handleCloseNavMenu}
-                sx={{
-                  display: { xs: 'block', md: 'none' },
-                }}
-              >
-                {pages.map((page) => (
-                  <MenuItem key={page} onClick={handleCloseNavMenu}>
-                    <Typography textAlign="center">{page}</Typography>
-                  </MenuItem>
-                ))}
-              </Menu>
-            </Box>
-            <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
-            <Typography
-              variant="h5"
-              noWrap
-              component="a"
-              href=""
-              sx={{
-                mr: 2,
-                display: { xs: 'flex', md: 'none' },
-                flexGrow: 1,
-                fontFamily: 'monospace',
-                fontWeight: 700,
-                letterSpacing: '.3rem',
-                color: 'inherit',
-                textDecoration: 'none',
-              }}
-            >
-              LOGO
-            </Typography>
-            <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-              {pages.map((page) => (
-                <Button
-                  key={page}
-                  onClick={handleCloseNavMenu}
-                  sx={{ my: 2, color: 'white', display: 'block' }}
-                >
-                  {page}
-                </Button>
-              ))}
-            </Box>
+        <div class="bg-amweriswap-content1">
+          <div class="header-menu">
             <Wallet/>
-              <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
-                  <IconButton
-                  size="large"
-                  aria-label="show more"
-                  aria-controls={mobileMenuId}
-                  aria-haspopup="true"
-                  color="inherit"
-                  >
-                  <MoreIcon />
-                  </IconButton>
-              </Box>
-          </Toolbar>
-        </Container>
-      </AppBar>
-      <Outlet/>
+          </div>
+          <div class="header-content1">
+                <div class="content1">
+                    <img class="logo" src="image/Logo/Ameriswaplogo.png"/>
+                    <h1>LOREM IPSUM DOLOR SIT AMET,CONSETETUR</h1>
+                    <h6>LOREM IPSUM DOLOR SIT AMET, CONSETETUR SAIDPSCING ELITR, SED DIAM NONUMY EIRMOD</h6>
+                    <p>Lorem ipsum dolor sit amet, consetetur sadipscing eiltr, set diam nonumy eirmod tempor invidunt ut labore et</p>
+                </div>
+                <div class="content1">
+                    <img class="future" src="image/Image/3D/future.png"/>
+                </div>
+          </div>
+        </div>
+        <div class="bg-amweriswap-content">
+          <div class="bg-amweriswap-section">
+            <div class="bg-amweriswap-section-left">
+              <div class="swap-box-3">
+                <div class="row">
+                    <div class="col-md-6">
+                      <img class="coin" src="image/Images/Bitcoin.svg.png"/>
+                      <label>Bitcoin</label>
+                      <h5>$55,544.95</h5>
+                      <span class="green">2.5%</span>
+                    </div>
+                    <div class="col-md-6">
+                      <img class="linegraph" src="image/dummy_linegraph_green.png"/>
+                    </div>
+                </div>
+              </div>
+              <div class="swap-box-3">
+                <div class="row">
+                  <div class="col-md-6">
+                    <img class="coin" src="image/Images/eth.png"/>
+                    <label>Eth</label>
+                    <h5>$55,544.95</h5>
+                    <span class="red">2.5%</span>
+                  </div>
+                  <div class="col-md-6">
+                    <img class="linegraph" src="image/dummy_linegraph_red.png"/>
+                  </div>
+              </div>
+              </div>
+              <div class="swap-box-3">
+                <div class="row">
+                    <div class="col-md-6">
+                      <img class="coin" src="image/Images/dogecoin.svg"/>
+                      <label>Bitcoin</label>
+                      <h5>$55,544.95</h5>
+                      <span class="green">2.5%</span>
+                    </div>
+                    <div class="col-md-6">
+                      <img class="linegraph" src="image/dummy_linegraph_green.png"/>
+                    </div>
+                </div>
+              </div>
+              <div class="swap-box-3">
+                <div class="row">
+                    <div class="col-md-6">
+                      <img class="coin" src="image/Images/monero.png"/>
+                      <label>Bitcoin</label>
+                      <h5>$55,544.95</h5>
+                      <span class="green">2.5%</span>
+                    </div>
+                    <div class="col-md-6">
+                      <img class="linegraph" src="image/dummy_linegraph_green.png"/>
+                    </div>
+                </div>
+              </div>
+              <div class="swap-box-3">
+                <div class="row">
+                    <div class="col-md-6">
+                      <img class="coin" src="image/Images/litecoin.png"/>
+                      <label>Bitcoin</label>
+                      <h5>$55,544.95</h5>
+                      <span class="red">2.5%</span>
+                    </div>
+                    <div class="col-md-6">
+                      <img class="linegraph" src="image/dummy_linegraph_red.png"/>
+                    </div>
+                </div>
+              </div>
+            </div>
+            <div class="bg-amweriswap-section-right">
+              <h1>Lorem ipsum dolor sit amet ,consetetur</h1>
+              <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sad diam voluptua. At vero eos at accusam at justo duo dolores</p>
+              <button class="btn-learn-more">
+                Learn More <img class="lear" src="image/icons/arrow.svg"/>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="bg-amweriswap-content2">
+          <Outlet/>
+        </div>
+        <div class="bg-amweriswap-content4">
+          <div class="bg-amweriswap-section4">
+            <h1>Lorem Ipsum</h1>
+            <div class="swap-box-4">
+              <div class="row">
+                <div class="col-md-6">
+                    <h5>Lorem Ipsum Dolor Sit Amet</h5>
+                    <span>$ 10 000 000</span>
+                    <p>Lorem ipsum</p>
+                </div>
+                <div class="col-md-6">
+                  <img src="image/Images/buy1.png"/>
+                </div>
+              </div>
+            </div>
+            <div class="swap-box-4">
+              <div class="row">
+                <div class="col-md-6">
+                  <h5>Lorem Ipsum Dolor Sit Amet</h5>
+                  <span>$ 10 000 000</span>
+                  <p>Lorem ipsum</p>
+                </div>
+                <div class="col-md-6">
+                  <img src="image/Images/image2.png"/>
+                </div>
+              </div>
+            </div>
+            <div class="swap-box-4">
+              <div class="row">
+                <div class="col-md-6">
+                  <h5>Lorem Ipsum Dolor Sit Amet</h5>
+                  <span>$ 10 000 000</span>
+                  <p>Lorem ipsum</p>
+                </div>
+                <div class="col-md-6">
+                  <img class="last_img" src="image/Images/image3.png"/>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-amweriswap-content5">
+          <div class="bg-amweriswap-section5">
+            <span>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam</span>
+            <br/>
+            <div class="swap-box-5">
+
+            </div>
+          </div>
+        </div>
+        <div class="bg-amweriswap-content6">
+          <div class="bg-amweriswap-section6">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="left-section">
+                  <h1>COMING SOON</h1>
+                  <h2>LOREM IPSUM DOLOR SIT AMET, CONSETETUR</h2>
+                  <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet</p>
+                  <img class="appstore" src="image/dummy_appstore.png"/>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="right-section">
+                  <img class="phone" src="image/Images/phone.png"/>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <footer>
+          <div class="footer-section">
+            <div class="footer-content-left">
+              <img src="image/Logo/Ameriswaplogo.png"/>
+              <p>We Are Ameriswap - a new social crypto community <br/> offering fun and simple investing for everyone</p>
+            </div>
+            <div class="footer-content-right">
+              <h6>Subscribe Now</h6>
+              <p>Get the latest news and updates</p>
+              <input type="text" placeholder="Email Address" class="form-control" />
+              <img class="socmed" src="image/dummy_socmed.png"/>
+            </div>
+            <div class="copyright">
+              <p>Ameriswap -  &#169 2023 All Rights Reserved</p>
+            </div>
+          </div>
+        </footer>
+      
     </div>
 
   );

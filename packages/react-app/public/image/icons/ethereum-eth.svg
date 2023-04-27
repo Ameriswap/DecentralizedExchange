@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 21 21">
+  <g id="ethereum-eth" transform="translate(0 0.242)">
+    <circle id="Ellipse_220" data-name="Ellipse 220" cx="10.5" cy="10.5" r="10.5" transform="translate(0 -0.242)" fill="#627eea"/>
+    <g id="Group_580" data-name="Group 580" transform="translate(5.865 2.597)">
+      <path id="Path_730" data-name="Path 730" d="M16.5,4V9.781l4.886,2.183Z" transform="translate(-11.611 -4)" fill="rgba(255,255,255,0.6)"/>
+      <path id="Path_731" data-name="Path 731" d="M13.887,4,9,11.964l4.887-2.183Z" transform="translate(-9 -4)" fill="#fff"/>
+      <path id="Path_732" data-name="Path 732" d="M16.5,20.452V24.38l4.889-6.764Z" transform="translate(-11.611 -8.742)" fill="rgba(255,255,255,0.6)"/>
+      <path id="Path_733" data-name="Path 733" d="M13.887,24.38V20.452L9,17.616Z" transform="translate(-9 -8.742)" fill="#fff"/>
+      <path id="Path_734" data-name="Path 734" d="M16.5,17.891l4.886-2.837L16.5,12.872Z" transform="translate(-11.611 -7.09)" fill="rgba(255,255,255,0.2)"/>
+      <path id="Path_735" data-name="Path 735" d="M9,15.054l4.887,2.837V12.872Z" transform="translate(-9 -7.09)" fill="rgba(255,255,255,0.6)"/>
+    </g>
+  </g>
+</svg>

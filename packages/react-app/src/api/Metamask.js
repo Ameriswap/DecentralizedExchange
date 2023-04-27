@@ -150,7 +150,9 @@ const  Metamask = () =>{
             {accountCheck === true
             ?
             <>
-                <Networks/>
+                <div style={{float: 'right'}}>
+                    <Networks/>
+                </div>
                 <button 
                 class="btn-wallet"
                 ref={anchorRef}
@@ -161,7 +163,7 @@ const  Metamask = () =>{
                         <div class="conn-wallet"></div>
                     )}
                     &nbsp;
-                    {userAddress}
+                    <span>{userAddress.substring(0, 14)}...</span>
                 </button>
             </>
             :

@@ -36,6 +36,13 @@
     float: right;
 }
 
+.btn-wallet span {
+    white-space: nowrap; 
+    width: 50px; 
+    overflow: hidden;
+    text-overflow: ellipsis; 
+}
+
 .conn-wallet {
     background: url("image/icons/wallet-icon.svg") no-repeat center / contain;
     height: 25px;

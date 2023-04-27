@@ -62,7 +62,7 @@ function Networks(){
 
     return (
         <>
-        <ButtonGroup variant="outlined" ref={anchorRef} aria-label="split button">
+        <ButtonGroup className="btn-wallet" variant="outlined" ref={anchorRef} aria-label="split button">
             <Button onClick={handleToggle}><img alt={'Logo'} src={optionsIMG[selectedIndex]} width={30} height={30} />&nbsp;{options[selectedIndex]}<ArrowDropDownIcon /></Button>
         </ButtonGroup>
         <Popper

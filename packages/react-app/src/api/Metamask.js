@@ -34,8 +34,8 @@ const  Metamask = () =>{
     const optionsIMG = [MetamaskLogo,TrustWallet,CoinBaseWallet,WalletConnect];
     const [accountCheck,setAccountCheck] = React.useState(false);
     const dispatch = useDispatch()
-    const { activate, deactivate } = useWeb3React();
-    const { active, chainId, account } = useWeb3React();
+    // const { activate, deactivate } = useWeb3React();
+    // const { active, chainId, account } = useWeb3React();
 
     useEffect(() => {
         saveUserInfo()
@@ -50,25 +50,40 @@ const  Metamask = () =>{
     }
 
     const connectWalletHandler = () => {
-        if(activate(Wallet.Injected)){
-            if(window.ethereum){
-                console.log(window.ethereum);
-                window.ethereum.request({ method: 'eth_requestAccounts' })
-                .then(result =>{
-                    setAccountCheck(true)
-                    accountChangedHandler(account);
-                })
-            }
-            else{
-                setAccountCheck(false)
-                Swal.fire(
-                    'Error',
-                    'Non-Ethereum browser detected. You should consider trying MetaMask!',
-                    'error'
-                )
-            }
+        if(window.ethereum){
+            console.log(window.ethereum);
+            window.ethereum.request({ method: 'eth_requestAccounts' })
+            .then(result =>{
+                setAccountCheck(true)
+                accountChangedHandler(account);
+            })
         }
-
+        else{
+            setAccountCheck(false)
+            Swal.fire(
+                'Error',
+                'Non-Ethereum browser detected. You should consider trying MetaMask!',
+                'error'
+            )
+        }
+        // if(activate(Wallet.Injected)){
+        //     if(window.ethereum){
+        //         console.log(window.ethereum);
+        //         window.ethereum.request({ method: 'eth_requestAccounts' })
+        //         .then(result =>{
+        //             setAccountCheck(true)
+        //             accountChangedHandler(account);
+        //         })
+        //     }
+        //     else{
+        //         setAccountCheck(false)
+        //         Swal.fire(
+        //             'Error',
+        //             'Non-Ethereum browser detected. You should consider trying MetaMask!',
+        //             'error'
+        //         )
+        //     }
+        // }
     }
 
     const accountChangedHandler = (newAccount) => {
@@ -91,9 +106,9 @@ const  Metamask = () =>{
         })
     }
 
-    // const account = (account) => {
-    //     window.localStorage.setItem('userAccount', account); //user persisted data
-    // };
+    const account = (account) => {
+        window.localStorage.setItem('userAccount', account); //user persisted data
+    };
 
     const userBalance = (balance) => {
         window.localStorage.setItem('userBalance', balance); //user persisted data
@@ -146,7 +161,7 @@ const  Metamask = () =>{
                         <div class="conn-wallet"></div>
                     )}
                     &nbsp;
-                    {connBUttonText}
+                    {userAddress}
                 </button>
             </>
             :
@@ -163,7 +178,7 @@ const  Metamask = () =>{
                         <div class="conn-wallet"></div>
                     )}
                     &nbsp;
-                    {connBUttonText}
+                    Connect Wallet
                 </button>
             </>
             }

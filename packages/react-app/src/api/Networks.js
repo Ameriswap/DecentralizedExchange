@@ -31,7 +31,8 @@ function Networks(){
     const anchorRef = React.useRef(null);
     const [selectedIndex, setSelectedIndex] = React.useState(0);
   
-    const options = ['Ethereum','BNB Chain','Arbitrum'];
+    // const options = ['Ethereum','BNB Chain','Arbitrum'];
+    const options = ['Ethereum'];
     const optionsIMG = [Eth,BnbChain,Arbitrum];
   
     const handleMenuItemClick = (event, index) => {

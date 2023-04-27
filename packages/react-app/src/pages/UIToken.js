@@ -750,7 +750,8 @@ export default function UIToken() {
                 }
                 
                 &nbsp;{buySelectedToken}
-                <ArrowDropDownIcon /></Button>
+                <ArrowDropDownIcon />
+              </Button>
             </Grid>
             <Grid style={{float:'right'}} item xs={8}>
             {loading === false?

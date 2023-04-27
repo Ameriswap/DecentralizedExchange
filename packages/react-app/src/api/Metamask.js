@@ -54,8 +54,9 @@ const  Metamask = () =>{
             console.log(window.ethereum);
             window.ethereum.request({ method: 'eth_requestAccounts' })
             .then(result =>{
+                console.log(result[0])
                 setAccountCheck(true)
-                accountChangedHandler(account);
+                accountChangedHandler(result[0]);
             })
         }
         else{

@@ -133,7 +133,7 @@ export default function Swap() {
   const [sellSelectedTokenIMG, setSellSelectedTokenIMG] = React.useState("https://tokens.1inch.io/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png");
   const [sellSelectedTokenADDR, setSellSelectedTokenADDR] = React.useState('0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee');
   const userAddress = window.localStorage.getItem('userAccount');
-  const [buySelectedToken, setbuySelectedToken] = React.useState('Select Token');
+  const [buySelectedToken, setbuySelectedToken] = React.useState('Select');
   const [buySelectedTokenIMG, setbuySelectedTokenIMG] = React.useState("");
   const [buySelectedTokenADDR, setBuySelectedTokenADDR] = React.useState('');
 
@@ -313,13 +313,13 @@ export default function Swap() {
           if(address == "0xdac17f958d2ee523a2206206994597c13d831ec7" || address == "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"){
             console.log(parseFloat(await tokenInst.methods.balanceOf(userAddress).call()))
             let bals = parseFloat(await tokenInst.methods.balanceOf(userAddress).call())
+
             if(bals % 1 != 0){
               dispatch(fetchBalance(parseFloat(await tokenInst.methods.balanceOf(userAddress).call()).toFixed(4)));
             }
             else{
               dispatch(fetchBalance(parseFloat(await tokenInst.methods.balanceOf(userAddress).call())));
             }
-            
           }
           else{
             console.log(parseFloat(await tokenInst.methods.balanceOf(userAddress).call() / 1e9 / 1e9))
@@ -332,6 +332,7 @@ export default function Swap() {
             }
           }
         }catch(err){
+          setLoading(false);
           console.log(err);
         }
       }
@@ -708,8 +709,7 @@ export default function Swap() {
   return (
     <div>
       <div className="header-content2 row">
-        <div className="col-md-2"></div>
-        <div className="content2 col-md-5">
+        <div className="content2">
           <div className="swap-box1">
             <h1>Quick Swap</h1>
             <div className="row first-row">
@@ -751,8 +751,7 @@ export default function Swap() {
                     <label className="remaining">{buyBalance}</label>
                   </div>
                 </div>
-                {loading === false?
-                  <>
+                <>
                   <input 
                   type="text" 
                   disabled
@@ -773,10 +772,7 @@ export default function Swap() {
                     &nbsp;{buySelectedToken}
                     <ArrowDropDownIcon />
                   </Button>
-                  </>
-                :
-                <Skeleton variant="rectangular" width={240} height={30} />
-              }
+                </>
               </div>
             </div>
             <Modal
@@ -791,7 +787,7 @@ export default function Swap() {
               }}
             >
               <Fade in={open}>
-                <Box sx={style}>
+                <Box sx={style} id="token-modal">
                   <Grid container spacing={0}>
                     <Grid item xs={4}>
                       <Button onClick={handleClose}><ArrowBackIosIcon style={{fontSize: '15px'}}/></Button>
@@ -845,19 +841,27 @@ export default function Swap() {
                       <span>{status}</span>
                     </div>
                     :
-                    <div onClick={e => swapToken()} className='swap_button_approved'>
-                      {loading === false?
-                          <span>{status}</span>
+                    <>
+                    {loading === false?
+                      <div onClick={e => swapToken()} className='btn-wallet-approve'>
+                            <span>{status}</span>
+                      </div>
                       :
-                        <Skeleton variant="rectangular" width={350} height={30} />
-                      }
-                    </div>
+                      <Skeleton variant="rectangular" width={140} height={30} />
+                    }
+                    </>
                   }
                 </div>
-                :                
-                <button className="btn-wallet">
-                  <span>{status}</span>
-                </button>
+                :            
+                  <>
+                  {loading === false?
+                    <button className="btn-wallet">
+                      <span>{status}</span>
+                    </button>
+                    :
+                    <Skeleton variant="rectangular" width={140} height={30} />
+                  }
+                  </>
                 }
               </div>
               <div className="col-md-4">
@@ -865,7 +869,7 @@ export default function Swap() {
             </div>
           </div>
         </div>
-        <div className="content2-2nd col-md-5">
+        <div className="content2-2nd">
           <div className="swap-box2">
           </div>
         </div>

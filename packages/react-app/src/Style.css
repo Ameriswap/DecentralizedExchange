@@ -16,20 +16,8 @@ button {
   border: none!important;
 }
 
-#sell_btn {
-  color: #000000!important;
-  border: none!important;
-  position: relative;
-  bottom: 46px;
-  left: 42px;
-}
-
-#buy_btn{
-  color: #000000!important;
-  border: none!important;
-  position: relative;
-  bottom: 43px;
-  left: 25px;
+#token-modal{
+  background-color: #022A57!important;
 }
 
 .css-1ptx2yq-MuiInputBase-root-MuiInput-root::before{

@@ -8,6 +8,17 @@ import Button from '@mui/material/Button';
 import {ethers} from 'ethers';
 import MetamaskLogo from '../images/metamask.png';
 import Swal from 'sweetalert2'
+import Modal from '@mui/material/Modal';
+import { styled } from '@mui/material/styles';
+import PropTypes from 'prop-types';
+import Backdrop from '@mui/material/Backdrop';
+import { useSpring, animated } from '@react-spring/web';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import Grid from '@mui/material/Grid';
+import Chip from '@mui/material/Chip';
+import LogoutIcon from '@mui/icons-material/Logout';
+import Tooltip from '@mui/material/Tooltip';
 
 import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
@@ -26,6 +37,7 @@ import { useWeb3React } from '@web3-react/core'
 const  Metamask = () =>{
     let userAddress = window.localStorage.getItem('userAccount');
     const [open, setOpen] = React.useState(false);
+    const [openWallet, setOpenWallet] = React.useState(false);
     const anchorRef = React.useRef(null);
     const [selectedIndex, setSelectedIndex] = React.useState(0);
     const [connBUttonText,setConnButtonText] = useState('Connect Wallet');
@@ -41,12 +53,67 @@ const  Metamask = () =>{
         saveUserInfo()
     });
 
+    const Fade = React.forwardRef(function Fade(props, ref) {
+    const { in: open, children, onEnter, onExited, ...other } = props;
+    const style = useSpring({
+        from: { opacity: 0 },
+        to: { opacity: open ? 1 : 0 },
+        onStart: () => {
+        if (open && onEnter) {
+            onEnter();
+        }
+        },
+        onRest: () => {
+        if (!open && onExited) {
+            onExited();
+        }
+        },
+    });
+
+    return (
+        <animated.div ref={ref} style={style} {...other}>
+        {children}
+        </animated.div>
+    );
+    });
+
+    Fade.propTypes = {
+    children: PropTypes.element,
+    in: PropTypes.bool.isRequired,
+    onEnter: PropTypes.func,
+    onExited: PropTypes.func,
+    };
+
+    const style = {
+        position: 'absolute',
+        height:'380px',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: 400,
+        bgcolor: '#171616 !important',
+        color:'#fff',
+        borderRadius: '24px',
+        boxShadow: 24,
+        p: 1,
+    };
+
+
     const saveUserInfo = () => {
         
         if(userAddress){
             connectWalletHandler();
             accountChangedHandler(userAddress);   
         }
+    }
+
+    const disconnectWallet = () => {
+        // localStorage.clear(); 
+        // setAccountCheck(false)
+        // setBoolIcon(false);
+        // getUserBalance(0);
+        // account({});
+        setOpenWallet(false)
     }
 
     const connectWalletHandler = () => {
@@ -61,11 +128,13 @@ const  Metamask = () =>{
         }
         else{
             setAccountCheck(false)
-            Swal.fire(
-                'Error',
-                'Non-Ethereum browser detected. You should consider trying MetaMask!',
-                'error'
-            )
+            Swal.fire({
+                title: 'Error',
+                html: 
+                'Non-Ethereum browser detected. You should consider trying ' +
+                '<a target="_blank" href="https://metamask.io/">Metamask</a> ',
+                icon: 'error'
+            })
         }
         // if(activate(Wallet.Injected)){
         //     if(window.ethereum){
@@ -146,6 +215,12 @@ const  Metamask = () =>{
         setOpen(false);
     };    
 
+    const handleOpenWallet = () => {
+        setOpenWallet(true);
+    }
+
+    const handleCloseWallet = () => setOpenWallet(false);
+
     return (
         <div>
             {accountCheck === true
@@ -156,7 +231,7 @@ const  Metamask = () =>{
                 </div>
                 <button 
                 class="btn-wallet"
-                ref={anchorRef}
+                onClick={handleOpenWallet}
                 >
                     {boolIcon ? (
                         <img src={MetamaskLogo} alt={'Logo'} width={30} height={30} />
@@ -185,6 +260,38 @@ const  Metamask = () =>{
                 </button>
             </>
             }
+
+            <Modal
+              aria-labelledby="spring-modal-title"
+              aria-describedby="spring-modal-description"
+              open={openWallet}
+              onClose={handleCloseWallet}
+            >
+              <Fade in={openWallet}>
+                <Box sx={style} id="token-modal">
+                  <Grid container spacing={0}>
+                    <Grid item xs={4}>
+                      <Button onClick={handleCloseWallet}><ArrowBackIosIcon style={{fontSize: '15px'}}/></Button>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <h3>Account</h3>
+                    </Grid>
+                  </Grid>
+                  <Grid container spacing={0}>
+                    <Grid item xs={6}>
+                        <Chip style={{color: '#fff'}} label={userAddress.substring(0, 14)+'...'}/>
+                    </Grid>
+                    <Grid item xs={6}>
+                        <Tooltip title="Disconnect">
+                            <Button style={{float: 'right'}} onClick={disconnectWallet}>
+                                <LogoutIcon/>
+                            </Button>
+                        </Tooltip>
+                    </Grid>
+                  </Grid>
+                </Box>
+              </Fade>
+            </Modal>
 
             <Popper
                 sx={{

@@ -88,7 +88,7 @@ function Layout() {
               <div className="swap-box-3">
                 <div className="row">
                     <div className="col-md-6">
-                      <img className="coin" src="image/Images/Bitcoin.svg.png"/> &nbsp;
+                      <img className="coin" src="image/Images/Bitcoin.svg.png"/>
                       <label>Bitcoin</label>
                       <h5>$55,544.95</h5>
                       <span className="green">2.5%</span>
@@ -101,7 +101,7 @@ function Layout() {
               <div className="swap-box-3">
                 <div className="row">
                   <div className="col-md-6">
-                    <img className="coin" src="image/Images/eth.png"/> &nbsp;
+                    <img className="coin" src="image/Images/eth.png"/>
                     <label>Eth</label>
                     <h5>$55,544.95</h5>
                     <span className="red">2.5%</span>
@@ -114,7 +114,7 @@ function Layout() {
               <div className="swap-box-3">
                 <div className="row">
                     <div className="col-md-6">
-                      <img className="coin" src="image/Images/dogecoin.svg"/> &nbsp;
+                      <img className="coin" src="image/Images/dogecoin.svg"/>
                       <label>Dogecoin</label>
                       <h5>$55,544.95</h5>
                       <span className="green">2.5%</span>
@@ -127,7 +127,7 @@ function Layout() {
               <div className="swap-box-3">
                 <div className="row">
                     <div className="col-md-6">
-                      <img className="coin" src="image/Images/monero.png"/>&nbsp;
+                      <img className="coin" src="image/Images/monero.png"/>
                       <label>Monero </label>
                       <h5>$55,544.95</h5>
                       <span className="green">2.5%</span>
@@ -140,7 +140,7 @@ function Layout() {
               <div className="swap-box-3">
                 <div className="row">
                     <div className="col-md-6">
-                      <img className="coin" src="image/Images/litecoin.png"/> &nbsp;
+                      <img className="coin" src="image/Images/litecoin.png"/>
                       <label>Litecoin</label>
                       <h5>$55,544.95</h5>
                       <span className="red">2.5%</span>

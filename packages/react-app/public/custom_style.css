@@ -18,8 +18,9 @@
 .header-menu {
     position: fixed;
     margin: 0 auto;
-    width: 100%;
+    width: 84%;
     top: 20px;
+    z-index: 99999;
 }
 
 .btn-wallet {
@@ -32,6 +33,7 @@
     box-shadow: 0px 3px 6px 0px #ffe5e5;
     height: 39px;
     float: right;
+    text-align: center;
 }
 
 .btn-wallet-approve {
@@ -45,6 +47,7 @@
     height: 39px;
     float: right;
     cursor: pointer;
+    text-align: center;
 }
 
 .btn-wallet span {
@@ -68,15 +71,15 @@
   border: none!important;
   position: relative;
   bottom: 46px;
-  left: 42px;
+  left: 93px;
 }
 
 #buy_btn{
   color: #000000!important;
   border: none!important;
   position: relative;
-  bottom: 46px;
-  left: 45px;
+  bottom: 44px;
+  left: 83px;
 }
 
 /* .btn-wallet:hover {
@@ -126,6 +129,8 @@
     color: #fff;
     font-weight: bold;
     font-size: 25px;
+    position: relative;
+    top: 47px;
 }
 
 .content1 p {

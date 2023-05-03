@@ -67,17 +67,17 @@ function Layout() {
 
   return (
       <div>
-        <div className="bg-amweriswap-content1">
+        <div className="container-fluid bg-amweriswap-content1">
           <div className="header-menu">
             <Wallet/>
           </div>
-          <div className="header-content1">
-                <div className="content1">
+          <div className="row header-content1">
+                <div className="content1 col-md-6">
                     <img className="logo" src="image/Logo/Ameriswaplogo.png"/>
                     <h1>All-in-One Decentralized Finance Platform</h1>
                     <h6>Ameriswap is a trustless decentralized cryptocurrency trading platform.</h6>
                 </div>
-                <div className="content1">
+                <div className="content1 col-md-6">
                     <img className="future" src="image/Image/3D/future.png"/>
                 </div>
           </div>

@@ -69,17 +69,11 @@
 #sell_btn {
   color: #000000!important;
   border: none!important;
-  position: relative;
-  bottom: 46px;
-  left: 93px;
 }
 
 #buy_btn{
   color: #000000!important;
   border: none!important;
-  position: relative;
-  bottom: 44px;
-  left: 83px;
 }
 
 /* .btn-wallet:hover {
@@ -204,6 +198,17 @@
 
 .swap-box1 .first-row {
     height: 157px;
+}
+
+.swap-box1 .first-row .col-md-5 {
+    position: relative;
+}
+
+.btn-sell-buy #sell_btn, .btn-sell-buy #buy_btn {
+    position: relative;
+    bottom: 44px;
+    float: right;
+    right: 8px;
 }
 
 .content2-2nd {

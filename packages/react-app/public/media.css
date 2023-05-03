@@ -1,0 +1,259 @@
+@media only screen and (max-width: 600px) {
+    .header-content1,
+    .header-content2 {
+      width: 100%;
+    }
+    .header-menu
+    {
+     position: relative;
+    }
+    .content1
+    {
+      left: 0px !important;
+    }
+    .content1 h1
+    {
+        font-size: 32px;
+    }
+    .content1 h6
+    {
+        top: 0px;
+    }
+    .content1 img.future {
+        width: 300px;
+        
+    }
+    .bg-amweriswap-section
+    {
+        width:100%;
+    }
+   
+    .bg-amweriswap-section-right
+    {
+        width: 80%;
+        float: left;
+        left: 10%;
+    }
+    .bg-amweriswap-section-left
+    {
+        left: 0%;
+        width:100%;
+    }
+    .swap-box-3
+    {
+        width:40%;
+        height: auto;
+    }
+    .bg-amweriswap-content2
+    {
+        height: auto;
+    }
+    .content2, .content2-2nd, .swap-box1, .swap-box2
+    {
+        width: 100%;
+        margin-top: 20px;
+    }
+    .swap-box1
+    {
+        height: 450px;
+    }
+    .bg-amweriswap-content4
+    {
+        height:auto;
+    }
+    .bg-amweriswap-section4,
+    .bg-amweriswap-section5
+    {
+        width: 100%;
+        height: auto;
+    }
+    .swap-box-4{
+        width: 90%;
+        height: auto;
+        margin: 0px 0px 17px 0px;
+    }
+    .swap-box-4 img.last_img
+    {
+        position: relative;
+    }
+    .bg-amweriswap-section5 span
+    {
+        width: 100%;
+    }
+    .swap-box-5{
+        width: 90%;
+        margin: 0px 0px 17px 0px;
+    }
+    .bg-amweriswap-section6
+    {
+        width: 100%;
+        height: auto;
+    }
+    .bg-amweriswap-content6
+    {
+        height: auto;
+    }
+    .bg-amweriswap-section6 .left-section
+    {
+        width: 90%;
+        padding-top: 0px;
+        margin-left: 10%;
+    }
+    .bg-amweriswap-section6 .phone
+    {
+        width: 350px;
+    }
+    footer
+    {
+        height: 400px;
+    }
+    .footer-content-left
+    {
+        width:100%;
+    }
+    .footer-content-right
+    {
+        width: 100%;
+    }
+    .footer-section
+    {
+        width: 90%;
+    }
+    .copyright
+    {
+        top:355px;
+    }
+
+  }
+
+  @media only screen and (max-width: 300px) {
+    .content1 img.future {
+        width: 250px;
+        
+    }
+    .bg-amweriswap-section6 .phone {
+        width: 250px;
+    }
+    .bg-amweriswap-section6 .appstore
+    {
+        width: 230px;
+    }
+    footer
+    {
+        height: 440px;
+    }
+    .copyright
+    {
+        top:365px;
+    }
+    .swap-box-3 h5
+    {
+        font-size: 16px;
+    }
+    .content1 h1
+    {
+        font-size: 27px;
+    }
+  }
+
+  /* Landscape */
+  @media only screen and (max-width: 900px) and (min-width: 600px) {
+
+    .header-menu
+    {
+        width: 90%;
+    }
+    .header-content1
+    {
+        width: 100%;
+    }
+    .content1
+    {
+        width: 100% !important;
+        left: 0px;
+    }
+    .content1 img.future
+    {
+        width: 450px;
+    }
+    .bg-amweriswap-section
+    {
+        width: 100%;
+    }
+    .bg-amweriswap-section-left
+    {
+        left: 5%;
+    }
+    .bg-amweriswap-section-right
+    {
+        width: 100%;
+        text-align: center;
+    }
+    .header-content2
+    {
+        width: 100%;
+    }
+    .bg-amweriswap-content2
+    {
+        height:auto;
+    }
+    .content2,
+    .content2-2nd
+    {
+        width: 100%;
+    }
+    .swap-box1, .swap-box2
+    {
+        width: 100%;
+        margin-top: 25px;
+    }
+    .bg-amweriswap-content4
+    {
+        height: auto;
+    }
+    .bg-amweriswap-section4
+    {
+        width: 100%;
+        height: auto;
+    }
+    .bg-amweriswap-section5
+    {
+        width: 100%;
+    }
+    .swap-box-5
+    {
+        width: 90%;
+    }
+    .bg-amweriswap-section6
+    {
+        width: 100%;
+    }
+    .bg-amweriswap-section6 .left-section
+    {
+        width: 90%;
+        padding-top: 0px;
+        margin-left: 10%;
+    }
+    .bg-amweriswap-section6 .phone
+    {
+        width: 350px;
+    }
+    .footer-section
+    {
+        width: 100%;
+    }
+    .footer-content-left
+    {
+        margin-left: 2%;
+    }
+    .footer-content-right
+    {
+        margin-right: 5%;
+    }
+    .copyright
+    {
+        left: 3%;
+    }
+
+
+}

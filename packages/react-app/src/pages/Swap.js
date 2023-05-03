@@ -730,7 +730,9 @@ export default function Swap() {
                   </div>
                 </div>
                 <input inputProps={{lengthinput}} value={sellValue} onChange={sellInputFunc} type="text" className="form-control" />
-                <Button id="sell_btn" onClick={e => handleOpen('sell')}><img alt={'Logo'} src={sellSelectedTokenIMG} width={30} height={30} />&nbsp;{sellSelectedToken}<ArrowDropDownIcon /></Button>
+                <div className='btn-sell-buy'>
+                  <Button id="sell_btn" onClick={e => handleOpen('sell')}><img alt={'Logo'} src={sellSelectedTokenIMG} width={30} height={30} />&nbsp;{sellSelectedToken}<ArrowDropDownIcon /></Button>
+                </div>
               </div>
               <div className="col-md-2">
                 <img onClick={e => swapReverse()} className="swap_icon" src="image/icons/swap.svg"/>
@@ -762,16 +764,18 @@ export default function Swap() {
                     readOnly: true,
                   }}
                   />
-                  <Button id="buy_btn" onClick={e => handleOpen('buy')}>
-                    {buySelectedTokenIMG?
-                      <img alt={'Logo'} src={buySelectedTokenIMG} width={30} height={30} />
-                    :
-                      []
-                    }
-                    
-                    &nbsp;{buySelectedToken}
-                    <ArrowDropDownIcon />
-                  </Button>
+                  <div className='btn-sell-buy'>
+                    <Button id="buy_btn" onClick={e => handleOpen('buy')}>
+                      {buySelectedTokenIMG?
+                        <img alt={'Logo'} src={buySelectedTokenIMG} width={30} height={30} />
+                      :
+                        []
+                      }
+                      
+                      &nbsp;{buySelectedToken}
+                      <ArrowDropDownIcon />
+                    </Button>
+                  </div>
                 </>
               </div>
             </div>

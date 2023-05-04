@@ -179,9 +179,8 @@
     width: 38px;
     position: relative;
     top: 30px;
-    
+    left: 10px;
 }
-
 .swap-box1 .from {
     color: #35AFEB;
     height: 30px;
@@ -197,7 +196,7 @@
 }
 
 .swap-box1 .first-row {
-    height: 157px;
+    height: auto;
 }
 
 .swap-box1 .first-row .col-md-5 {

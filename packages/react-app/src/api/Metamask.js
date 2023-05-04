@@ -230,13 +230,13 @@ const  Metamask = () =>{
                     <Networks/>
                 </div>
                 <button 
-                class="btn-wallet"
+                className="btn-wallet"
                 onClick={handleOpenWallet}
                 >
                     {boolIcon ? (
                         <img src={MetamaskLogo} alt={'Logo'} width={30} height={30} />
                     ) : (
-                        <div class="conn-wallet"></div>
+                        <div className="conn-wallet"></div>
                     )}
                     &nbsp;
                     <span>{userAddress.substring(0, 14)}...</span>
@@ -245,7 +245,7 @@ const  Metamask = () =>{
             :
             <>
                 <button 
-                class="btn-wallet" 
+                className="btn-wallet" 
                 onClick={connectWalletList}
                 ref={anchorRef}
                 >
@@ -253,7 +253,7 @@ const  Metamask = () =>{
                     {boolIcon ? (
                         <img src={MetamaskLogo} alt={'Logo'} width={30} height={30} />
                     ) : (
-                        <div class="conn-wallet"></div>
+                        <div className="conn-wallet"></div>
                     )}
                     &nbsp;
                     Connect Wallet
@@ -279,7 +279,16 @@ const  Metamask = () =>{
                   </Grid>
                   <Grid container spacing={0}>
                     <Grid item xs={6}>
-                        <Chip style={{color: '#fff'}} label={userAddress.substring(0, 14)+'...'}/>
+                        {accountCheck === true?
+                            <>
+                            <Chip style={{color: '#fff'}} label={userAddress.substring(0, 14)+'...'}/>
+                            </>
+                        :
+                            <>
+                            
+                            </>
+                        }
+                        
                     </Grid>
                     <Grid item xs={6}>
                         <Tooltip title="Disconnect">

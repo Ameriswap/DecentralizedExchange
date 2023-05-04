@@ -734,8 +734,8 @@ export default function Swap() {
                   <Button id="sell_btn" onClick={e => handleOpen('sell')}><img alt={'Logo'} src={sellSelectedTokenIMG} width={30} height={30} />&nbsp;{sellSelectedToken}<ArrowDropDownIcon /></Button>
                 </div>
               </div>
-              <div className="col-md-2">
-                <img onClick={e => swapReverse()} className="swap_icon" src="image/icons/swap.svg"/>
+              <div className="col-md-2 swap-container">
+                <img onClick={e => swapReverse()} className="swap" src="image/icons/swap.svg"/>
               </div>
               <div className="col-md-5">
                 <div className="row">

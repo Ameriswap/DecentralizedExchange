@@ -10,15 +10,15 @@ const CoinbaseWallet = new WalletLinkConnector({
     supportedChainIds: [1, 3, 4, 5, 42],
    });
    
-   const WalletConnect = new WalletConnectConnector({
+const WalletConnect = new WalletConnectConnector({
     rpcUrl: `https://mainnet.infura.io/v3/c17d58aa246644759e20b6c0647121cf`,
     bridge: "https://bridge.walletconnect.org",
     qrcode: true,
-   });
-   
-   const Injected = new InjectedConnector({
+});
+
+const Injected = new InjectedConnector({
     supportedChainIds: [1, 3, 4, 5, 42]
-   });
+});
 
 const Wallet = {
     CoinbaseWallet,

@@ -1,9 +1,13 @@
 import React, { useState,useEffect }  from 'react';
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import { useDispatch } from 'react-redux'
+import $ from "jquery"
+import { useSelector, useDispatch } from 'react-redux'
 import {
     fetchBalance,
-  } from '../features/balance/metamaskBalanceReducer';
+} from '../features/balance/metamaskBalanceReducer';
+import {
+    fetchNetwork,
+} from '../features/network/rpcUrlReducer';
+
 import Button from '@mui/material/Button';
 import {ethers} from 'ethers';
 import MetamaskLogo from '../images/metamask.png';
@@ -19,6 +23,7 @@ import Grid from '@mui/material/Grid';
 import Chip from '@mui/material/Chip';
 import LogoutIcon from '@mui/icons-material/Logout';
 import Tooltip from '@mui/material/Tooltip';
+import Balance from "../api/Balance";
 
 import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
@@ -33,6 +38,7 @@ import Box from '@mui/material/Box';
 import Networks from './Networks'
 import Wallet from './Wallet'
 import { useWeb3React } from '@web3-react/core'
+import { AlignVerticalBottomSharp } from '@mui/icons-material';
 
 const  Metamask = () =>{
     let userAddress = window.localStorage.getItem('userAccount');
@@ -46,11 +52,18 @@ const  Metamask = () =>{
     const optionsIMG = [MetamaskLogo,TrustWallet,CoinBaseWallet,WalletConnect];
     const [accountCheck,setAccountCheck] = React.useState(false);
     const dispatch = useDispatch()
-    // const { activate, deactivate } = useWeb3React();
-    // const { active, chainId, account } = useWeb3React();
+    const { activate, deactivate } = useWeb3React();
+    const { active, chainId, account } = useWeb3React();
+    const [address,setAddress] = React.useState(null);
+    const rpc = useSelector((state) => state.rpc.value);
 
     useEffect(() => {
         saveUserInfo()
+        if(active){
+            setTimeout(function(){
+                setAddress($('#address').val())
+            },1000)
+        }
     });
 
     const Fade = React.forwardRef(function Fade(props, ref) {
@@ -100,84 +113,115 @@ const  Metamask = () =>{
 
 
     const saveUserInfo = () => {
-        
-        if(userAddress){
-            connectWalletHandler();
-            accountChangedHandler(userAddress);   
+        accountChangedHandler();   
+    }
+
+    const disconnectWallet = async () => {
+        try{
+            if(deactivate){
+                setAccountCheck(false)
+                setOpenWallet(false)
+                setBoolIcon(false)
+            }
+        }
+        catch(error){
+            Swal.fire(
+                'Error',
+                error,
+                'error'
+            )
         }
     }
 
-    const disconnectWallet = () => {
-        // localStorage.clear(); 
-        // setAccountCheck(false)
-        // setBoolIcon(false);
-        // getUserBalance(0);
-        // account({});
-        setOpenWallet(false)
+    const connectWalletHandler = async (index) => {
+        setOpen(false)
+
+        if(index === 0){
+            try{
+                await activate(Wallet.Injected)
+            }
+            catch(error){
+                Swal.fire(
+                    'Error',
+                    error,
+                    'error'
+                  )
+            }
+        }
+        if(index === 1){
+            try{
+                await activate(Wallet.WalletConnect)
+            }
+            catch(error){
+                Swal.fire(
+                    'Error',
+                    error,
+                    'error'
+                  )
+            }
+        }
+        if(index === 2){
+            try{
+                await activate(Wallet.CoinbaseWallet)
+            }
+            catch(error){
+                Swal.fire(
+                    'Error',
+                    error,
+                    'error'
+                  )
+            }
+        }
+        if(index === 3){
+            try{
+                await activate(Wallet.WalletConnect)
+            }
+            catch(error){
+                Swal.fire(
+                    'Error',
+                    error,
+                    'error'
+                  )
+            }
+        }
+        setAccountCheck(true)
+        setTimeout(function(){
+            setConnButtonText(address);
+            setBoolIcon(true);
+            getUserBalance(address);
+            accounts(address);
+        },12000)
     }
 
-    const connectWalletHandler = () => {
-        if(window.ethereum){
-            console.log(window.ethereum);
-            window.ethereum.request({ method: 'eth_requestAccounts' })
-            .then(result =>{
-                console.log(result[0])
-                setAccountCheck(true)
-                accountChangedHandler(result[0]);
-            })
-        }
-        else{
-            setAccountCheck(false)
-            Swal.fire({
-                title: 'Error',
-                html: 
-                'Non-Ethereum browser detected. You should consider trying ' +
-                '<a target="_blank" href="https://metamask.io/">Metamask</a> ',
-                icon: 'error'
-            })
-        }
-        // if(activate(Wallet.Injected)){
-        //     if(window.ethereum){
-        //         console.log(window.ethereum);
-        //         window.ethereum.request({ method: 'eth_requestAccounts' })
-        //         .then(result =>{
-        //             setAccountCheck(true)
-        //             accountChangedHandler(account);
-        //         })
-        //     }
-        //     else{
-        //         setAccountCheck(false)
-        //         Swal.fire(
-        //             'Error',
-        //             'Non-Ethereum browser detected. You should consider trying MetaMask!',
-        //             'error'
-        //         )
-        //     }
-        // }
-    }
-
-    const accountChangedHandler = (newAccount) => {
-        setConnButtonText(newAccount);
-        setBoolIcon(true);
-        getUserBalance(newAccount.toString());
-        account(newAccount);
+    const accountChangedHandler = async () => {
+        // setConnButtonText(address);
+        // setBoolIcon(true);
+        // getUserBalance(address);
+        // accounts(address);
     }
 
     const getFlooredFixed = (v, d) => {
         return (Math.floor(v * Math.pow(10, d)) / Math.pow(10, d)).toFixed(d);
     }
 
-    const getUserBalance = (address) => {
-        window.ethereum.request({method: 'eth_getBalance', params: [address, 'latest']})
-        .then(balance => {
-            console.log(ethers.utils.formatEther(balance));
-            dispatch(fetchBalance(getFlooredFixed(parseFloat(ethers.utils.formatEther(balance)), 4)));
-            userBalance(getFlooredFixed(parseFloat(ethers.utils.formatEther(balance)), 4));
-        })
+    const getUserBalance = async (address) => {
+        try{
+            dispatch(fetchBalance(getFlooredFixed(parseFloat(await Balance.getTokenBal(rpc).methods.balanceOf(address).call() / 1e9 / 1e9), 4)));
+            userBalance(getFlooredFixed(parseFloat(await Balance.getTokenBal(rpc).methods.balanceOf(address).call() / 1e9 / 1e9), 4))
+        }catch(error){
+            console.log(error)
+        }
+        // if(window.ethereum){
+        //     window.ethereum.request({ method: 'eth_getBalance', params: [address, 'latest']})
+        //     .then(balance => {
+        //         dispatch(fetchBalance(getFlooredFixed(parseFloat(ethers.utils.formatEther(balance)), 4)));
+        //         userBalance(getFlooredFixed(parseFloat(ethers.utils.formatEther(balance)), 4));
+        //     })
+        // }
     }
 
-    const account = (account) => {
-        window.localStorage.setItem('userAccount', account); //user persisted data
+    const accounts = async () => {
+        window.localStorage.setItem('userAccount', address); //user persisted data
     };
 
     const userBalance = (balance) => {
@@ -208,9 +252,7 @@ const  Metamask = () =>{
     };    
 
     const handleMenuItemClick = (event, index) => {
-        if(index === 0){
-            connectWalletHandler()
-        }
+        connectWalletHandler(index)
         setSelectedIndex(index);
         setOpen(false);
     };    
@@ -239,7 +281,8 @@ const  Metamask = () =>{
                         <div className="conn-wallet"></div>
                     )}
                     &nbsp;
-                    <span>{userAddress.substring(0, 14)}...</span>
+                    <span>{account.toString().substring(0, 14)}...</span>
+                    <input type="hidden" id="address" value={account} />
                 </button>
             </>
             :
@@ -281,7 +324,7 @@ const  Metamask = () =>{
                     <Grid item xs={6}>
                         {accountCheck === true?
                             <>
-                            <Chip style={{color: '#fff'}} label={userAddress.substring(0, 14)+'...'}/>
+                            <Chip style={{color: '#fff'}} label={account.substring(0, 14)+'...'}/>
                             </>
                         :
                             <>

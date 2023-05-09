@@ -1,12 +1,8 @@
 import React from 'react';
-import { Outlet } from "react-router-dom";
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
+import {
+    fetchNetwork,
+} from '../features/network/rpcUrlReducer';
 import MenuItem from '@mui/material/MenuItem';
-import Menu from '@mui/material/Menu';
 import MenuList from '@mui/material/MenuList';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
@@ -14,29 +10,34 @@ import ClickAwayListener from '@mui/material/ClickAwayListener';
 import Grow from '@mui/material/Grow';
 import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
-import MenuIcon from '@mui/icons-material/Menu';
-import Container from '@mui/material/Container';
-import AdbIcon from '@mui/icons-material/Adb';
-
-import MoreIcon from '@mui/icons-material/MoreVert';
 import Button from '@mui/material/Button';
 import Eth from'../images/eth.png';
 import BnbChain from'../images/bnbchain.png';
 import Arbitrum from'../images/arbitrum.png';
-import Wallet from './Metamask';
+import { useSelector, useDispatch } from 'react-redux'
 
 function Networks(){
     
+    const rpcUrls = {
+        Ethereum: 'https://mainnet.infura.io/v3/c17d58aa246644759e20b6c0647121cf',
+        BNB: 'https://polygon.infura.io',
+        Arbitrum: 'https://xdai.infura.io'
+    }
+
     const [open, setOpen] = React.useState(false);
     const anchorRef = React.useRef(null);
     const [selectedIndex, setSelectedIndex] = React.useState(0);
   
-    // const options = ['Ethereum','BNB Chain','Arbitrum'];
-    const options = ['Ethereum'];
+    const options = [
+        ['Ethereum','0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'],
+        ['BNB','0xB8c77482e45F1F44dE1745F52C74426C631bDD52'],
+        ['Arbitrum','0x912CE59144191C1204E64559FE8253a0e49E6548']];
     const optionsIMG = [Eth,BnbChain,Arbitrum];
+    const dispatch = useDispatch()
   
     const handleMenuItemClick = (event, index) => {
       setSelectedIndex(index);
+      dispatch(fetchNetwork(options[index][1]));
       setOpen(false);
     };
   
@@ -63,7 +64,7 @@ function Networks(){
     return (
         <>
         <ButtonGroup variant="outlined" ref={anchorRef} aria-label="split button">
-            <Button onClick={handleToggle}><img alt={'Logo'} src={optionsIMG[selectedIndex]} width={30} height={30} />&nbsp;{options[selectedIndex]}<ArrowDropDownIcon /></Button>
+            <Button onClick={handleToggle}><img alt={'Logo'} src={optionsIMG[selectedIndex]} width={30} height={30} />&nbsp;{options[selectedIndex][0]}<ArrowDropDownIcon /></Button>
         </ButtonGroup>
         <Popper
             sx={{
@@ -92,7 +93,7 @@ function Networks(){
                         selected={index === selectedIndex}
                         onClick={(event) => handleMenuItemClick(event, index)}
                         >
-                        <img alt={'Logo'} src={optionsIMG[index]} width={30} height={30} />&nbsp;{option}
+                        <img alt={'Logo'} src={optionsIMG[index]} width={30} height={30} />&nbsp;{option[0]}
                         </MenuItem>
                     ))}
                     </MenuList>

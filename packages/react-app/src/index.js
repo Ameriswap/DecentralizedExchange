@@ -37,23 +37,17 @@ function getLibrary(provider) {
 }
 
 ReactDOM.render(
-  <React.StrictMode>
     <Web3ReactProvider getLibrary={getLibrary}>
-      <DAppProvider config={config}>
-        <ApolloProvider client={client}>
-          <Provider store={store}>
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Layout />}>
-                  <Route index element={<Swap />} />
-                  <Route path="*" element={<NoPage />} />
-                </Route>
-              </Routes>
-            </BrowserRouter>
-          </Provider>
-        </ApolloProvider>
-      </DAppProvider>
-    </Web3ReactProvider>
-  </React.StrictMode>,
+      <Provider store={store}>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Swap />} />
+              <Route path="*" element={<NoPage />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </Provider>
+    </Web3ReactProvider>,
   document.getElementById("root"),
 );

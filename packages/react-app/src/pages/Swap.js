@@ -28,6 +28,7 @@ import CardActions from '@mui/material/CardActions';
 import Collapse from '@mui/material/Collapse';
 import axios from "axios";
 import SwapService from "../api/Swap";
+import Balance from "../api/Balance";
 import Skeleton from '@mui/material/Skeleton';
 import CircularProgress from '@mui/material/CircularProgress';
 import Swal from 'sweetalert2'
@@ -287,6 +288,7 @@ export default function Swap() {
   }  
 
   const clickToken = async (img,token,address,decimals) => {
+    alert(address)
     setOpen(false);
     setLoading(true);
     setDecimal(decimals);
@@ -303,32 +305,31 @@ export default function Swap() {
       if(address != '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'){
         try{
           setStatusAppr("Give Permission to swap "+token);
-          const tokenInst = new web3.eth.Contract(tokenABI, address);
-          
-          dispatch(fetchBalance(getFlooredFixed(parseFloat(await tokenInst.methods.balanceOf(userAddress).call() / 1e9 / 1e9), 4)));
+
+          dispatch(fetchBalance(getFlooredFixed(parseFloat(await Balance.getTokenBal(address).methods.balanceOf(userAddress).call() / 1e9 / 1e9), 4)));
           const allowance = await SwapService.getAllowance(address,userAddress);
           setAllowanceApprove(allowance);
 
           //USDT USDC
           if(address == "0xdac17f958d2ee523a2206206994597c13d831ec7" || address == "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"){
-            console.log(parseFloat(await tokenInst.methods.balanceOf(userAddress).call()))
-            let bals = parseFloat(await tokenInst.methods.balanceOf(userAddress).call())
+            console.log(parseFloat(await Balance.getTokenBal(address).balanceOf(userAddress).call()))
+            let bals = parseFloat(await Balance.getTokenBal(address).balanceOf(userAddress).call())
 
             if(bals % 1 != 0){
-              dispatch(fetchBalance(parseFloat(await tokenInst.methods.balanceOf(userAddress).call()).toFixed(4)));
+              dispatch(fetchBalance(parseFloat(await Balance.getTokenBal(address).balanceOf(userAddress).call()).toFixed(4)));
             }
             else{
-              dispatch(fetchBalance(parseFloat(await tokenInst.methods.balanceOf(userAddress).call())));
+              dispatch(fetchBalance(parseFloat(await Balance.getTokenBal(address).balanceOf(userAddress).call())));
             }
           }
           else{
-            console.log(parseFloat(await tokenInst.methods.balanceOf(userAddress).call() / 1e9 / 1e9))
-            let bals = parseFloat(await tokenInst.methods.balanceOf(userAddress).call())
+            console.log(parseFloat(await Balance.getTokenBal(address).balanceOf(userAddress).call() / 1e9 / 1e9))
+            let bals = parseFloat(await Balance.getTokenBal(address).balanceOf(userAddress).call())
             if(bals % 1 != 0){
-              dispatch(fetchBalance(parseFloat(await tokenInst.methods.balanceOf(userAddress).call() / 1e9 / 1e9).toFixed(4)));
+              dispatch(fetchBalance(parseFloat(await Balance.getTokenBal(address).balanceOf(userAddress).call() / 1e9 / 1e9).toFixed(4)));
             }
             else{
-              dispatch(fetchBalance(parseFloat(await tokenInst.methods.balanceOf(userAddress).call() / 1e9 / 1e9)));
+              dispatch(fetchBalance(parseFloat(await Balance.getTokenBal(address).balanceOf(userAddress).call() / 1e9 / 1e9)));
             }
           }
         }catch(err){
@@ -360,8 +361,7 @@ export default function Swap() {
 
       if(address != '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'){
         try{
-          const tokenInst = new web3.eth.Contract(tokenABI, address);
-          let buyBal = await tokenInst.methods.balanceOf(userAddress).call();
+          let buyBal = await Balance.getTokenBal(address).balanceOf(userAddress).call();
           //USDT USDC
           if(address == "0xdac17f958d2ee523a2206206994597c13d831ec7" || address == "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"){
             const formattedAmount = buyBal.toString();
@@ -437,8 +437,7 @@ export default function Swap() {
       })
 
       try{
-        const tokenInst = new web3.eth.Contract(tokenABI, buySelectedTokenADDR);
-        setBuyBalance(getFlooredFixed(parseFloat(await tokenInst.methods.balanceOf(userAddress).call() / 1e9 / 1e9), 4));
+        setBuyBalance(getFlooredFixed(parseFloat(await Balance.getTokenBal(buySelectedTokenADDR).balanceOf(userAddress).call() / 1e9 / 1e9), 4));
       }catch(err){
         console.log(err);
         Swal.fire(
@@ -576,8 +575,7 @@ export default function Swap() {
         if(buySelectedTokenADDR != '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'){
           try{
             setStatusAppr("Give Permission to swap "+buySelectedToken);
-            const tokenInst = new web3.eth.Contract(tokenABI, buySelectedTokenADDR);
-            dispatch(fetchBalance(getFlooredFixed(parseFloat(await tokenInst.methods.balanceOf(userAddress).call() / 1e9 / 1e9), 4)));
+            dispatch(fetchBalance(getFlooredFixed(parseFloat(await Balance.getTokenBal(buySelectedTokenADDR).balanceOf(userAddress).call() / 1e9 / 1e9), 4)));
             const allowance = await SwapService.getAllowance(buySelectedTokenADDR,userAddress);
             setAllowanceApprove(allowance);
           }catch(err){
@@ -674,8 +672,7 @@ export default function Swap() {
       try{
         if(txHashApp){
           setStatusAppr("Give Permission to swap "+buySelectedToken);
-          const tokenInst = new web3.eth.Contract(tokenABI, buySelectedTokenADDR);
-          dispatch(fetchBalance(getFlooredFixed(parseFloat(await tokenInst.methods.balanceOf(userAddress).call() / 1e9 / 1e9), 4)));
+          dispatch(fetchBalance(getFlooredFixed(parseFloat(await Balance.getTokenBal(buySelectedTokenADDR).balanceOf(userAddress).call() / 1e9 / 1e9), 4)));
           const allowance = await SwapService.getAllowance(buySelectedTokenADDR,userAddress);
           setAllowanceApprove(allowance);
         }

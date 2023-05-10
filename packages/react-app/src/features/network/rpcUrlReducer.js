@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit'
 export const rpcUrlReducer = createSlice({
   name: 'rpc',
   initialState: {
-    value: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+    value: '0x2AC03BF434db503f6f5F85C3954773731Fc3F056',
   },
   reducers: {
     fetchNetwork: (state, action) => {

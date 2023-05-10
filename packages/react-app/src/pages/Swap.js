@@ -288,10 +288,11 @@ export default function Swap() {
   }  
 
   const clickToken = async (img,token,address,decimals) => {
-    alert(address)
     setOpen(false);
     setLoading(true);
     setDecimal(decimals);
+    const tokenInst = new web3.eth.Contract(tokenABI, address);
+    
     if(methods == 'sell'){
       if(token == buySelectedToken){
         setLoading(false);
@@ -306,30 +307,30 @@ export default function Swap() {
         try{
           setStatusAppr("Give Permission to swap "+token);
 
-          dispatch(fetchBalance(getFlooredFixed(parseFloat(await Balance.getTokenBal(address).methods.balanceOf(userAddress).call() / 1e9 / 1e9), 4)));
+          dispatch(fetchBalance(getFlooredFixed(parseFloat(await tokenInst.methods.balanceOf(userAddress).call() / 1e9 / 1e9), 4)));
           const allowance = await SwapService.getAllowance(address,userAddress);
           setAllowanceApprove(allowance);
 
           //USDT USDC
           if(address == "0xdac17f958d2ee523a2206206994597c13d831ec7" || address == "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"){
-            console.log(parseFloat(await Balance.getTokenBal(address).balanceOf(userAddress).call()))
-            let bals = parseFloat(await Balance.getTokenBal(address).balanceOf(userAddress).call())
+            console.log(parseFloat(await tokenInst.methods.balanceOf(userAddress).call()))
+            let bals = parseFloat(await tokenInst.methods.balanceOf(userAddress).call())
 
             if(bals % 1 != 0){
-              dispatch(fetchBalance(parseFloat(await Balance.getTokenBal(address).balanceOf(userAddress).call()).toFixed(4)));
+              dispatch(fetchBalance(parseFloat(await tokenInst.methods.balanceOf(userAddress).call()).toFixed(4)));
             }
             else{
-              dispatch(fetchBalance(parseFloat(await Balance.getTokenBal(address).balanceOf(userAddress).call())));
+              dispatch(fetchBalance(parseFloat(await tokenInst.methods.balanceOf(userAddress).call())));
             }
           }
           else{
-            console.log(parseFloat(await Balance.getTokenBal(address).balanceOf(userAddress).call() / 1e9 / 1e9))
-            let bals = parseFloat(await Balance.getTokenBal(address).balanceOf(userAddress).call())
+            console.log(parseFloat(await tokenInst.methods.balanceOf(userAddress).call() / 1e9 / 1e9))
+            let bals = parseFloat(await tokenInst.methods.balanceOf(userAddress).call())
             if(bals % 1 != 0){
-              dispatch(fetchBalance(parseFloat(await Balance.getTokenBal(address).balanceOf(userAddress).call() / 1e9 / 1e9).toFixed(4)));
+              dispatch(fetchBalance(parseFloat(await tokenInst.methods.balanceOf(userAddress).call() / 1e9 / 1e9).toFixed(4)));
             }
             else{
-              dispatch(fetchBalance(parseFloat(await Balance.getTokenBal(address).balanceOf(userAddress).call() / 1e9 / 1e9)));
+              dispatch(fetchBalance(parseFloat(await tokenInst.methods.balanceOf(userAddress).call() / 1e9 / 1e9)));
             }
           }
         }catch(err){
@@ -361,7 +362,7 @@ export default function Swap() {
 
       if(address != '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'){
         try{
-          let buyBal = await Balance.getTokenBal(address).balanceOf(userAddress).call();
+          let buyBal = await tokenInst.methods.balanceOf(userAddress).call();
           //USDT USDC
           if(address == "0xdac17f958d2ee523a2206206994597c13d831ec7" || address == "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"){
             const formattedAmount = buyBal.toString();

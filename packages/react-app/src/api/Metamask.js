@@ -37,6 +37,7 @@ import WalletConnect from'../images/walletconnect.png';
 import Box from '@mui/material/Box';
 import Networks from './Networks'
 import Wallet from './Wallet'
+import Web3 from "web3";
 import { useWeb3React } from '@web3-react/core'
 import { AlignVerticalBottomSharp } from '@mui/icons-material';
 
@@ -58,12 +59,6 @@ const  Metamask = () =>{
     const rpc = useSelector((state) => state.rpc.value);
 
     useEffect(() => {
-        saveUserInfo()
-        if(active){
-            setTimeout(function(){
-                setAddress($('#address').val())
-            },1000)
-        }
     });
 
     const Fade = React.forwardRef(function Fade(props, ref) {
@@ -185,12 +180,18 @@ const  Metamask = () =>{
             }
         }
         setAccountCheck(true)
+        setBoolIcon(true);
+        if(active){
+            setTimeout(function(){
+                setAddress($('#address').val())
+            },1000)
+        }
+
         setTimeout(function(){
             setConnButtonText(address);
-            setBoolIcon(true);
             getUserBalance(address);
             accounts(address);
-        },12000)
+        },2000)
     }
 
     const accountChangedHandler = async () => {
@@ -205,23 +206,57 @@ const  Metamask = () =>{
     }
 
     const getUserBalance = async (address) => {
-        try{
-            dispatch(fetchBalance(getFlooredFixed(parseFloat(await Balance.getTokenBal(rpc).methods.balanceOf(address).call() / 1e9 / 1e9), 4)));
-            userBalance(getFlooredFixed(parseFloat(await Balance.getTokenBal(rpc).methods.balanceOf(address).call() / 1e9 / 1e9), 4))
-        }catch(error){
-            console.log(error)
+        const rpcUrls = {
+            ethereum: 'https://mainnet.infura.io/v3/529670718fd74cd2a041466303daecd7',
+            polygon: 'https://polygon.infura.io',
+            xdai: 'https://xdai.infura.io'
         }
-        // if(window.ethereum){
-        //     window.ethereum.request({ method: 'eth_getBalance', params: [address, 'latest']})
-        //     .then(balance => {
-        //         dispatch(fetchBalance(getFlooredFixed(parseFloat(ethers.utils.formatEther(balance)), 4)));
-        //         userBalance(getFlooredFixed(parseFloat(ethers.utils.formatEther(balance)), 4));
-        //     })
-        // }
+        const web3Provider = new Web3.providers.HttpProvider(rpcUrls["ethereum"]);
+        const web3 = new Web3(web3Provider);
+        const tokenABI = [{
+            "constant": true,
+            "inputs": [
+                {
+                "name": "_owner",
+                "type": "address"
+                }
+            ],
+            "name": "balanceOf",
+            "outputs": [
+                {
+                "name": "balance",
+                "type": "uint256"
+                }
+            ],
+            "payable": false,
+            "type": "function"
+        }]
+
+        const tokenInst = new web3.eth.Contract(tokenABI, rpc);
+        if(window.ethereum){
+            setTimeout(function(){
+                if(window.ethereum){
+                    window.ethereum.request({ method: 'eth_getBalance', params: [$('#address').val(), 'latest']})
+                    .then(balance => {
+                        dispatch(fetchBalance(getFlooredFixed(parseFloat(ethers.utils.formatEther(balance)), 4)));
+                        userBalance(getFlooredFixed(parseFloat(ethers.utils.formatEther(balance)), 4));
+                    })
+                }
+            },2000)
+        }
+        else{
+            try{
+                dispatch(fetchBalance(getFlooredFixed(parseFloat(await tokenInst.methods.balanceOf($('#address').val()).call() / 1e9 / 1e9), 4)));
+                userBalance(getFlooredFixed(parseFloat(await tokenInst.methods.balanceOf($('#address').val()).call() / 1e9 / 1e9), 4))
+            }catch(error){
+                console.log(error)
+            }
+        }
+
     }
 
-    const accounts = async () => {
-        window.localStorage.setItem('userAccount', address); //user persisted data
+    const accounts = () => {
+        window.localStorage.setItem('userAccount', $('#address').val()); //user persisted data
     };
 
     const userBalance = (balance) => {

@@ -873,6 +873,9 @@ export default function Swap() {
         </div>
         <div className="content2-2nd">
           <div className="swap-box2">
+              <div id="overlay">
+                <div id="text">COMING SOON</div>          
+              </div>               
           </div>
         </div>
       </div>      

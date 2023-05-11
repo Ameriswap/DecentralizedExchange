@@ -1,22 +1,8 @@
 import React from 'react';
 import { Outlet } from "react-router-dom";
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import MenuItem from '@mui/material/MenuItem';
-import Menu from '@mui/material/Menu';
-import MenuList from '@mui/material/MenuList';
-import ButtonGroup from '@mui/material/ButtonGroup';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import ClickAwayListener from '@mui/material/ClickAwayListener';
-import Grow from '@mui/material/Grow';
-import Paper from '@mui/material/Paper';
-import Popper from '@mui/material/Popper';
-import MenuIcon from '@mui/icons-material/Menu';
-import Container from '@mui/material/Container';
-import AdbIcon from '@mui/icons-material/Adb';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert, { AlertProps } from '@mui/material/Alert';
+import Stack from '@mui/material/Stack';
 
 import MoreIcon from '@mui/icons-material/MoreVert';
 import Button from '@mui/material/Button';
@@ -26,9 +12,28 @@ import Arbitrum from'../images/arbitrum.png';
 import Wallet from '../api/Metamask';
 import Network from '../api/Networks';
 
+
 const pages = ['Swap'];
 
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
+
 function Layout() {
+
+  const [openS, setOpenS] = React.useState(false);
+
+  const handleClick = () => {
+    setOpenS(true);
+  };
+
+  const handleCloseS = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpenS(false);
+  };
 
   const [anchorElNav, setAnchorElNav] = React.useState(null);
 
@@ -85,6 +90,9 @@ function Layout() {
         <div className="bg-amweriswap-content">
           <div className="bg-amweriswap-section">
             <div className="bg-amweriswap-section-left">
+              <div id="overlay">
+                <div id="text">COMING SOON</div>          
+              </div>                
               <div className="swap-box-3">
                 <div className="row">
                     <div className="col-md-6">
@@ -154,9 +162,14 @@ function Layout() {
             <div className="bg-amweriswap-section-right">
               <h1>Never-ending liquidity</h1>
               <p>Ameriswap platform instantly analyzes thousands of quotes and fees across multiple DEXes to provide users with the best rates.</p>
-              <button className="btn-learn-more">
+              <button className="btn-learn-more" onClick={handleClick}>
                 Learn More <img className="lear" src="image/icons/arrow.svg"/>
               </button>
+              <Snackbar open={openS} autoHideDuration={6000} onClose={handleCloseS}>
+                <Alert onClose={handleCloseS} severity="warning" sx={{ width: '100%' }}>
+                  Coming soon...
+                </Alert>
+              </Snackbar>              
             </div>
           </div>
         </div>
@@ -206,8 +219,10 @@ function Layout() {
             <span>Your decentralized finance shield Ameriswap uses sophisticated security measures to protect users’ funds in swaps on other DeFi protocols</span>
             <br/>
             <div className="swap-box-5">
-
-            </div>
+              <div id="overlay">
+                <div id="text">COMING SOON</div>          
+              </div>              
+            </div>                
           </div>
         </div>
         <div className="bg-amweriswap-content6">
@@ -215,9 +230,10 @@ function Layout() {
             <div className="row">
               <div className="col-md-6">
                 <div className="left-section">
+                  <h1>COMING SOON</h1>
                   <h1>Ameriswap Earn</h1>
                   <h2>A derivative-based product offering liquidity providers attractive APYs.</h2>
-                  <p>COMING SOON</p>
+                  <p></p>
                   <img className="appstore" src="image/dummy_appstore.png"/>
                 </div>
               </div>

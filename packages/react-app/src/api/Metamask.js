@@ -39,7 +39,15 @@ import Networks from './Networks'
 import Wallet from './Wallet'
 import Web3 from "web3";
 import { useWeb3React } from '@web3-react/core'
-import { AlignVerticalBottomSharp } from '@mui/icons-material';
+import { networkParams } from "../networks";
+import { toHex, truncateAddress } from "../utils";
+import Web3Modal from "web3modal";
+import { providerOptions } from "../providerOptions";
+
+const web3Modal = new Web3Modal({
+  cacheProvider: true, // optional
+  providerOptions // required
+});
 
 const  Metamask = () =>{
     let userAddress = window.localStorage.getItem('userAccount');
@@ -53,13 +61,16 @@ const  Metamask = () =>{
     const optionsIMG = [MetamaskLogo,TrustWallet,CoinBaseWallet,WalletConnect];
     const [accountCheck,setAccountCheck] = React.useState(false);
     const dispatch = useDispatch()
-    const { activate, deactivate } = useWeb3React();
-    const { active, chainId, account } = useWeb3React();
-    const [address,setAddress] = React.useState(null);
+    // const { activate, deactivate } = useWeb3React();
+    // const { active, chainId, account } = useWeb3React();
     const rpc = useSelector((state) => state.rpc.value);
 
-    useEffect(() => {
-    });
+    const [provider, setProvider] = useState();
+    const [library, setLibrary] = useState();
+    const [account, setAccount] = useState();
+    const [network, setNetwork] = useState();
+    const [chainId, setChainId] = useState();
+    const [error, setError] = useState();
 
     const Fade = React.forwardRef(function Fade(props, ref) {
     const { in: open, children, onEnter, onExited, ...other } = props;
@@ -106,100 +117,109 @@ const  Metamask = () =>{
         p: 1,
     };
 
+    const refreshState = () => {
+        setAccount();
+        setChainId();
+        setNetwork("");
+        setAccountCheck(false)
+        setBoolIcon(false);
+        getUserBalance("");
+        setOpenWallet(false);
+    };
 
-    const saveUserInfo = () => {
-        accountChangedHandler();   
-    }
+    const disconnect = async () => {
+        await web3Modal.clearCachedProvider();
+        refreshState();
+    };
 
-    const disconnectWallet = async () => {
-        try{
-            if(deactivate){
-                setAccountCheck(false)
-                setOpenWallet(false)
-                setBoolIcon(false)
-            }
-        }
-        catch(error){
-            Swal.fire(
-                'Error',
-                error,
-                'error'
-            )
-        }
-    }
 
     const connectWalletHandler = async (index) => {
-        setOpen(false)
-
-        if(index === 0){
-            try{
-                await activate(Wallet.Injected)
-            }
-            catch(error){
-                Swal.fire(
-                    'Error',
-                    error,
-                    'error'
-                  )
-            }
+        try {
+            const provider = await web3Modal.connect();
+            const library = new ethers.providers.Web3Provider(provider);
+            const accounts = await library.listAccounts();
+            const network = await library.getNetwork();
+            console.log(network)
+            setProvider(provider);
+            setLibrary(library);
+            if (accounts) setAccount(accounts[0]);
+            setNetwork(network);
+            setAccountCheck(true)
+            setBoolIcon(true);
+            getUserBalance(accounts[0]);
+            window.localStorage.setItem('userAccount', accounts[0]);
+        
+        } catch (error) {
+            console.error(error);
         }
-        if(index === 1){
-            try{
-                await activate(Wallet.WalletConnect)
-            }
-            catch(error){
-                Swal.fire(
-                    'Error',
-                    error,
-                    'error'
-                  )
-            }
-        }
-        if(index === 2){
-            try{
-                await activate(Wallet.CoinbaseWallet)
-            }
-            catch(error){
-                Swal.fire(
-                    'Error',
-                    error,
-                    'error'
-                  )
-            }
-        }
-        if(index === 3){
-            try{
-                await activate(Wallet.WalletConnect)
-            }
-            catch(error){
-                Swal.fire(
-                    'Error',
-                    error,
-                    'error'
-                  )
-            }
-        }
-        setAccountCheck(true)
-        setBoolIcon(true);
-        if(active){
-            setTimeout(function(){
-                setAddress($('#address').val())
-            },1000)
-        }
-
-        setTimeout(function(){
-            setConnButtonText(address);
-            getUserBalance(address);
-            accounts(address);
-        },2000)
     }
 
-    const accountChangedHandler = async () => {
-        // setConnButtonText(address);
-        // setBoolIcon(true);
-        // getUserBalance(address);
-        // accounts(address);
-    }
+    useEffect(() => {
+        if (web3Modal.cachedProvider) {
+            connectWalletHandler();
+        }
+    }, []);
+    
+
+    useEffect(() => {
+        if (provider?.on) {
+        const handleAccountsChanged = (accounts) => {
+            console.log("accountsChanged", accounts);
+            if (accounts) setAccount(accounts[0]);
+            
+        };
+
+        const handleChainChanged = (_hexChainId) => {
+            setChainId(_hexChainId);
+        };
+
+        const handleDisconnect = () => {
+            console.log("disconnect", error);
+            disconnect();
+        };
+
+        provider.on("accountsChanged", handleAccountsChanged);
+        provider.on("chainChanged", handleChainChanged);
+        provider.on("disconnect", handleDisconnect);
+
+        if (typeof window.ethereum !== 'undefined') {
+            window.ethereum.on('accountsChanged', handleAccountsChanged);
+    
+            window.ethereum.on('chainChanged', handleChainChanged);
+
+            window.ethereum.on('disconnect', handleDisconnect);
+        }
+
+        return () => {
+            if (provider.removeListener) {
+            provider.removeListener("accountsChanged", handleAccountsChanged);
+            provider.removeListener("chainChanged", handleChainChanged);
+            provider.removeListener("disconnect", handleDisconnect);
+            }
+        };
+        }
+    }, [provider]);
+    
+
+    const switchNetwork = async () => {
+        try {
+        await library.provider.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: toHex(network) }]
+        });
+        } catch (switchError) {
+        if (switchError.code === 4902) {
+            try {
+            await library.provider.request({
+                method: "wallet_addEthereumChain",
+                params: [networkParams[toHex(network)]]
+            });
+            } catch (error) {
+            setError(error);
+            }
+        }
+        }
+    };
 
     const getFlooredFixed = (v, d) => {
         return (Math.floor(v * Math.pow(10, d)) / Math.pow(10, d)).toFixed(d);
@@ -234,30 +254,22 @@ const  Metamask = () =>{
 
         const tokenInst = new web3.eth.Contract(tokenABI, rpc);
         if(window.ethereum){
-            setTimeout(function(){
-                if(window.ethereum){
-                    window.ethereum.request({ method: 'eth_getBalance', params: [$('#address').val(), 'latest']})
-                    .then(balance => {
-                        dispatch(fetchBalance(getFlooredFixed(parseFloat(ethers.utils.formatEther(balance)), 4)));
-                        userBalance(getFlooredFixed(parseFloat(ethers.utils.formatEther(balance)), 4));
-                    })
-                }
-            },2000)
+            window.ethereum.request({ method: 'eth_getBalance', params: [address, 'latest']})
+            .then(balance => {
+                dispatch(fetchBalance(getFlooredFixed(parseFloat(ethers.utils.formatEther(balance)), 4)));
+                userBalance(getFlooredFixed(parseFloat(ethers.utils.formatEther(balance)), 4));
+            })
         }
         else{
             try{
-                dispatch(fetchBalance(getFlooredFixed(parseFloat(await tokenInst.methods.balanceOf($('#address').val()).call() / 1e9 / 1e9), 4)));
-                userBalance(getFlooredFixed(parseFloat(await tokenInst.methods.balanceOf($('#address').val()).call() / 1e9 / 1e9), 4))
+                dispatch(fetchBalance(getFlooredFixed(parseFloat(await tokenInst.methods.balanceOf(address).call() / 1e9 / 1e9), 4)));
+                userBalance(getFlooredFixed(parseFloat(await tokenInst.methods.balanceOf(address).call() / 1e9 / 1e9), 4))
             }catch(error){
                 console.log(error)
             }
         }
 
     }
-
-    const accounts = () => {
-        window.localStorage.setItem('userAccount', $('#address').val()); //user persisted data
-    };
 
     const userBalance = (balance) => {
         window.localStorage.setItem('userBalance', balance); //user persisted data
@@ -267,15 +279,9 @@ const  Metamask = () =>{
         window.location.reload();
     }
 
-
-    if (typeof window.ethereum !== 'undefined') {
-        window.ethereum.on('accountsChanged', accountChangedHandler);
-
-        window.ethereum.on('chainChanged', chainChangedHandler);
-    }
-
     const connectWalletList = () => {
-        setOpen(true)
+        // setOpen(true)
+        connectWalletHandler(0)
     }
 
     const handleClose = (event) => {
@@ -304,7 +310,12 @@ const  Metamask = () =>{
             ?
             <>
                 <div style={{float: 'right'}}>
-                    <Networks/>
+                    <Networks
+                        network={network}
+                        chainid={chainId}
+                        library={library}
+                        provider={provider}
+                    />
                 </div>
                 <button 
                 className="btn-wallet"
@@ -316,8 +327,7 @@ const  Metamask = () =>{
                         <div className="conn-wallet"></div>
                     )}
                     &nbsp;
-                    <span>{account.toString().substring(0, 14)}...</span>
-                    <input type="hidden" id="address" value={account} />
+                    <span>{`${truncateAddress(account)}`}</span>
                 </button>
             </>
             :
@@ -325,7 +335,7 @@ const  Metamask = () =>{
                 <button 
                 className="btn-wallet" 
                 onClick={connectWalletList}
-                ref={anchorRef}
+                // ref={anchorRef}
                 >
                     
                     {boolIcon ? (
@@ -359,7 +369,7 @@ const  Metamask = () =>{
                     <Grid item xs={6}>
                         {accountCheck === true?
                             <>
-                            <Chip style={{color: '#fff'}} label={account.substring(0, 14)+'...'}/>
+                            <Chip style={{color: '#fff'}} label={`${truncateAddress(account)}`}/>
                             </>
                         :
                             <>
@@ -370,7 +380,7 @@ const  Metamask = () =>{
                     </Grid>
                     <Grid item xs={6}>
                         <Tooltip title="Disconnect">
-                            <Button style={{float: 'right'}} onClick={disconnectWallet}>
+                            <Button style={{float: 'right'}} onClick={disconnect}>
                                 <LogoutIcon/>
                             </Button>
                         </Tooltip>
@@ -379,43 +389,6 @@ const  Metamask = () =>{
                 </Box>
               </Fade>
             </Modal>
-
-            <Popper
-                sx={{
-                zIndex: 1,
-                }}
-                open={open}
-                anchorEl={anchorRef.current}
-                role={undefined}
-                transition
-                disablePortal
-            >
-                {({ TransitionProps, placement }) => (
-                <Grow
-                    {...TransitionProps}
-                    style={{
-                    transformOrigin:
-                        placement === 'bottom' ? 'center top' : 'center bottom',
-                    }}
-                >
-                    <Paper>
-                    <ClickAwayListener onClickAway={handleClose}>
-                        <MenuList id="split-button-menu" autoFocusItem>
-                        {options.map((option, index) => (
-                            <MenuItem
-                            key={option}
-                            selected={index === selectedIndex}
-                            onClick={(event) => handleMenuItemClick(event, index)}
-                            >
-                            <img alt={'Logo'} src={optionsIMG[index]} width={30} height={30} />&nbsp;{option}
-                            </MenuItem>
-                        ))}
-                        </MenuList>
-                    </ClickAwayListener>
-                    </Paper>
-                </Grow>
-                )}
-            </Popper>       
         </div>
     );
 }

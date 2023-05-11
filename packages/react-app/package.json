@@ -2,18 +2,11 @@
   "name": "@my-app/react-app",
   "version": "1.0.0",
   "homepage": "./",
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not op_mini all"
+  ],
   "dependencies": {
     "@apollo/client": "^3.5.10",
     "@ethersproject/contracts": "^5.6.0",

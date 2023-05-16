@@ -355,7 +355,10 @@
     background-color: #3ACB3A;
     padding: 7px 10px 7px 10px;
     border-radius: 8px;
-    font-size: 10px;
+    font-size: 18px;
+    float: right;
+    margin-right: 20px;
+    margin-top: -10px;
 }
 
 .swap-box-3 span.red {
@@ -363,7 +366,10 @@
     background-color: #FFF1EE;
     padding: 7px 10px 7px 10px;
     border-radius: 8px;
-    font-size: 10px;
+    font-size: 18px;
+    float: right;
+    margin-right: 20px;
+    margin-top: -10px;
 }
 
 .btn-learn-more {

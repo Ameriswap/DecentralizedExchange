@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState,useEffect }  from 'react';
 import { Outlet } from "react-router-dom";
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
+import CoinMarket from "../api/CoinMarket";
 
 import MoreIcon from '@mui/icons-material/MoreVert';
 import Button from '@mui/material/Button';
@@ -20,8 +21,77 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 });
 
 function Layout() {
-
   const [openS, setOpenS] = React.useState(false);
+  const [btc, setBTC] = useState('');
+  const [eth, setETH] = useState('');
+  const [doge, setDOGE] = useState('');
+  const [xmr, setXMR] = useState('');
+  const [ltc, setLTC] = useState('');
+  const [btccp,setBTCCP] = React.useState('')
+  const [ethcp,setETHCP] = React.useState('')
+  const [dogecp,setDOGECP] = React.useState('')
+  const [xmrcp,setXMRCP] = React.useState('')
+  const [ltccp,setLTCCP] = React.useState('')
+
+  useEffect(() => {
+    getPriceMarket()
+    // setInterval(function(){
+    //   getPriceMarket()
+    // }, 2000);
+  }, []);
+
+  const btcPrice = (tokens) => {
+      return tokens.symbol === 'BTCUSDT';
+  }
+  
+  const ethPrice = (tokens) => {
+      return tokens.symbol === 'ETHUSDT';
+  }
+  
+  const dogePrice = (tokens) => {
+      return tokens.symbol === 'DOGEUSDT';
+  }
+  
+  const moneroPrice = (tokens) => {
+      return tokens.symbol === 'XMRUSDT';
+  }
+  
+  const litecoinPrice = (tokens) => {
+      return tokens.symbol === 'LTCUSDT';
+  }
+
+  const numberWithCommas = (x) => {
+      return x.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
+  }
+
+  const getPriceMarket = async () => {
+      try{
+          CoinMarket.getCoinPrice().then((response) => {
+              const json = response.data;
+              const priceDataArr = {
+                  BTC: json.find(btcPrice),
+                  ETH: json.find(ethPrice),
+                  DOGE: json.find(dogePrice),
+                  XMR: json.find(moneroPrice),
+                  LTC: json.find(litecoinPrice)
+              }
+              console.log(priceDataArr.BTC.priceChangePercent)
+              setBTC(Number(priceDataArr.BTC.lastPrice))
+              setETH(Number(priceDataArr.ETH.lastPrice))
+              setDOGE(Number(priceDataArr.DOGE.lastPrice))
+              setXMR(Number(priceDataArr.XMR.lastPrice))
+              setLTC(Number(priceDataArr.LTC.lastPrice))
+              setBTCCP(Number(priceDataArr.BTC.priceChangePercent))
+              setETHCP(Number(priceDataArr.ETH.priceChangePercent))
+              setDOGECP(Number(priceDataArr.DOGE.priceChangePercent))
+              setXMRCP(Number(priceDataArr.XMR.priceChangePercent))
+              setLTCCP(Number(priceDataArr.LTC.priceChangePercent))
+          });
+      }catch(err){
+          console.log(err)
+      }
+  }
+  
 
   const handleClick = () => {
     setOpenS(true);
@@ -89,72 +159,74 @@ function Layout() {
         </div>
         <div className="bg-amweriswap-content">
           <div className="bg-amweriswap-section">
-            <div className="bg-amweriswap-section-left">
-              <div id="overlay">
-                <div id="text">COMING SOON</div>          
-              </div>                
+            <div className="bg-amweriswap-section-left">           
               <div className="swap-box-3">
                 <div className="row">
-                    <div className="col-md-6">
-                      <img className="coin" src="image/Images/Bitcoin.svg.png"/>
+                    <div className="col-md-12">
+                      <img className="coin" src="image/Images/Bitcoin.svg.png"/>&nbsp;
                       <label>Bitcoin</label>
-                      <h5>$55,544.95</h5>
-                      <span className="green">2.5%</span>
-                    </div>
-                    <div className="col-md-6">
-                      <img className="linegraph" src="image/dummy_linegraph_green.png"/>
+                      <h5>${btc}</h5>
+                      {Math.sign(Number(btccp)) === -1?
+                        <span className="red">{btccp}%</span>
+                      :
+                        <span className="green">{btccp}%</span>
+                      }
                     </div>
                 </div>
               </div>
               <div className="swap-box-3">
                 <div className="row">
-                  <div className="col-md-6">
-                    <img className="coin" src="image/Images/eth.png"/>
+                  <div className="col-md-12">
+                    <img className="coin" src="image/Images/eth.png"/>&nbsp;
                     <label>Eth</label>
-                    <h5>$55,544.95</h5>
-                    <span className="red">2.5%</span>
-                  </div>
-                  <div className="col-md-6">
-                    <img className="linegraph" src="image/dummy_linegraph_red.png"/>
+                    <h5>${eth}</h5>
+                    {Math.sign(Number(ethcp)) === -1?
+                      <span className="red">{ethcp}%</span>
+                    :
+                      <span className="green">{ethcp}%</span>
+                    }
                   </div>
               </div>
               </div>
               <div className="swap-box-3">
                 <div className="row">
-                    <div className="col-md-6">
-                      <img className="coin" src="image/Images/dogecoin.svg"/>
+                    <div className="col-md-12">
+                      <img className="coin" src="image/Images/dogecoin.svg"/>&nbsp;
                       <label>Dogecoin</label>
-                      <h5>$55,544.95</h5>
-                      <span className="green">2.5%</span>
-                    </div>
-                    <div className="col-md-6">
-                      <img className="linegraph" src="image/dummy_linegraph_green.png"/>
+                      <h5>${doge}</h5>
+                      {Math.sign(Number(dogecp)) === -1?
+                        <span className="red">{dogecp}%</span>
+                      :
+                        <span className="green">{dogecp}%</span>
+                      }
                     </div>
                 </div>
               </div>
               <div className="swap-box-3">
                 <div className="row">
-                    <div className="col-md-6">
-                      <img className="coin" src="image/Images/monero.png"/>
+                    <div className="col-md-12">
+                      <img className="coin" src="image/Images/monero.png"/>&nbsp;
                       <label>Monero </label>
-                      <h5>$55,544.95</h5>
-                      <span className="green">2.5%</span>
-                    </div>
-                    <div className="col-md-6">
-                      <img className="linegraph" src="image/dummy_linegraph_green.png"/>
+                      <h5>${xmr}</h5>
+                      {Math.sign(Number(xmrcp)) === -1?
+                        <span className="red">{xmrcp}%</span>
+                      :
+                        <span className="green">{xmrcp}%</span>
+                      }
                     </div>
                 </div>
               </div>
               <div className="swap-box-3">
                 <div className="row">
-                    <div className="col-md-6">
-                      <img className="coin" src="image/Images/litecoin.png"/>
+                    <div className="col-md-12">
+                      <img className="coin" src="image/Images/litecoin.png"/>&nbsp;
                       <label>Litecoin</label>
-                      <h5>$55,544.95</h5>
-                      <span className="red">2.5%</span>
-                    </div>
-                    <div className="col-md-6">
-                      <img className="linegraph" src="image/dummy_linegraph_red.png"/>
+                      <h5>${ltc}</h5>
+                      {Math.sign(Number(ltccp)) === -1?
+                        <span className="red">{ltccp}%</span>
+                      :
+                        <span className="green">{ltccp}%</span>
+                      }
                     </div>
                 </div>
               </div>

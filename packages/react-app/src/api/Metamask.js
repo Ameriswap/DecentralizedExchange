@@ -11,34 +11,20 @@ import {
 import Button from '@mui/material/Button';
 import {ethers} from 'ethers';
 import MetamaskLogo from '../images/metamask.png';
-import Swal from 'sweetalert2'
 import Modal from '@mui/material/Modal';
-import { styled } from '@mui/material/styles';
 import PropTypes from 'prop-types';
-import Backdrop from '@mui/material/Backdrop';
 import { useSpring, animated } from '@react-spring/web';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import Grid from '@mui/material/Grid';
 import Chip from '@mui/material/Chip';
 import LogoutIcon from '@mui/icons-material/Logout';
 import Tooltip from '@mui/material/Tooltip';
-import Balance from "../api/Balance";
-
-import MenuItem from '@mui/material/MenuItem';
-import MenuList from '@mui/material/MenuList';
-import ClickAwayListener from '@mui/material/ClickAwayListener';
-import Grow from '@mui/material/Grow';
-import Paper from '@mui/material/Paper';
-import Popper from '@mui/material/Popper';
 import TrustWallet from'../images/trustwallet.png';
 import CoinBaseWallet from'../images/coinbase.png';
 import WalletConnect from'../images/walletconnect.png';
 import Box from '@mui/material/Box';
 import Networks from './Networks'
-import Wallet from './Wallet'
 import Web3 from "web3";
-import { useWeb3React } from '@web3-react/core'
 import { networkParams } from "../networks";
 import { toHex, truncateAddress } from "../utils";
 import Web3Modal from "web3modal";
@@ -61,8 +47,6 @@ const  Metamask = () =>{
     const optionsIMG = [MetamaskLogo,TrustWallet,CoinBaseWallet,WalletConnect];
     const [accountCheck,setAccountCheck] = React.useState(false);
     const dispatch = useDispatch()
-    // const { activate, deactivate } = useWeb3React();
-    // const { active, chainId, account } = useWeb3React();
     const rpc = useSelector((state) => state.rpc.value);
 
     const [provider, setProvider] = useState();
@@ -199,27 +183,6 @@ const  Metamask = () =>{
         };
         }
     }, [provider]);
-    
-
-    const switchNetwork = async () => {
-        try {
-        await library.provider.request({
-            method: "wallet_switchEthereumChain",
-            params: [{ chainId: toHex(network) }]
-        });
-        } catch (switchError) {
-        if (switchError.code === 4902) {
-            try {
-            await library.provider.request({
-                method: "wallet_addEthereumChain",
-                params: [networkParams[toHex(network)]]
-            });
-            } catch (error) {
-            setError(error);
-            }
-        }
-        }
-    };
 
     const getFlooredFixed = (v, d) => {
         return (Math.floor(v * Math.pow(10, d)) / Math.pow(10, d)).toFixed(d);

@@ -6271,6 +6271,14 @@ coa@^2.0.2:
     chalk "^2.4.1"
     q "^1.1.2"
 
+coinmarketcap-api@^3.1.1:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/coinmarketcap-api/-/coinmarketcap-api-3.1.1.tgz#ee5660a7e18abd03cd84d80c79a6d7ab48817e6d"
+  integrity sha512-fXTJq3YyiI54m9W0T5CwxQAKEpZqXRZdKbb10Zld/vINfdM83Y8so+m6RVWoJktl8tMIAxCtkVVC5aGwSs1keQ==
+  dependencies:
+    node-fetch "^2.6.0"
+    qs "^6.7.0"
+
 collect-v8-coverage@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/collect-v8-coverage/-/collect-v8-coverage-1.0.1.tgz#cc2c8e94fc18bbdffe64d6534570c8a673b27f59"
@@ -15077,7 +15085,7 @@ qs@6.11.0, qs@^6.4.0, qs@^6.5.2:
   dependencies:
     side-channel "^1.0.4"
 
-qs@^6.10.3:
+qs@^6.10.3, qs@^6.7.0:
   version "6.11.1"
   resolved "https://registry.yarnpkg.com/qs/-/qs-6.11.1.tgz#6c29dff97f0c0060765911ba65cbc9764186109f"
   integrity sha512-0wsrzgTz/kAVIeuxSjnpGC56rzYtr6JT/2BwEvMaPhFIoYa1aGO8LbzuU1R0uUYQkLpWBTOj0l/CLAJB64J6nQ==

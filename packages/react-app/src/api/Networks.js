@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState,useEffect }  from 'react';
 import {
     fetchNetwork,
 } from '../features/network/rpcUrlReducer';
@@ -14,9 +14,11 @@ import Button from '@mui/material/Button';
 import Eth from'../images/eth.png';
 import BnbChain from'../images/bnbchain.png';
 import Arbitrum from'../images/arbitrum.png';
+import { networkParams } from "../networks";
+import { toHex, truncateAddress } from "../utils";
 import { useSelector, useDispatch } from 'react-redux'
 
-function Networks(){
+function Networks(props){
     
     const rpcUrls = {
         Ethereum: 'https://mainnet.infura.io/v3/c17d58aa246644759e20b6c0647121cf',
@@ -27,18 +29,45 @@ function Networks(){
     const [open, setOpen] = React.useState(false);
     const anchorRef = React.useRef(null);
     const [selectedIndex, setSelectedIndex] = React.useState(0);
+    const [error, setError] = useState();
   
     const options = [
-        ['Ethereum','0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'],
-        ['BNB','0xB8c77482e45F1F44dE1745F52C74426C631bDD52'],
-        ['Arbitrum','0x912CE59144191C1204E64559FE8253a0e49E6548']];
+        ['Ethereum','0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',1],
+        ['BNB','0xB8c77482e45F1F44dE1745F52C74426C631bDD52',56],
+        ['Arbitrum','0x912CE59144191C1204E64559FE8253a0e49E6548',42161]];
+
     const optionsIMG = [Eth,BnbChain,Arbitrum];
+
     const dispatch = useDispatch()
   
     const handleMenuItemClick = (event, index) => {
       setSelectedIndex(index);
       dispatch(fetchNetwork(options[index][1]));
+      switchNetwork(options[index][2])
       setOpen(false);
+    };
+
+    
+    const switchNetwork = async (chainID) => {
+        let library = props.library;
+
+        try {
+            await library.provider.request({
+                method: "wallet_switchEthereumChain",
+                params: [{ chainId: toHex(chainID) }]
+            });
+        } catch (switchError) {
+            if (switchError.code === 4902) {
+                try {
+                await library.provider.request({
+                    method: "wallet_addEthereumChain",
+                    params: [networkParams[toHex(chainID)]]
+                });
+                } catch (error) {
+                setError(error);
+                }
+            }
+        }
     };
   
     const handleToggle = () => {
@@ -52,14 +81,6 @@ function Networks(){
   
       setOpen(false);
     };
-
-    const arbitrumFunc = () => {
-
-    }
-
-    const bnbChainFunc = () => {
-        
-    }
 
     return (
         <>

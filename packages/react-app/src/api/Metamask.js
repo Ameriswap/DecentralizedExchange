@@ -23,12 +23,22 @@ import TrustWallet from'../images/trustwallet.png';
 import CoinBaseWallet from'../images/coinbase.png';
 import WalletConnect from'../images/walletconnect.png';
 import Box from '@mui/material/Box';
-import Networks from './Networks'
 import Web3 from "web3";
 import { networkParams } from "../networks";
 import { toHex, truncateAddress } from "../utils";
 import Web3Modal from "web3modal";
 import { providerOptions } from "../providerOptions";
+import Eth from'../images/eth.png';
+import BnbChain from'../images/bnbchain.png';
+import Arbitrum from'../images/arbitrum.png';
+import MenuItem from '@mui/material/MenuItem';
+import MenuList from '@mui/material/MenuList';
+import ButtonGroup from '@mui/material/ButtonGroup';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import ClickAwayListener from '@mui/material/ClickAwayListener';
+import Grow from '@mui/material/Grow';
+import Paper from '@mui/material/Paper';
+import Popper from '@mui/material/Popper';
 
 const web3Modal = new Web3Modal({
   cacheProvider: true, // optional
@@ -48,6 +58,7 @@ const  Metamask = () =>{
     const [accountCheck,setAccountCheck] = React.useState(false);
     const dispatch = useDispatch()
     const rpc = useSelector((state) => state.rpc.value);
+    const [rpcUrl,setRpcUrl] = React.useState('');
 
     const [provider, setProvider] = useState();
     const [library, setLibrary] = useState();
@@ -55,6 +66,17 @@ const  Metamask = () =>{
     const [network, setNetwork] = useState();
     const [chainId, setChainId] = useState();
     const [error, setError] = useState();
+
+    const [openNet, setOpenNet] = React.useState(false);
+    const anchorRefNet = React.useRef(null);
+    const [selectedIndexNet, setSelectedIndexNet] = React.useState(0);
+  
+    const optionsNet = [
+        ['Ethereum','0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',1,'ethereum'],
+        ['BNB','0xB8c77482e45F1F44dE1745F52C74426C631bDD52',56,'bnb'],
+        ['Arbitrum','0x912CE59144191C1204E64559FE8253a0e49E6548',42161,'arbitrum']];
+
+    const optionsIMGNet = [Eth,BnbChain,Arbitrum];
 
     const Fade = React.forwardRef(function Fade(props, ref) {
     const { in: open, children, onEnter, onExited, ...other } = props;
@@ -79,6 +101,7 @@ const  Metamask = () =>{
         </animated.div>
     );
     });
+    
 
     Fade.propTypes = {
     children: PropTypes.element,
@@ -100,6 +123,47 @@ const  Metamask = () =>{
         boxShadow: 24,
         p: 1,
     };
+  
+    const handleMenuItemClickNet = (event, index) => {
+      setSelectedIndexNet(index);
+      dispatch(fetchNetwork(optionsNet[index][1]));
+      switchNetwork(optionsNet[index][2])
+      setRpcUrl(optionsNet[index][3])
+      setOpenNet(false);
+    };
+    
+    const switchNetwork = async (chainID) => {
+        try {
+            await library.provider.request({
+                method: "wallet_switchEthereumChain",
+                params: [{ chainId: toHex(chainID) }]
+            });
+        } catch (switchError) {
+            if (switchError.code === 4902) {
+                try {
+                await library.provider.request({
+                    method: "wallet_addEthereumChain",
+                    params: [networkParams[toHex(chainID)]]
+                });
+                } catch (error) {
+                    setError(error);
+                }
+            }
+        }
+    };
+  
+    const handleToggleNet = () => {
+      setOpenNet((prevOpen) => !prevOpen);
+    };
+  
+    const handleCloseNet = (event) => {
+      if (anchorRefNet.current && anchorRefNet.current.contains(event.target)) {
+        return;
+      }
+  
+      setOpenNet(false);
+    };
+
 
     const refreshState = () => {
         setAccount();
@@ -107,7 +171,6 @@ const  Metamask = () =>{
         setNetwork("");
         setAccountCheck(false)
         setBoolIcon(false);
-        getUserBalance("");
         setOpenWallet(false);
     };
 
@@ -130,7 +193,7 @@ const  Metamask = () =>{
             setNetwork(network);
             setAccountCheck(true)
             setBoolIcon(true);
-            getUserBalance(accounts[0]);
+            // getUserBalance(accounts[0]);
             window.localStorage.setItem('userAccount', accounts[0]);
         
         } catch (error) {
@@ -147,40 +210,32 @@ const  Metamask = () =>{
 
     useEffect(() => {
         if (provider?.on) {
-        const handleAccountsChanged = (accounts) => {
-            console.log("accountsChanged", accounts);
-            if (accounts) setAccount(accounts[0]);
-            
-        };
+            const handleAccountsChanged = (accounts) => {
+                console.log("accountsChanged", accounts);
+                if (accounts) setAccount(accounts[0]);
+                
+            };
 
-        const handleChainChanged = (_hexChainId) => {
-            setChainId(_hexChainId);
-        };
+            const handleChainChanged = (_hexChainId) => {
+                setChainId(_hexChainId);
+            };
 
-        const handleDisconnect = () => {
-            console.log("disconnect", error);
-            disconnect();
-        };
+            const handleDisconnect = () => {
+                console.log("disconnect", error);
+                disconnect();
+            };
 
-        provider.on("accountsChanged", handleAccountsChanged);
-        provider.on("chainChanged", handleChainChanged);
-        provider.on("disconnect", handleDisconnect);
+            provider.on("accountsChanged", handleAccountsChanged);
+            provider.on("chainChanged", handleChainChanged);
+            provider.on("disconnect", handleDisconnect);
 
-        if (typeof window.ethereum !== 'undefined') {
-            window.ethereum.on('accountsChanged', handleAccountsChanged);
-    
-            window.ethereum.on('chainChanged', handleChainChanged);
-
-            window.ethereum.on('disconnect', handleDisconnect);
-        }
-
-        return () => {
-            if (provider.removeListener) {
-            provider.removeListener("accountsChanged", handleAccountsChanged);
-            provider.removeListener("chainChanged", handleChainChanged);
-            provider.removeListener("disconnect", handleDisconnect);
-            }
-        };
+            return () => {
+                if (provider.removeListener) {
+                provider.removeListener("accountsChanged", handleAccountsChanged);
+                provider.removeListener("chainChanged", handleChainChanged);
+                provider.removeListener("disconnect", handleDisconnect);
+                }
+            };
         }
     }, [provider]);
 
@@ -188,51 +243,51 @@ const  Metamask = () =>{
         return (Math.floor(v * Math.pow(10, d)) / Math.pow(10, d)).toFixed(d);
     }
 
-    const getUserBalance = async (address) => {
-        const rpcUrls = {
-            ethereum: 'https://mainnet.infura.io/v3/529670718fd74cd2a041466303daecd7',
-            polygon: 'https://polygon.infura.io',
-            xdai: 'https://xdai.infura.io'
-        }
-        const web3Provider = new Web3.providers.HttpProvider(rpcUrls["ethereum"]);
-        const web3 = new Web3(web3Provider);
-        const tokenABI = [{
-            "constant": true,
-            "inputs": [
-                {
-                "name": "_owner",
-                "type": "address"
-                }
-            ],
-            "name": "balanceOf",
-            "outputs": [
-                {
-                "name": "balance",
-                "type": "uint256"
-                }
-            ],
-            "payable": false,
-            "type": "function"
-        }]
+    // const getUserBalance = async (address) => {
+    //     const rpcUrls = {
+    //         ethereum: 'https://mainnet.infura.io/v3/529670718fd74cd2a041466303daecd7',
+    //         bnb: 'https://bsc-dataseed.binance.org/',
+    //         Arbitrum: 'https://arb1.arbitrum.io/rpc'
+    //     }
+    //     const web3Provider = new Web3.providers.HttpProvider(rpcUrls[rpcUrl]);
+    //     const web3 = new Web3(web3Provider);
+    //     const tokenABI = [{
+    //         "constant": true,
+    //         "inputs": [
+    //             {
+    //             "name": "_owner",
+    //             "type": "address"
+    //             }
+    //         ],
+    //         "name": "balanceOf",
+    //         "outputs": [
+    //             {
+    //             "name": "balance",
+    //             "type": "uint256"
+    //             }
+    //         ],
+    //         "payable": false,
+    //         "type": "function"
+    //     }]
 
-        const tokenInst = new web3.eth.Contract(tokenABI, rpc);
-        if(window.ethereum){
-            window.ethereum.request({ method: 'eth_getBalance', params: [address, 'latest']})
-            .then(balance => {
-                dispatch(fetchBalance(getFlooredFixed(parseFloat(ethers.utils.formatEther(balance)), 4)));
-                userBalance(getFlooredFixed(parseFloat(ethers.utils.formatEther(balance)), 4));
-            })
-        }
-        else{
-            try{
-                dispatch(fetchBalance(getFlooredFixed(parseFloat(await tokenInst.methods.balanceOf(address).call() / 1e9 / 1e9), 4)));
-                userBalance(getFlooredFixed(parseFloat(await tokenInst.methods.balanceOf(address).call() / 1e9 / 1e9), 4))
-            }catch(error){
-                console.log(error)
-            }
-        }
+    //     const tokenInst = new web3.eth.Contract(tokenABI, rpc);
+    //     if(window.ethereum){
+    //         window.ethereum.request({ method: 'eth_getBalance', params: [address, 'latest']})
+    //         .then(balance => {
+    //             dispatch(fetchBalance(getFlooredFixed(parseFloat(ethers.utils.formatEther(balance)), 4)));
+    //             userBalance(getFlooredFixed(parseFloat(ethers.utils.formatEther(balance)), 4));
+    //         })
+    //     }
+    //     else{
+    //         try{
+    //             dispatch(fetchBalance(getFlooredFixed(parseFloat(await tokenInst.methods.balanceOf(address).call() / 1e9 / 1e9), 4)));
+    //             userBalance(getFlooredFixed(parseFloat(await tokenInst.methods.balanceOf(address).call() / 1e9 / 1e9), 4))
+    //         }catch(error){
+    //             console.log(error)
+    //         }
+    //     }
 
-    }
+    // }
 
     const userBalance = (balance) => {
         window.localStorage.setItem('userBalance', balance); //user persisted data
@@ -273,12 +328,47 @@ const  Metamask = () =>{
             ?
             <>
                 <div style={{float: 'right'}}>
-                    <Networks
-                        network={network}
-                        chainid={chainId}
-                        library={library}
-                        provider={provider}
-                    />
+                    <ButtonGroup variant="outlined" ref={anchorRefNet} aria-label="split button">
+                        <Button onClick={handleToggleNet}><img alt={'Logo'} src={optionsIMGNet[selectedIndexNet]} width={30} height={30} />&nbsp;{optionsNet[selectedIndexNet][0]}<ArrowDropDownIcon /></Button>
+                    </ButtonGroup>
+                    <Popper
+                        sx={{
+                        zIndex: 1,
+                        }}
+                        open={openNet}
+                        anchorEl={anchorRefNet.current}
+                        role={undefined}
+                        transition
+                        disablePortal
+                    >
+                        {({ TransitionProps, placement }) => (
+                        <Grow
+                            {...TransitionProps}
+                            style={{
+                            transformOrigin:
+                                placement === 'bottom' ? 'center top' : 'center bottom',
+                            }}
+                        >
+                            <Paper>
+                            <ClickAwayListener onClickAway={handleCloseNet}>
+                                <MenuList id="split-button-menu" autoFocusItem>
+                                {optionsNet.map((option, index) => (
+                                    <MenuItem
+                                    key={option}
+                                    selected={index === selectedIndexNet}
+                                    onClick={(event) => handleMenuItemClickNet(event, index)}
+                                    >
+                                    <img alt={'Logo'} src={optionsIMGNet[index]} width={30} height={30} />&nbsp;{option[0]}
+                                    </MenuItem>
+                                ))}
+                                </MenuList>
+                            </ClickAwayListener>
+                            </Paper>
+                        </Grow>
+                        )}
+                    </Popper>
+
+                    &nbsp;
                 </div>
                 <button 
                 className="btn-wallet"

@@ -26,25 +26,25 @@ function Networks(props){
         Arbitrum: 'https://xdai.infura.io'
     }
 
-    const [open, setOpen] = React.useState(false);
-    const anchorRef = React.useRef(null);
-    const [selectedIndex, setSelectedIndex] = React.useState(0);
+    const [openNet, setOpenNet] = React.useState(false);
+    const anchorRefNet = React.useRef(null);
+    const [selectedIndexNet, setSelectedIndexNet] = React.useState(0);
     const [error, setError] = useState();
   
-    const options = [
+    const optionsNet = [
         ['Ethereum','0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',1],
         ['BNB','0xB8c77482e45F1F44dE1745F52C74426C631bDD52',56],
         ['Arbitrum','0x912CE59144191C1204E64559FE8253a0e49E6548',42161]];
 
-    const optionsIMG = [Eth,BnbChain,Arbitrum];
+    const optionsIMGNet = [Eth,BnbChain,Arbitrum];
 
     const dispatch = useDispatch()
   
-    const handleMenuItemClick = (event, index) => {
-      setSelectedIndex(index);
-      dispatch(fetchNetwork(options[index][1]));
-      switchNetwork(options[index][2])
-      setOpen(false);
+    const handleMenuItemClickNet = (event, index) => {
+      setSelectedIndexNet(index);
+      dispatch(fetchNetwork(optionsNet[index][1]));
+      switchNetwork(optionsNet[index][2])
+      setOpenNet(false);
     };
 
     
@@ -70,29 +70,29 @@ function Networks(props){
         }
     };
   
-    const handleToggle = () => {
-      setOpen((prevOpen) => !prevOpen);
+    const handleToggleNet = () => {
+      setOpenNet((prevOpen) => !prevOpen);
     };
   
-    const handleClose = (event) => {
-      if (anchorRef.current && anchorRef.current.contains(event.target)) {
+    const handleCloseNet = (event) => {
+      if (anchorRefNet.current && anchorRefNet.current.contains(event.target)) {
         return;
       }
   
-      setOpen(false);
+      setOpenNet(false);
     };
 
     return (
         <>
-        <ButtonGroup variant="outlined" ref={anchorRef} aria-label="split button">
-            <Button onClick={handleToggle}><img alt={'Logo'} src={optionsIMG[selectedIndex]} width={30} height={30} />&nbsp;{options[selectedIndex][0]}<ArrowDropDownIcon /></Button>
+        <ButtonGroup variant="outlined" ref={anchorRefNet} aria-label="split button">
+            <Button onClick={handleToggleNet}><img alt={'Logo'} src={optionsIMGNet[selectedIndexNet]} width={30} height={30} />&nbsp;{optionsNet[selectedIndexNet][0]}<ArrowDropDownIcon /></Button>
         </ButtonGroup>
         <Popper
             sx={{
             zIndex: 1,
             }}
-            open={open}
-            anchorEl={anchorRef.current}
+            open={openNet}
+            anchorEl={anchorRefNet.current}
             role={undefined}
             transition
             disablePortal
@@ -106,15 +106,15 @@ function Networks(props){
                 }}
             >
                 <Paper>
-                <ClickAwayListener onClickAway={handleClose}>
+                <ClickAwayListener onClickAway={handleCloseNet}>
                     <MenuList id="split-button-menu" autoFocusItem>
-                    {options.map((option, index) => (
+                    {optionsNet.map((option, index) => (
                         <MenuItem
                         key={option}
-                        selected={index === selectedIndex}
-                        onClick={(event) => handleMenuItemClick(event, index)}
+                        selected={index === selectedIndexNet}
+                        onClick={(event) => handleMenuItemClickNet(event, index)}
                         >
-                        <img alt={'Logo'} src={optionsIMG[index]} width={30} height={30} />&nbsp;{option[0]}
+                        <img alt={'Logo'} src={optionsIMGNet[index]} width={30} height={30} />&nbsp;{option[0]}
                         </MenuItem>
                     ))}
                     </MenuList>

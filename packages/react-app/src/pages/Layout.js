@@ -152,8 +152,8 @@ function Layout() {
                     <h1>All-in-One Decentralized Finance Platform</h1>
                     <h6>Ameriswap is a trustless decentralized cryptocurrency trading platform.</h6>
                 </div>
-                <div className="content1 col-md-6">
-                    <img className="future" src="image/Image/3D/future.png"/>
+                <div className="content1-2 col-md-6">
+                  <Outlet/>
                 </div>
           </div>
         </div>
@@ -231,6 +231,22 @@ function Layout() {
                 </div>
               </div>
             </div>
+            {/* <div className="bg-amweriswap-section-right">
+              <h1>Never-ending liquidity</h1>
+              <p>Ameriswap platform instantly analyzes thousands of quotes and fees across multiple DEXes to provide users with the best rates.</p>
+              <button className="btn-learn-more" onClick={handleClick}>
+                Learn More <img className="lear" src="image/icons/arrow.svg"/>
+              </button>
+              <Snackbar open={openS} autoHideDuration={6000} onClose={handleCloseS}>
+                <Alert onClose={handleCloseS} severity="warning" sx={{ width: '100%' }}>
+                  Coming soon...
+                </Alert>
+              </Snackbar>              
+            </div> */}
+          </div>
+        </div>
+        <div className="bg-amweriswap-content2">
+          <div class="header-content2 row">
             <div className="bg-amweriswap-section-right">
               <h1>Never-ending liquidity</h1>
               <p>Ameriswap platform instantly analyzes thousands of quotes and fees across multiple DEXes to provide users with the best rates.</p>
@@ -243,10 +259,12 @@ function Layout() {
                 </Alert>
               </Snackbar>              
             </div>
+            <div className="swap-box2">
+                <div id="overlay">
+                  <div id="text">COMING SOON</div>          
+                </div>               
+            </div>
           </div>
-        </div>
-        <div className="bg-amweriswap-content2">
-          <Outlet/>
         </div>
         <div className="bg-amweriswap-content4">
           <div className="bg-amweriswap-section4">

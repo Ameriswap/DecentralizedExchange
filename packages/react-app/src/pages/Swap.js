@@ -238,31 +238,25 @@ export default function Swap() {
       setLoading(false);
     }
     else{
-      if(event.target.value > balance){
-        setStatus('Insufficient Balance');
-        setLoading(false);
+      if(event.target.value % 1){
+        setLengthInput({
+          maxLength: 8
+        });
       }
       else{
-        if(event.target.value % 1){
-          setLengthInput({
-            maxLength: 8
-          });
-        }
-        else{
-          setLengthInput({
-            maxLength: 16
-          });
-        }
-        if(event.target.value > 0){
-          if(buySelectedTokenADDR != ""){
-            setTimeout(async function(){
-              setLoading(false);
-              getQuoteFuncOnKey(sellSelectedTokenADDR,buySelectedTokenADDR,event.target.value)
-            }, 2000);
-          }
-        }
-        setSellValue(event.target.value);
+        setLengthInput({
+          maxLength: 16
+        });
       }
+      if(event.target.value > 0){
+        if(buySelectedTokenADDR != ""){
+          setTimeout(async function(){
+            setLoading(false);
+            getQuoteFuncOnKey(sellSelectedTokenADDR,buySelectedTokenADDR,event.target.value)
+          }, 2000);
+        }
+      }
+      setSellValue(event.target.value);
     }
   }
 
@@ -706,7 +700,6 @@ export default function Swap() {
 
   return (
     <div>
-      <div className="header-content2 row">
         <div className="content2">
           <div className="swap-box1">
             <h1>Quick Swap</h1>
@@ -871,14 +864,6 @@ export default function Swap() {
             </div>
           </div>
         </div>
-        <div className="content2-2nd">
-          <div className="swap-box2">
-              <div id="overlay">
-                <div id="text">COMING SOON</div>          
-              </div>               
-          </div>
-        </div>
-      </div>      
     </div>
   );
 }

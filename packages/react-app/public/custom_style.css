@@ -7,6 +7,18 @@
     font-family: Arboria;
 }
 
+@font-face {
+font-family: "FontAwesome";
+font-weight: normal;
+font-style : normal;
+       src : url("https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.eot?v=4.3.0");
+       src : url("https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.eot?#iefix&v=4.3.0") format("embedded-opentype"),
+             url("https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.woff2?v=4.3.0") format("woff2"),
+             url("https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.woff?v=4.3.0") format("woff"),
+             url("https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.ttf?v=4.3.0") format("truetype"),
+             url("https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.svg?v=4.3.0#fontawesomeregular") format("svg");
+}
+
 #overlay {
   position: absolute;
   display: block;
@@ -271,10 +283,10 @@
 }
 
 .swap-box2 {
-    background-image: url("image/dummy_portfolio.png");
+    /* background-image: url("image/dummy_portfolio.png");
     background-repeat: no-repeat;
     background-position: center; 
-    background-color: #0A3060;
+    background-color: #0A3060; */
     width: 675px;
     height: 300px;
     border: 1px solid #e2dede;
@@ -282,7 +294,55 @@
     box-shadow: 0px 2px 9px 0px #B31942;
     position: absolute;
     right: 48px;
+    padding: 45px;
 }
+
+.swap-box2 canvas {
+    width: 60% !important;
+    height: auto!important;
+    position: relative;
+}
+
+.swap-box2 h1 {
+    color: #fff;
+    font-size: 20px;
+}
+
+.swap-box2 ul {
+    color: #fff;
+    list-style: none;
+    margin-top: 53px;
+}
+
+.swap-box2 ul li:nth-child(1)::marker {
+    content: "\f10c";
+    font-family: FontAwesome;
+    color: rgba(54, 162, 235, 0.8);
+}
+
+.swap-box2 ul li:nth-child(2)::marker {
+    content: "\f10c";
+    font-family: FontAwesome;
+    color:rgba(255, 99, 132, 0.8);
+}  
+
+.swap-box2 ul li:nth-child(3)::marker {
+    content: "\f10c";
+    font-family: FontAwesome;
+    color: rgba(255, 206, 86, 0.8);
+}  
+
+.swap-box2 ul li:nth-child(4)::marker {
+    content: "\f10c";
+    font-family: FontAwesome;
+    color: rgba(75, 192, 192, 0.8);
+}  
+
+.swap-box2 ul li:nth-child(5)::marker {
+    content: "\f10c";
+    font-family: FontAwesome;
+    color: rgba(153, 102, 255, 0.8);
+}  
 
 .content2 h1 {
     text-align: left;

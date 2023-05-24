@@ -2,6 +2,8 @@ import React, { useState,useEffect }  from 'react';
 import { Outlet } from "react-router-dom";
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert, { AlertProps } from '@mui/material/Alert';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { Doughnut } from 'react-chartjs-2';
 import Stack from '@mui/material/Stack';
 import CoinMarket from "../api/CoinMarket";
 
@@ -13,6 +15,7 @@ import Arbitrum from'../images/arbitrum.png';
 import Wallet from '../api/Metamask';
 import Network from '../api/Networks';
 
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 const pages = ['Swap'];
 
@@ -75,7 +78,7 @@ function Layout() {
                   XMR: json.find(moneroPrice),
                   LTC: json.find(litecoinPrice)
               }
-              console.log(priceDataArr.BTC.priceChangePercent)
+              console.log(priceDataArr.ETH)
               setBTC(Number(priceDataArr.BTC.lastPrice))
               setETH(Number(priceDataArr.ETH.lastPrice))
               setDOGE(Number(priceDataArr.DOGE.lastPrice))
@@ -105,40 +108,30 @@ function Layout() {
     setOpenS(false);
   };
 
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
-
-  const handleOpenNavMenu = (event) => {
-    setAnchorElNav(event.currentTarget);
+  const data = {
+    // labels: ['Eth', 'Bitcoin', 'Litecoin', 'Monero', 'Dogecoin'],
+    datasets: [
+      {
+        label: 'PRICE',
+        data: [eth, btc, ltc, xmr, doge],
+        backgroundColor: [
+          'rgba(255, 99, 132, 0.8)',
+          'rgba(54, 162, 235, 0.8)',
+          'rgba(255, 206, 86, 0.8)',
+          'rgba(75, 192, 192, 0.8)',
+          'rgba(153, 102, 255, 0.8)'
+        ],
+        borderColor: [
+          'rgba(255, 99, 132, 1)',
+          'rgba(54, 162, 235, 1)',
+          'rgba(255, 206, 86, 1)',
+          'rgba(75, 192, 192, 1)',
+          'rgba(153, 102, 255, 1)'
+        ],
+        borderWidth: 1,
+      },
+    ],
   };
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
-  };
-
-  const [open, setOpen] = React.useState(false);
-  const anchorRef = React.useRef(null);
-  const [selectedIndex, setSelectedIndex] = React.useState(0);
-
-  const options = ['Ethereum','BNB Chain','Arbitrum'];
-  const optionsIMG = [Eth,BnbChain,Arbitrum];
-
-  const handleMenuItemClick = (event, index) => {
-    setSelectedIndex(index);
-    setOpen(false);
-  };
-
-  const handleToggle = () => {
-    setOpen((prevOpen) => !prevOpen);
-  };
-
-  const handleClose = (event) => {
-    if (anchorRef.current && anchorRef.current.contains(event.target)) {
-      return;
-    }
-
-    setOpen(false);
-  };
-
-  const mobileMenuId = 'primary-search-account-menu-mobile';
 
   return (
       <div>
@@ -260,9 +253,56 @@ function Layout() {
               </Snackbar>              
             </div>
             <div className="swap-box2">
-                <div id="overlay">
-                  <div id="text">COMING SOON</div>          
-                </div>               
+              <div className='row'>
+                <div className='col-md-6'>
+                  <h1>PORTFOLIO</h1>
+                  <Doughnut data={data} />
+                </div>
+                <div className='col-md-6'>
+                  <ul>
+                    <li>
+                      <div style={{float:'left',marginLeft:'5px'}}>
+                        Bitcoin
+                      </div>
+                      <div style={{float:'right'}}>
+                        {((btc/btc)*100)}%
+                      </div>
+                    </li>
+                    <li>
+                      <div style={{float:'left',marginLeft:'5px'}}>
+                        Ethereum
+                      </div>
+                      <div style={{float:'right'}}>
+                        {((eth/btc)*100).toFixed(1)}%
+                      </div>
+                    </li>
+                    <li>
+                      <div style={{float:'left',marginLeft:'5px'}}>
+                        Dogecoin
+                      </div>
+                      <div style={{float:'right'}}>
+                        {((doge/btc)*100).toFixed(1)}%
+                      </div>
+                    </li>
+                    <li>
+                      <div style={{float:'left',marginLeft:'5px'}}>
+                        Monero
+                      </div>
+                      <div style={{float:'right'}}>
+                        {((xmr/btc)*100).toFixed(1)}%
+                      </div>
+                    </li>
+                    <li>
+                      <div style={{float:'left',marginLeft:'5px'}}>
+                        Litecoin
+                      </div>
+                      <div style={{float:'right'}}>
+                        {((ltc/btc)*100).toFixed(1)}%
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -1,4 +1,11 @@
 @media only screen and (max-width: 600px) {
+    .mobile {
+        display:block;
+    }
+    
+    .desktop {
+        display:none;
+    }
     .header-content1,
     .header-content2 {
       width: 100%;
@@ -10,6 +17,8 @@
     .content1
     {
       left: 0px !important;
+      width: auto!important;
+      top: 217px!important;
     }
     .content1 h1
     {
@@ -26,6 +35,7 @@
     .bg-amweriswap-section
     {
         width:100%;
+        padding-top: 0!important;
     }
    
     .bg-amweriswap-section-right
@@ -33,6 +43,7 @@
         width: 80%;
         float: left;
         left: 10%;
+        margin-bottom: 75px;
     }
     .bg-amweriswap-section-left
     {
@@ -51,11 +62,12 @@
         margin-top: 0!important;
     }
     .bg-amweriswap-content {
-        height: 732px;
+        height: 492px;
+        margin-top: -54px;
     }
 
     .bg-amweriswap-content1 {
-        height: 1252px;
+        height: 1488px;
     }
 
     .content1-2 {
@@ -65,13 +77,29 @@
     
     .bg-amweriswap-content2
     {
-        height: 756px;
+        height: 647px;
     }
 
     .swap-box2 {
         position: relative;
         right: 0px;
-        margin-top: 105px!important;
+        margin-top: 73px !important;
+        width:90% !important;
+        margin: 0 auto!important;
+        height: auto;
+        padding: 32px;
+    }
+
+    .swap-box2 .col-md-6 {
+        text-align: center;
+    }
+
+    .swap-box2 canvas {
+        display: inline!important;
+    }
+
+    .swap-box2 ul{
+        padding-left: 0rem;
     }
 
     .content2, .content2-2nd, .swap-box1, .swap-box2
@@ -97,6 +125,7 @@
     .bg-amweriswap-content4
     {
         height:auto;
+        padding-top: 103px;
     }
     .bg-amweriswap-section4,
     .bg-amweriswap-section5
@@ -123,7 +152,7 @@
     }
     .bg-amweriswap-section6
     {
-        width: 100%;
+        width: 95%;
         height: auto;
     }
     .bg-amweriswap-content6
@@ -151,19 +180,28 @@
     .footer-content-right
     {
         width: 100%;
+        top: 0;
     }
     .footer-section
     {
         width: 90%;
+        height: 222px!important;
     }
     .copyright
     {
-        top:355px;
+        top:313px;
     }
 
   }
 
   @media only screen and (max-width: 300px) {
+    .mobile {
+        display:block;
+    }
+    
+    .desktop {
+        display:none;
+    }
     .swap-box-3
     {
         width:40%;
@@ -386,7 +424,7 @@
     }
     .bg-amweriswap-section6, .header-content1
     {
-                width: 100%;
+        width: 100%;
     }
 
   

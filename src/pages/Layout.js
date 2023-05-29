@@ -140,13 +140,22 @@ function Layout() {
             <Wallet/>
           </div>
           <div className="row header-content1">
-                <div className="content1 col-md-6">
-                    <img className="logo" src="image/Logo/Ameriswaplogo.png"/>
-                    <h1>All-in-One Decentralized Finance Platform</h1>
-                    <h6>Ameriswap is a trustless decentralized cryptocurrency trading platform.</h6>
+                <div class="desktop">
+                  <div class="content1 col-md-6">
+                      <img class="logo" src="image/Logo/Ameriswaplogo.png"/>
+                      <h1>All-in-One Decentralized Finance Platform</h1>
+                      <h6>Ameriswap is a trustless decentralized cryptocurrency trading platform.</h6>
+                  </div>
                 </div>
                 <div className="content1-2 col-md-6">
                   <Outlet/>
+                </div>
+                <div class="mobile">
+                  <div class="content1 col-md-6">
+                      <img class="logo" src="image/Logo/Ameriswaplogo.png"/>
+                      <h1>All-in-One Decentralized Finance Platform</h1>
+                      <h6>Ameriswap is a trustless decentralized cryptocurrency trading platform.</h6>
+                  </div>
                 </div>
           </div>
         </div>
@@ -360,7 +369,7 @@ function Layout() {
             <div className="row">
               <div className="col-md-6">
                 <div className="left-section">
-                  <h1>COMING SOON</h1>
+                  <h1 style={{color: '#929292'}}>COMING SOON</h1>
                   <h1>Ameriswap Earn</h1>
                   <h2>A derivative-based product offering liquidity providers attractive APYs.</h2>
                   <p></p>
@@ -382,9 +391,6 @@ function Layout() {
               <p>We Are Ameriswap - a new social crypto community <br/> offering fun and simple investing for everyone</p>
             </div>
             <div className="footer-content-right">
-              <h6>Subscribe Now</h6>
-              <p>Get the latest news and updates</p>
-              <input type="text" placeholder="Email Address" className="form-control" />
               <img className="socmed" src="image/dummy_socmed.png"/>
             </div>
             <div className="copyright">

@@ -19,6 +19,14 @@ font-style : normal;
              url("https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/fonts/fontawesome-webfont.svg?v=4.3.0#fontawesomeregular") format("svg");
 }
 
+.mobile {
+    display:none;
+}
+
+.desktop {
+    display:block;
+}
+
 #overlay {
   position: absolute;
   display: block;
@@ -645,6 +653,8 @@ footer p {
 
 .footer-content-right {
     float: right;
+    position: relative;
+    top: 69px;
 }
 
 .footer-content-right p {

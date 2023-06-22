@@ -6,6 +6,12 @@
     .desktop {
         display:none;
     }
+    .btn-wallet,.btn-dashboard{
+        margin-top: 10px;
+    }
+    .btn-wallet,.btn-dashboard{
+        margin-right: 10px;
+    }
     .header-content1,
     .header-content2 {
       width: 100%;
@@ -249,7 +255,9 @@
 
   /* Landscape */
   @media only screen and (max-width: 900px) and (min-width: 600px) {
-
+    .btn-wallet,.btn-dashboard{
+        margin-right: 10px;
+    }
     .header-menu
     {
         width: 90%;

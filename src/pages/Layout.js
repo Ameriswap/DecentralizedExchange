@@ -6,7 +6,7 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
 import Stack from '@mui/material/Stack';
 import CoinMarket from "../api/CoinMarket";
-
+import EastIcon from '@mui/icons-material/East';
 import MoreIcon from '@mui/icons-material/MoreVert';
 import Button from '@mui/material/Button';
 import Eth from'../images/eth.png';
@@ -253,7 +253,7 @@ function Layout() {
               <h1>Never-ending liquidity</h1>
               <p>Ameriswap platform instantly analyzes thousands of quotes and fees across multiple DEXes to provide users with the best rates.</p>
               <button className="btn-learn-more" onClick={handleClick}>
-                Learn More <img className="lear" src="image/icons/arrow.svg"/>
+                Learn More <EastIcon/>
               </button>
               <Snackbar open={openS} autoHideDuration={6000} onClose={handleCloseS}>
                 <Alert onClose={handleCloseS} severity="warning" sx={{ width: '100%' }}>

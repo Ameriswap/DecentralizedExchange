@@ -21,11 +21,7 @@ import Divider from '@mui/material/Divider';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import CardContent from '@mui/material/CardContent';
-import CardHeader from '@mui/material/CardHeader';
-import CardActions from '@mui/material/CardActions';
-import Collapse from '@mui/material/Collapse';
+import Wallet from '../api/Metamask';
 import axios from "axios";
 import SwapService from "../api/Swap";
 import Balance from "../api/Balance";
@@ -306,12 +302,12 @@ export default function Swap() {
           setAllowanceApprove(allowance);
 
           //USDT USDC
-          if(address == "0xdac17f958d2ee523a2206206994597c13d831ec7" || address == "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"){
+          if(decimal <= 8){
             console.log(parseFloat(await tokenInst.methods.balanceOf(userAddress).call()))
             let bals = parseFloat(await tokenInst.methods.balanceOf(userAddress).call())
 
             if(bals % 1 != 0){
-              dispatch(fetchBalance(parseFloat(await tokenInst.methods.balanceOf(userAddress).call()).toFixed(4)));
+              dispatch(fetchBalance(parseFloat(await tokenInst.methods.balanceOf(userAddress).call()).toFixed(2)));
             }
             else{
               dispatch(fetchBalance(parseFloat(await tokenInst.methods.balanceOf(userAddress).call())));
@@ -321,7 +317,7 @@ export default function Swap() {
             console.log(parseFloat(await tokenInst.methods.balanceOf(userAddress).call() / 1e9 / 1e9))
             let bals = parseFloat(await tokenInst.methods.balanceOf(userAddress).call())
             if(bals % 1 != 0){
-              dispatch(fetchBalance(parseFloat(await tokenInst.methods.balanceOf(userAddress).call() / 1e9 / 1e9).toFixed(4)));
+              dispatch(fetchBalance(parseFloat(await tokenInst.methods.balanceOf(userAddress).call() / 1e9 / 1e9).toFixed(2)));
             }
             else{
               dispatch(fetchBalance(parseFloat(await tokenInst.methods.balanceOf(userAddress).call() / 1e9 / 1e9)));
@@ -339,7 +335,7 @@ export default function Swap() {
       if(sellValue > 0){
       
         setTimeout(async function(){
-          getQuoteFunc(address)
+          getQuoteFunc(address,decimals)
         }, 2000);
       }
     }
@@ -358,10 +354,18 @@ export default function Swap() {
         try{
           let buyBal = await tokenInst.methods.balanceOf(userAddress).call();
           //USDT USDC
-          if(address == "0xdac17f958d2ee523a2206206994597c13d831ec7" || address == "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"){
+          if(decimals <= 8){
             const formattedAmount = buyBal.toString();
             const amounttest = parseUnits(formattedAmount, 12).toString();
-            setBuyBalance(amounttest / 1e9 / 1e9);
+            const amounttest2 = parseUnits(formattedAmount, 10).toString();
+    
+            if(decimals === 8){
+              setBuyBalance(getFlooredFixed(amounttest2 / 1e9 / 1e9,4));
+            }
+            else{
+              setBuyBalance(getFlooredFixed(amounttest / 1e9 / 1e9,2));
+            }
+
           }
           else{
             setBuyBalance(getFlooredFixed(buyBal / 1e9 / 1e9,4));
@@ -383,7 +387,7 @@ export default function Swap() {
       if(sellValue > 0){
       
         setTimeout(async function(){
-          getQuoteFunc(address)
+          getQuoteFunc(address,decimals)
         }, 2000);
       }
     }
@@ -449,7 +453,7 @@ export default function Swap() {
     }
   }
 
-  const getQuoteFunc = async (address) => {
+  const getQuoteFunc = async (address,decimals) => {
     const formattedAmount = sellValue.toString();
     const amount = parseUnits(formattedAmount, decimal).toString();
     if(methods == 'sell'){
@@ -469,14 +473,23 @@ export default function Swap() {
     else{
       let quoteVal = 0;
       //USDT USDC
-      if(address == "0xdac17f958d2ee523a2206206994597c13d831ec7" || address == "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"){
+      if(decimals <=8){
         quoteVal = await SwapService.getQuote(sellSelectedTokenADDR, address, amount);
+        console.log(decimals)
         const formattedAmount = quoteVal.toString();
         const amounttest = parseUnits(formattedAmount, 12).toString();
-        setBuyValue(amounttest / 1e9 / 1e9);
+        const amounttest2 = parseUnits(formattedAmount, 10).toString();
+
+        if(decimals === 8){
+          setBuyValue(getFlooredFixed(amounttest2 / 1e9 / 1e9,4));
+        }
+        else{
+          setBuyValue(getFlooredFixed(amounttest / 1e9 / 1e9,2));
+        }
       }
       else{
         quoteVal = await SwapService.getQuote(sellSelectedTokenADDR, address, amount);
+        console.log(decimals)
         setBuyValue(getFlooredFixed(quoteVal / 1e9 / 1e9,4));
       }
       setGasFee(parseFloat((await SwapService.getQuoteGasFee(sellSelectedTokenADDR, address, amount) / 1e9)));
@@ -610,41 +623,29 @@ export default function Swap() {
       decimals: 18
     },
     {
-      token: "WETH",
-      url: "https://tokens.1inch.io/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.png",
-      address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
-      decimals: 18
-    },
-    {
       token: "USDC",
       url: "https://tokens.1inch.io/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.png",
       address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-      decimals: 18
-    },
-    {
-      token: "DAI",
-      url: "https://tokens.1inch.io/0x6b175474e89094c44da98b954eedeac495271d0f.png",
-      address: "0x6b175474e89094c44da98b954eedeac495271d0f",
-      decimals: 18
+      decimals: 6
     },
     {
       token: "USDT",
       url: "https://tokens.1inch.io/0xdac17f958d2ee523a2206206994597c13d831ec7.png",
       address: "0xdac17f958d2ee523a2206206994597c13d831ec7",
-      decimals: 18
+      decimals: 6
     },
     {
       token: "WBTC",
       url: "https://tokens.1inch.io/0x2260fac5e5542a773aa44fbcfedf7c193bc2c599.png",
       address: "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
-      decimals: 18
+      decimals: 8
     },
     {
-      token: "1INCH",
-      url: "https://tokens.1inch.io/0x111111111117dc0aa78b770fa6a738034120c302.png",
-      address: "0x111111111117dc0aa78b770fa6a738034120c302",
+      token: "BUSD",
+      url: "https://tokens.1inch.io/0x4fabb145d64652a948d72533023f6e7a623c7c53.png",
+      address: "0x4fabb145d64652a948d72533023f6e7a623c7c53",
       decimals: 18
-    }
+    },
   ];
 
   const swapPermit = async () => {
@@ -792,7 +793,7 @@ export default function Swap() {
                     </Grid>
                   </Grid>
                   
-                  <TextField
+                  {/* <TextField
                     id="input-with-icon-textfield"
                     placeholder="Search a Token or Address"
                     style={{
@@ -809,7 +810,7 @@ export default function Swap() {
                     variant="standard"
                     onChange={e => filterToken(e.target.value)}
                   />
-                  <Divider/>
+                  <Divider/> */}
                   {tokenPreselected.map((option, index) => (
                       <Button
                         onClick={e => clickToken(option.url,option.token,option.address,option.decimals)}
@@ -829,6 +830,12 @@ export default function Swap() {
               <div className="col-md-4">
               </div>
               <div className="col-md-4">
+              {!userAddress?
+              <>
+                <Wallet/>  
+              </>
+              :
+              <>
                 {status == 'SWAP'?
                 <div>
                   {sellSelectedTokenADDR != "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" && sellAllowanceApprove == 0?
@@ -858,6 +865,8 @@ export default function Swap() {
                   }
                   </>
                 }
+              </>
+              }
               </div>
               <div className="col-md-4">
               </div>

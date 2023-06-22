@@ -76,7 +76,7 @@ font-style : normal;
 .header-menu {
     position: fixed;
     margin: 0 auto;
-    width: 84%;
+    width: 82%;
     top: 20px;
     z-index: 99999;
 }
@@ -92,6 +92,31 @@ font-style : normal;
     height: 39px;
     float: right;
     text-align: center;
+}
+
+.btn-wallet:hover,.btn-wallet:active {
+    background: #fff;
+    color: #B31942;
+    box-shadow: 0px 3px 6px 0px #B31942;
+}
+
+.btn-dashboard {
+    background: #fff;
+    width: 190px;
+    border: 0;
+    border-radius: 50px;
+    padding: 5px;
+    color: #B31942;
+    box-shadow: 0px 3px 6px 0px #B31942;
+    height: 39px;
+    float: right;
+    text-align: center;
+}
+
+.btn-dashboard:hover,.btn-dashboard:active {
+    background: #B31942;
+    box-shadow: 0px 3px 6px 0px #ffe5e5;
+    color: #fff;
 }
 
 .btn-wallet-approve {
@@ -464,6 +489,12 @@ font-style : normal;
     color: #fff;
     box-shadow: 0px 3px 6px 0px #ffe5e5;
     height: 39px;
+}
+
+.btn-learn-more:hover,.btn-learn-more:active {
+    background: #fff;
+    color: #B31942;
+    box-shadow: 0px 3px 6px 0px #B31942;
 }
 
 /*Content 4*/

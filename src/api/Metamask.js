@@ -7,7 +7,7 @@ import {
 import {
     fetchNetwork,
 } from '../features/network/rpcUrlReducer';
-
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import Button from '@mui/material/Button';
 import {ethers} from 'ethers';
 import MetamaskLogo from '../images/metamask.png';
@@ -39,11 +39,18 @@ import ClickAwayListener from '@mui/material/ClickAwayListener';
 import Grow from '@mui/material/Grow';
 import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert, { AlertProps } from '@mui/material/Alert';
 
 const web3Modal = new Web3Modal({
   cacheProvider: true, // optional
   providerOptions // required
 });
+
+const Alert = React.forwardRef(function Alert(props, ref) {
+    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+  });
 
 const  Metamask = () =>{
     let userAddress = window.localStorage.getItem('userAccount');
@@ -122,6 +129,19 @@ const  Metamask = () =>{
         borderRadius: '24px',
         boxShadow: 24,
         p: 1,
+    };
+
+    const [openS, setOpenS] = React.useState(false);
+    const handleCloseS = (event, reason) => {
+        if (reason === 'clickaway') {
+        return;
+        }
+
+        setOpenS(false);
+    };
+
+    const handleClickS = () => {
+        setOpenS(true);
     };
   
     const handleMenuItemClickNet = (event, index) => {
@@ -323,125 +343,138 @@ const  Metamask = () =>{
     const handleCloseWallet = () => setOpenWallet(false);
 
     return (
-        <div>
-            {accountCheck === true
-            ?
-            <>
-                <div style={{float: 'right'}}>
-                    <ButtonGroup variant="outlined" ref={anchorRefNet} aria-label="split button">
-                        <Button onClick={handleToggleNet}><img alt={'Logo'} src={optionsIMGNet[selectedIndexNet]} width={30} height={30} />&nbsp;{optionsNet[selectedIndexNet][0]}<ArrowDropDownIcon /></Button>
-                    </ButtonGroup>
-                    <Popper
-                        sx={{
-                        zIndex: 1,
-                        }}
-                        open={openNet}
-                        anchorEl={anchorRefNet.current}
-                        role={undefined}
-                        transition
-                        disablePortal
-                    >
-                        {({ TransitionProps, placement }) => (
-                        <Grow
-                            {...TransitionProps}
-                            style={{
-                            transformOrigin:
-                                placement === 'bottom' ? 'center top' : 'center bottom',
+        <div style={{float: 'right'}}>
+            <Box sx={{ display: {md: 'flex' } }}>
+                <Snackbar open={openS} autoHideDuration={6000} onClose={handleCloseS}>
+                    <Alert onClose={handleCloseS} severity="warning" sx={{ width: '100%' }}>
+                    Coming soon...
+                    </Alert>
+                </Snackbar>   
+                <button 
+                className="btn-dashboard" 
+                onClick={handleClickS}
+                >
+                    <DashboardIcon/>
+                    Dashboard
+                </button>&nbsp;    
+                {accountCheck === true
+                ?
+                <>
+                    <div>
+                        <ButtonGroup variant="outlined" ref={anchorRefNet} aria-label="split button">
+                            <Button onClick={handleToggleNet}><img alt={'Logo'} src={optionsIMGNet[selectedIndexNet]} width={30} height={30} />&nbsp;{optionsNet[selectedIndexNet][0]}<ArrowDropDownIcon /></Button>
+                        </ButtonGroup>
+                        <Popper
+                            sx={{
+                            zIndex: 1,
                             }}
+                            open={openNet}
+                            anchorEl={anchorRefNet.current}
+                            role={undefined}
+                            transition
+                            disablePortal
                         >
-                            <Paper>
-                            <ClickAwayListener onClickAway={handleCloseNet}>
-                                <MenuList id="split-button-menu" autoFocusItem>
-                                {optionsNet.map((option, index) => (
-                                    <MenuItem
-                                    key={option}
-                                    selected={index === selectedIndexNet}
-                                    onClick={(event) => handleMenuItemClickNet(event, index)}
-                                    >
-                                    <img alt={'Logo'} src={optionsIMGNet[index]} width={30} height={30} />&nbsp;{option[0]}
-                                    </MenuItem>
-                                ))}
-                                </MenuList>
-                            </ClickAwayListener>
-                            </Paper>
-                        </Grow>
+                            {({ TransitionProps, placement }) => (
+                            <Grow
+                                {...TransitionProps}
+                                style={{
+                                transformOrigin:
+                                    placement === 'bottom' ? 'center top' : 'center bottom',
+                                }}
+                            >
+                                <Paper>
+                                <ClickAwayListener onClickAway={handleCloseNet}>
+                                    <MenuList id="split-button-menu" autoFocusItem>
+                                    {optionsNet.map((option, index) => (
+                                        <MenuItem
+                                        key={option}
+                                        selected={index === selectedIndexNet}
+                                        onClick={(event) => handleMenuItemClickNet(event, index)}
+                                        >
+                                        <img alt={'Logo'} src={optionsIMGNet[index]} width={30} height={30} />&nbsp;{option[0]}
+                                        </MenuItem>
+                                    ))}
+                                    </MenuList>
+                                </ClickAwayListener>
+                                </Paper>
+                            </Grow>
+                            )}
+                        </Popper>
+
+                        &nbsp;
+                    </div>
+                    <button 
+                    className="btn-wallet"
+                    onClick={handleOpenWallet}
+                    >
+                        {boolIcon ? (
+                            <img src={MetamaskLogo} alt={'Logo'} width={30} height={30} />
+                        ) : (
+                            <div className="conn-wallet"></div>
                         )}
-                    </Popper>
-
-                    &nbsp;
-                </div>
-                <button 
-                className="btn-wallet"
-                onClick={handleOpenWallet}
-                >
-                    {boolIcon ? (
-                        <img src={MetamaskLogo} alt={'Logo'} width={30} height={30} />
-                    ) : (
-                        <div className="conn-wallet"></div>
-                    )}
-                    &nbsp;
-                    <span>{`${truncateAddress(account)}`}</span>
-                </button>
-            </>
-            :
-            <>
-                <button 
-                className="btn-wallet" 
-                onClick={connectWalletList}
-                // ref={anchorRef}
-                >
-                    
-                    {boolIcon ? (
-                        <img src={MetamaskLogo} alt={'Logo'} width={30} height={30} />
-                    ) : (
-                        <div className="conn-wallet"></div>
-                    )}
-                    &nbsp;
-                    Connect Wallet
-                </button>
-            </>
-            }
-
-            <Modal
-              aria-labelledby="spring-modal-title"
-              aria-describedby="spring-modal-description"
-              open={openWallet}
-              onClose={handleCloseWallet}
-            >
-              <Fade in={openWallet}>
-                <Box sx={style} id="token-modal">
-                  <Grid container spacing={0}>
-                    <Grid item xs={4}>
-                      <Button onClick={handleCloseWallet}><ArrowBackIosIcon style={{fontSize: '15px'}}/></Button>
-                    </Grid>
-                    <Grid item xs={8}>
-                      <h3>Account</h3>
-                    </Grid>
-                  </Grid>
-                  <Grid container spacing={0}>
-                    <Grid item xs={6}>
-                        {accountCheck === true?
-                            <>
-                            <Chip style={{color: '#fff'}} label={`${truncateAddress(account)}`}/>
-                            </>
-                        :
-                            <>
-                            
-                            </>
-                        }
+                        &nbsp;
+                        <span>{`${truncateAddress(account)}`}</span>
+                    </button>
+                </>
+                :
+                <>
+                    <button 
+                    className="btn-wallet" 
+                    onClick={connectWalletList}
+                    // ref={anchorRef}
+                    >
                         
+                        {boolIcon ? (
+                            <img src={MetamaskLogo} alt={'Logo'} width={30} height={30} />
+                        ) : (
+                            <AccountBalanceWalletIcon/>
+                        )}
+                        Connect Wallet
+                    </button>
+                </>
+                }
+
+                <Modal
+                aria-labelledby="spring-modal-title"
+                aria-describedby="spring-modal-description"
+                open={openWallet}
+                onClose={handleCloseWallet}
+                >
+                <Fade in={openWallet}>
+                    <Box sx={style} id="token-modal">
+                    <Grid container spacing={0}>
+                        <Grid item xs={4}>
+                        <Button onClick={handleCloseWallet}><ArrowBackIosIcon style={{fontSize: '15px'}}/></Button>
+                        </Grid>
+                        <Grid item xs={8}>
+                        <h3>Account</h3>
+                        </Grid>
                     </Grid>
-                    <Grid item xs={6}>
-                        <Tooltip title="Disconnect">
-                            <Button style={{float: 'right'}} onClick={disconnect}>
-                                <LogoutIcon/>
-                            </Button>
-                        </Tooltip>
+                    <Grid container spacing={0}>
+                        <Grid item xs={6}>
+                            {accountCheck === true?
+                                <>
+                                <Chip style={{color: '#fff'}} label={`${truncateAddress(account)}`}/>
+                                </>
+                            :
+                                <>
+                                
+                                </>
+                            }
+                            
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Tooltip title="Disconnect">
+                                <Button style={{float: 'right'}} onClick={disconnect}>
+                                    <LogoutIcon/>
+                                </Button>
+                            </Tooltip>
+                        </Grid>
                     </Grid>
-                  </Grid>
-                </Box>
-              </Fade>
-            </Modal>
+                    </Box>
+                </Fade>
+                </Modal>
+            </Box>
         </div>
     );
 }

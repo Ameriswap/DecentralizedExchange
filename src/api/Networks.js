@@ -31,10 +31,13 @@ function Networks(props){
     const [selectedIndexNet, setSelectedIndexNet] = React.useState(0);
     const [error, setError] = useState();
   
+    // const optionsNet = [
+    //     ['Ethereum','0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',1,''],
+    //     ['BNB','0xB8c77482e45F1F44dE1745F52C74426C631bDD52',56,''],
+    //     ['Arbitrum','0x912CE59144191C1204E64559FE8253a0e49E6548',42161,'']];
+
     const optionsNet = [
-        ['Ethereum','0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',1],
-        ['BNB','0xB8c77482e45F1F44dE1745F52C74426C631bDD52',56],
-        ['Arbitrum','0x912CE59144191C1204E64559FE8253a0e49E6548',42161]];
+        ['Ethereum','0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',1]];
 
     const optionsIMGNet = [Eth,BnbChain,Arbitrum];
 
@@ -84,47 +87,54 @@ function Networks(props){
 
     return (
         <>
-        <ButtonGroup variant="outlined" ref={anchorRefNet} aria-label="split button">
-            <Button onClick={handleToggleNet}><img alt={'Logo'} src={optionsIMGNet[selectedIndexNet]} width={30} height={30} />&nbsp;{optionsNet[selectedIndexNet][0]}<ArrowDropDownIcon /></Button>
-        </ButtonGroup>
-        <Popper
-            sx={{
-            zIndex: 1,
-            }}
-            open={openNet}
-            anchorEl={anchorRefNet.current}
-            role={undefined}
-            transition
-            disablePortal
-        >
-            {({ TransitionProps, placement }) => (
-            <Grow
-                {...TransitionProps}
-                style={{
-                transformOrigin:
-                    placement === 'bottom' ? 'center top' : 'center bottom',
+        <div className='connect-network-menu'>
+            <ButtonGroup variant="outlined" ref={anchorRefNet} aria-label="split button">
+                <div className='mobile'>
+                    <Button onClick={handleToggleNet} style={{width: '52px'}}><img alt={'Logo'} src={optionsIMGNet[selectedIndexNet]} width={30} height={30} />&nbsp;{optionsNet[selectedIndexNet][3]}<ArrowDropDownIcon /></Button>
+                </div>
+                <div className='desktop'>
+                    <Button onClick={handleToggleNet}><img alt={'Logo'} src={optionsIMGNet[selectedIndexNet]} width={30} height={30} />&nbsp;{optionsNet[selectedIndexNet][0]}<ArrowDropDownIcon /></Button>
+                </div>
+            </ButtonGroup>
+            <Popper
+                sx={{
+                zIndex: 1,
                 }}
+                open={openNet}
+                anchorEl={anchorRefNet.current}
+                role={undefined}
+                transition
+                disablePortal
             >
-                <Paper>
-                <ClickAwayListener onClickAway={handleCloseNet}>
-                    <MenuList id="split-button-menu" autoFocusItem>
-                    {optionsNet.map((option, index) => (
-                        <MenuItem
-                        key={option}
-                        selected={index === selectedIndexNet}
-                        onClick={(event) => handleMenuItemClickNet(event, index)}
-                        >
-                        <img alt={'Logo'} src={optionsIMGNet[index]} width={30} height={30} />&nbsp;{option[0]}
-                        </MenuItem>
-                    ))}
-                    </MenuList>
-                </ClickAwayListener>
-                </Paper>
-            </Grow>
-            )}
-        </Popper>
+                {({ TransitionProps, placement }) => (
+                <Grow
+                    {...TransitionProps}
+                    style={{
+                    transformOrigin:
+                        placement === 'bottom' ? 'center top' : 'center bottom',
+                    }}
+                >
+                    <Paper>
+                    <ClickAwayListener onClickAway={handleCloseNet}>
+                        <MenuList id="split-button-menu" autoFocusItem>
+                        {optionsNet.map((option, index) => (
+                            <MenuItem
+                            key={option}
+                            selected={index === selectedIndexNet}
+                            onClick={(event) => handleMenuItemClickNet(event, index)}
+                            >
+                            <img alt={'Logo'} src={optionsIMGNet[index]} width={30} height={30} />&nbsp;{option[0]}
+                            </MenuItem>
+                        ))}
+                        </MenuList>
+                    </ClickAwayListener>
+                    </Paper>
+                </Grow>
+                )}
+            </Popper>
 
-        &nbsp;
+            &nbsp;
+        </div>
         </>
     );
 

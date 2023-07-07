@@ -4,7 +4,7 @@ const fetch = require('isomorphic-fetch')
 const { providers, BigNumber, Wallet } = require('ethers')
 const { formatUnits, parseUnits } = require('ethers/lib/utils')
 
-const API_URL = "https://api.1inch.exchange/v4.0";
+const API_URL = "https://api.1inch.io/v5.0";
 
 const rpcUrls = {
   ethereum: 'https://mainnet.infura.io',
@@ -37,6 +37,28 @@ const addresses = {
     ETH: '0x6A023CCd1ff6F2045C3309768eAd9E68F978f6e1'
   }
 }
+
+const getQuoteOne = async (fromTokenAddress, toTokenAddress) => {
+  if (!slugToChainId['ethereum']) {
+    throw new Error('chainId is required')
+  }
+  if (!fromTokenAddress) {
+    throw new Error('fromTokenAddrss is required')
+  }
+  if (!toTokenAddress) {
+    throw new Error('toTokenAddress is required')
+  }
+
+  const url = `https://rest.coinapi.io/v1/exchangerate/${toTokenAddress}/${fromTokenAddress}`
+
+  const res = await axios.get(url, {
+    headers: {
+      'X-CoinAPI-Key': '4B5DB34B-2921-4739-ADF8-C91092A25A4C'
+    }
+  });
+  
+  return res.data.rate
+};
 
 
 const getQuote = async (fromTokenAddress, toTokenAddress, amount) => {
@@ -159,7 +181,7 @@ const getSwapTx = async (fromTokenAddress, toTokenAddress, fromAddress, amount, 
     const url = `${API_URL}/${slugToChainId['ethereum']}/swap?fromTokenAddress=${fromTokenAddress}&toTokenAddress=${toTokenAddress}&amount=${amount}&fromAddress=${fromAddress}&slippage=${slippage}`
     const result = await getJson(url)
     if (!result.tx) {
-      console.log(result)
+      // console.log(result)
       throw new Error('expected tx data')
     }
 
@@ -191,6 +213,7 @@ const SwapService = {
     getAllowance,
     getApproveTx,
     getSwapTx,
-    getQuoteGasFee
+    getQuoteGasFee,
+    getQuoteOne
 }
 export default SwapService;

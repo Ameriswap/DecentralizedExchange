@@ -29,7 +29,13 @@ button {
 }
 
 div.MuiPaper-root{
-  background: #171616!important;
+  background: #0f325c;
+  color: #fff;
+  border-radius: 20px;
+  margin-top: 5px;
+}
+
+.transaction .MuiSvgIcon-root.MuiSvgIcon-fontSizeMedium.css-i4bv87-MuiSvgIcon-root {
   color: #fff;
 }
 

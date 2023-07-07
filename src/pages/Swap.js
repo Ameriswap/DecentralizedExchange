@@ -5,6 +5,7 @@ import Backdrop from '@mui/material/Backdrop';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import IconButton from '@mui/material/IconButton';
+import SwapVertIcon from '@mui/icons-material/SwapVert';
 import Button from '@mui/material/Button';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Typography from '@mui/material/Typography';
@@ -14,14 +15,15 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 import Grid from '@mui/material/Grid';
 import { useSelector, useDispatch } from 'react-redux'
-import TextField from '@mui/material/TextField';
-import InputAdornment from '@mui/material/InputAdornment';
-import SearchIcon from '@mui/icons-material/Search';
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
 import Divider from '@mui/material/Divider';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
-import Wallet from '../api/Metamask';
+import Wallet from '../api/ConnectWallet';
+import ConnectWalletButton from '../api/ConnectWalletSwap';
 import axios from "axios";
 import SwapService from "../api/Swap";
 import Balance from "../api/Balance";
@@ -29,6 +31,7 @@ import Skeleton from '@mui/material/Skeleton';
 import CircularProgress from '@mui/material/CircularProgress';
 import Swal from 'sweetalert2'
 import Web3 from "web3";
+import CoinMarket from "../api/CoinMarket";
 import {
   fetchBalance,
 } from '../features/balance/metamaskBalanceReducer';
@@ -133,7 +136,8 @@ export default function Swap() {
   const [buySelectedToken, setbuySelectedToken] = React.useState('Select');
   const [buySelectedTokenIMG, setbuySelectedTokenIMG] = React.useState("");
   const [buySelectedTokenADDR, setBuySelectedTokenADDR] = React.useState('');
-
+  const [transactionSummary, setTransactionSummary] = React.useState(false);
+  const [rate, setRate] = React.useState('');
 
   const filterToken = (value) => {
     console.log(value);
@@ -210,6 +214,21 @@ export default function Swap() {
   const [lengthinput,setLengthInput] = React.useState('');
   const [sellAllowanceApprove,setAllowanceApprove] = React.useState("");
 
+  const [btc, setBTC] = useState('');
+  const [eth, setETH] = useState('');
+  const [doge, setDOGE] = useState('');
+  const [xmr, setXMR] = useState('');
+  const [ltc, setLTC] = useState('');
+  const [btccp,setBTCCP] = React.useState('')
+  const [ethcp,setETHCP] = React.useState('')
+  const [dogecp,setDOGECP] = React.useState('')
+  const [xmrcp,setXMRCP] = React.useState('')
+  const [ltccp,setLTCCP] = React.useState('')
+
+  const connectWallet = () => {
+    document.getElementById('connect-wallet').click();
+  }
+
   const balanceMax = async () => {
     if(sellValue > balance){
       setStatus('Insufficient Balance');
@@ -217,7 +236,7 @@ export default function Swap() {
     }
     else{
       if(buySelectedToken != 'Select Token'){
-        getQuoteFuncOnKey(sellSelectedTokenADDR,buySelectedTokenADDR,balance)
+        getQuoteFuncOnKey(sellSelectedTokenADDR,buySelectedTokenADDR,balance,sellSelectedToken,buySelectedToken)
         setSellValue(balance);
       }
       else{
@@ -227,8 +246,57 @@ export default function Swap() {
 
   }
 
+  const btcPrice = (tokens) => {
+      return tokens.symbol === 'BTCUSDT';
+  }
+  
+  const ethPrice = (tokens) => {
+      return tokens.symbol === 'ETHUSDT';
+  }
+  
+  const dogePrice = (tokens) => {
+      return tokens.symbol === 'DOGEUSDT';
+  }
+  
+  const moneroPrice = (tokens) => {
+      return tokens.symbol === 'XMRUSDT';
+  }
+  
+  const litecoinPrice = (tokens) => {
+      return tokens.symbol === 'LTCUSDT';
+  }
+
+  const getPriceMarket = async () => {
+    try{
+        CoinMarket.getCoinPrice().then((response) => {
+            const json = response.data;
+            const priceDataArr = {
+                BTC: json.find(btcPrice),
+                ETH: json.find(ethPrice),
+                DOGE: json.find(dogePrice),
+                XMR: json.find(moneroPrice),
+                LTC: json.find(litecoinPrice)
+            }
+            console.log(priceDataArr.ETH)
+            setBTC(Number(priceDataArr.BTC.lastPrice))
+            setETH(Number(priceDataArr.ETH.lastPrice))
+            setDOGE(Number(priceDataArr.DOGE.lastPrice))
+            setXMR(Number(priceDataArr.XMR.lastPrice))
+            setLTC(Number(priceDataArr.LTC.lastPrice))
+            setBTCCP(Number(priceDataArr.BTC.priceChangePercent))
+            setETHCP(Number(priceDataArr.ETH.priceChangePercent))
+            setDOGECP(Number(priceDataArr.DOGE.priceChangePercent))
+            setXMRCP(Number(priceDataArr.XMR.priceChangePercent))
+            setLTCCP(Number(priceDataArr.LTC.priceChangePercent))
+        });
+    }catch(err){
+        console.log(err)
+    }
+}
+
   const sellInputFunc = (event) => {
     setLoading(true);
+    setTransactionSummary(false)
     if(typeof event.target.value !== 'number' && isNaN(event.target.value)){
       setSellValue('');
       setLoading(false);
@@ -248,7 +316,8 @@ export default function Swap() {
         if(buySelectedTokenADDR != ""){
           setTimeout(async function(){
             setLoading(false);
-            getQuoteFuncOnKey(sellSelectedTokenADDR,buySelectedTokenADDR,event.target.value)
+            
+            getQuoteFuncOnKey(sellSelectedTokenADDR,buySelectedTokenADDR,event.target.value,sellSelectedToken,buySelectedToken)
           }, 2000);
         }
       }
@@ -282,7 +351,6 @@ export default function Swap() {
     setLoading(true);
     setDecimal(decimals);
     const tokenInst = new web3.eth.Contract(tokenABI, address);
-    
     if(methods == 'sell'){
       if(token == buySelectedToken){
         setLoading(false);
@@ -323,8 +391,11 @@ export default function Swap() {
               dispatch(fetchBalance(parseFloat(await tokenInst.methods.balanceOf(userAddress).call() / 1e9 / 1e9)));
             }
           }
+          
+          getPriceMarket()
         }catch(err){
           setLoading(false);
+          
           console.log(err);
         }
       }
@@ -335,7 +406,7 @@ export default function Swap() {
       if(sellValue > 0){
       
         setTimeout(async function(){
-          getQuoteFunc(address,decimals)
+          getQuoteFunc(address,decimals,token,buySelectedToken)
         }, 2000);
       }
     }
@@ -370,7 +441,9 @@ export default function Swap() {
           else{
             setBuyBalance(getFlooredFixed(buyBal / 1e9 / 1e9,4));
           }
+          
         }catch(err){
+          
           console.log(err);
         }
       }else{
@@ -378,16 +451,17 @@ export default function Swap() {
         .then(balance => {
           setBuyBalance(getFlooredFixed(parseFloat(ethers.utils.formatEther(balance)), 4));
         })
+        
       }
-
+      getPriceMarket()
       setbuySelectedToken(token);
       setbuySelectedTokenIMG(img);
       setBuySelectedTokenADDR(address);
-      
+
       if(sellValue > 0){
-      
+        
         setTimeout(async function(){
-          getQuoteFunc(address,decimals)
+          getQuoteFunc(address,decimals,sellSelectedToken,token)
         }, 2000);
       }
     }
@@ -453,11 +527,15 @@ export default function Swap() {
     }
   }
 
-  const getQuoteFunc = async (address,decimals) => {
+  const getQuoteFunc = async (address,decimals,fromToken,toToken) => {
     const formattedAmount = sellValue.toString();
-    const amount = parseUnits(formattedAmount, decimal).toString();
+    const amount = parseUnits(formattedAmount).toString();
+    setTransactionSummary(false)
+    let getRate = await SwapService.getQuoteOne(fromToken, toToken);
+
     if(methods == 'sell'){
       setBuyValue(getFlooredFixed(parseFloat(await SwapService.getQuote(address, buySelectedTokenADDR, amount)), 4));
+      setRate(getRate.toFixed(5))
       setGasFee(parseFloat((await SwapService.getQuoteGasFee(address, buySelectedTokenADDR, amount) / 1e9)))
       var totalValue = parseFloat(sellValue) + parseFloat((await SwapService.getQuoteGasFee(address, buySelectedTokenADDR, amount) / 1e9));
       if(totalValue > parseFloat(balance) ){
@@ -466,16 +544,19 @@ export default function Swap() {
       }
       else{
         setLoading(false);
+        
         setStatus('SWAP');
         setAmountSwap(amount);
       }
+      setTransactionSummary(true)
     }
     else{
       let quoteVal = 0;
       //USDT USDC
+      quoteVal = await SwapService.getQuote(sellSelectedTokenADDR, address, amount);
+
+      setRate(getRate.toFixed(5))
       if(decimals <=8){
-        quoteVal = await SwapService.getQuote(sellSelectedTokenADDR, address, amount);
-        console.log(decimals)
         const formattedAmount = quoteVal.toString();
         const amounttest = parseUnits(formattedAmount, 12).toString();
         const amounttest2 = parseUnits(formattedAmount, 10).toString();
@@ -486,78 +567,90 @@ export default function Swap() {
         else{
           setBuyValue(getFlooredFixed(amounttest / 1e9 / 1e9,2));
         }
+        
       }
       else{
-        quoteVal = await SwapService.getQuote(sellSelectedTokenADDR, address, amount);
-        console.log(decimals)
+        
         setBuyValue(getFlooredFixed(quoteVal / 1e9 / 1e9,4));
       }
-      setGasFee(parseFloat((await SwapService.getQuoteGasFee(sellSelectedTokenADDR, address, amount) / 1e9)));
-      var totalValue = parseFloat(sellValue) + parseFloat((await SwapService.getQuoteGasFee(sellSelectedTokenADDR, address, amount) / 1e9));
+      setGasFee(parseFloat((await SwapService.getQuoteGasFee(sellSelectedTokenADDR, address, amount) / 1e9)))
+      var totalValue = parseFloat(sellValue) + parseFloat((quoteVal / 1e9));
       
       if(totalValue > parseFloat(balance)){
         setStatus('Insufficient Balance');
         setLoading(false);
+        
       }
       else{
         setLoading(false);
+        
         setStatus('SWAP');
         setAmountSwap(amount);
       }
+      setTransactionSummary(true)
     }
     
   }
 
-  const getQuoteFuncOnKey = async (from,to,value) => {
+  const getQuoteFuncOnKey = async (from,to,value,fromToken,toToken) => {
     let quoteVal = 0;
-    let amount1;
     let totalValue;
+    let getRate = await SwapService.getQuoteOne(fromToken, toToken);
+    setTransactionSummary(false)
+    const formattedAmount1 = value.toString();
+    const amount1 = parseUnits(formattedAmount1).toString();
+    quoteVal = await SwapService.getQuote(from, to, amount1);
+    totalValue = parseFloat(value) + parseFloat((await SwapService.getQuoteGasFee(from, to, amount1) / 1e9));
+    setRate(getRate.toFixed(5))
     //USDT USDC
-    if(to == "0xdac17f958d2ee523a2206206994597c13d831ec7" || to == "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"){
-      const formattedAmount1 = value.toString();
-      amount1 = parseUnits(formattedAmount1, decimal).toString();
-      quoteVal = await SwapService.getQuote(from, to, amount1);
-      setGasFee(parseFloat((await SwapService.getQuoteGasFee(from, to, amount1) / 1e9)));
-      totalValue = parseFloat(value) + parseFloat((await SwapService.getQuoteGasFee(from, to, amount1) / 1e9));
+    if(decimal <=8){
+      
       const formattedAmount = quoteVal.toString();
       const amounttest = parseUnits(formattedAmount, 12).toString();
-      setBuyValue(amounttest / 1e9 / 1e9);
+      const amounttest2 = parseUnits(formattedAmount, 10).toString();
+
+      if(decimal === 8){
+        setBuyValue(getFlooredFixed(amounttest2 / 1e9 / 1e9,4));
+      }
+      else{
+        setBuyValue(getFlooredFixed(amounttest / 1e9 / 1e9,2));
+      }
+      setTransactionSummary(true)
     }
     else{
-      const formattedAmount1 = value.toString();
-      amount1 = parseUnits(formattedAmount1, decimal).toString();
-      setGasFee(parseFloat((await SwapService.getQuoteGasFee(from, to, amount1) / 1e9)))
-      totalValue = parseFloat(value) + parseFloat((await SwapService.getQuoteGasFee(from, to, amount1) / 1e9));
-      quoteVal = await SwapService.getQuote(from, to, amount1);
       setBuyValue(getFlooredFixed(quoteVal / 1e9 / 1e9,4));
+      setTransactionSummary(true)
     }
+    setGasFee(parseFloat((await SwapService.getQuoteGasFee(from, to, amount1) / 1e9)))
     if(totalValue > parseFloat(balance)){
       setLoading(false);
       setStatus('Insufficient Balance');
-      setLoading(false);
-      
     }
     else{
       setLoading(false);
       setStatus('SWAP');
       setAmountSwap(amount1);
+      
     }
   }
 
   const getQuoteReverse = async (sellTokenAddr,buyTokenAddr,amountReverse) => {
     const formattedAmount = amountReverse.toString();
-    const amount = parseUnits(formattedAmount, decimal).toString();
+    const amount = parseUnits(formattedAmount).toString();
     const swapAmount = getFlooredFixed(parseFloat(await SwapService.getQuote(sellTokenAddr, buyTokenAddr, amount) / 1e9 / 1e9), 5);
     setBuyValue(swapAmount);
+    setTransactionSummary(false)
     setGasFee(parseFloat((await SwapService.getQuoteGasFee(sellTokenAddr, buyTokenAddr, amount) / 1e9)));
     var totalValue = parseFloat(amountReverse) + parseFloat((await SwapService.getQuoteGasFee(sellTokenAddr, buyTokenAddr, amount) / 1e9));
 
     if(totalValue < 0){
       setStatus('Insufficient Balance');
       setLoading(false);
+      setTransactionSummary(true)
     }
     else{
       setLoading(false);
+      setTransactionSummary(true)
       setStatus('SWAP');
       setAmountSwap(swapAmount * 1e9 * 1e9);
     }
@@ -565,6 +658,8 @@ export default function Swap() {
   }
 
   const swapReverse = async () => {
+    setLoading(true);
+    setTransactionSummary(false)
     if(buySelectedToken == 'Select Token'){
       Swal.fire(
         'Warning',
@@ -575,9 +670,11 @@ export default function Swap() {
     else{
         if(sellValue > balance){
           setStatus('Insufficient Balance');
+          
         }
         else{
           setStatus('SWAP');
+          
         }
 
         if(buySelectedTokenADDR != '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee'){
@@ -585,13 +682,15 @@ export default function Swap() {
             setStatusAppr("Give Permission to swap "+buySelectedToken);
             dispatch(fetchBalance(getFlooredFixed(parseFloat(await Balance.getTokenBal(buySelectedTokenADDR).balanceOf(userAddress).call() / 1e9 / 1e9), 4)));
             const allowance = await SwapService.getAllowance(buySelectedTokenADDR,userAddress);
+            setLoading(false);
+            
             setAllowanceApprove(allowance);
           }catch(err){
             console.log(err);
           }
         }
   
-        setLoading(true);
+       
         dispatch(fetchBalance(buyBalance));
         setBuyBalance(balance);
   
@@ -705,44 +804,75 @@ export default function Swap() {
           <div className="swap-box1">
             <h1>Quick Swap</h1>
             <div className="row first-row">
-              <div className="col-md-5">
-                <div className="row">
-                  <div className="col-md-2">
-                    <label className="from">From</label>
+              <div className="col-md-12 input-1">
+                <div className='desktop'>
+                  <div className="row-input-1">
+                    <div className="col-md-3">
+                      <label className="from">You Send</label>
+                    </div>
+                    <div className="col-md-4">
+                    </div>
+                    <div className="col-md-2">
+                      <label className="balance">Balance:</label>
+                    </div>
+                    <div className="col-md-1">
+                    </div>
+                    <div className="col-md-2">
+                      <label className="remaining">{balance}</label>
+                    </div>
                   </div>
-                  <div className="col-md-2">
-                  </div>
-                  <div className="col-md-2">
-                    <label className="balance">Balance:</label>
-                  </div>
-                  <div className="col-md-2">
-                  </div>
-                  <div className="col-md-2">
-                    <label className="remaining">{balance}</label>
+                </div>
+                <div className='mobile'>
+                  <div className="row-input-1">
+                    <div className="col-md-2">
+                      <label className="from">You Send</label>
+                    </div>
+                    <div className="col-md-2">
+                      <label className="balance">Balance: <span className='remaining'>{balance}</span></label>
+                    </div>
                   </div>
                 </div>
                 <input inputProps={{lengthinput}} value={sellValue} onChange={sellInputFunc} type="text" className="form-control" />
                 <div className='btn-sell-buy'>
-                  <Button id="sell_btn" onClick={e => handleOpen('sell')}><img alt={'Logo'} src={sellSelectedTokenIMG} width={30} height={30} />&nbsp;{sellSelectedToken}<ArrowDropDownIcon /></Button>
+                  <Button id="sell_btn" onClick={e => handleOpen('sell')}>
+                      {sellSelectedTokenIMG?
+                        <img alt={'Logo'} src={sellSelectedTokenIMG} width={30} height={30} />
+                      :
+                        []
+                      }
+                    &nbsp;{sellSelectedToken}<ArrowDropDownIcon /></Button>
                 </div>
               </div>
-              <div className="col-md-2 swap-container">
-                <img onClick={e => swapReverse()} className="swap" src="image/icons/swap.svg"/>
+              <div className="col-md-12 swap-container">
+               <SwapVertIcon onClick={e => swapReverse()} className="swap"/>
+                {/* <img onClick={e => swapReverse()} className="swap" src="image/icons/swap.svg"/> */}
               </div>
-              <div className="col-md-5">
-                <div className="row">
-                  <div className="col-md-2">
-                    <label className="from">To</label>
+              <div className="col-md-12 input-2">
+                <div className='desktop'>
+                  <div className="row-input-2">
+                    <div className="col-md-2">
+                      <label className="from">You Get</label>
+                    </div>
+                    <div className="col-md-5">
+                    </div>
+                    <div className="col-md-2">
+                      <label className="balance">Balance:</label>
+                    </div>
+                    <div className="col-md-1">
+                    </div>
+                    <div className="col-md-2">
+                      <label className="remaining">{buyBalance}</label>
+                    </div>
                   </div>
-                  <div className="col-md-2">
-                  </div>
-                  <div className="col-md-2">
-                    <label className="balance">Balance:</label>
-                  </div>
-                  <div className="col-md-2">
-                  </div>
-                  <div className="col-md-2">
-                    <label className="remaining">{buyBalance}</label>
+                </div>
+                <div className='mobile'>
+                  <div className="row-input-2">
+                    <div className="col-md-2">
+                      <label className="from">You Get</label>
+                    </div>
+                    <div className="col-md-2">
+                      <label className="balance">Balance: <span className="remaining">{buyBalance}</span> </label>
+                    </div>
                   </div>
                 </div>
                 <>
@@ -793,24 +923,6 @@ export default function Swap() {
                     </Grid>
                   </Grid>
                   
-                  {/* <TextField
-                    id="input-with-icon-textfield"
-                    placeholder="Search a Token or Address"
-                    style={{
-                      width: '100%',
-                      textAlign: 'center'
-                    }}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <SearchIcon />
-                        </InputAdornment>
-                      ),
-                    }}
-                    variant="standard"
-                    onChange={e => filterToken(e.target.value)}
-                  />
-                  <Divider/> */}
                   {tokenPreselected.map((option, index) => (
                       <Button
                         onClick={e => clickToken(option.url,option.token,option.address,option.decimals)}
@@ -829,39 +941,83 @@ export default function Swap() {
             <div className="row">
               <div className="col-md-4">
               </div>
-              <div className="col-md-4">
+              {transactionSummary === true?
+              <>
+                <div className='col-md-12 transaction'>
+                  <Accordion>
+                    <AccordionSummary
+                      expandIcon={<ExpandMoreIcon />}
+                      aria-controls="panel1a-content"
+                      id="panel1a-header"
+                    >
+                      <Typography>1 {buySelectedToken} = {rate} {sellSelectedToken}</Typography>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <table id="summary_transaction" className='table table-hover'>
+                        <tbody>
+                          <tr>
+                            <td className='left'>Estimated Gas Fee:</td>
+                            <td className='right'>{gasFee}&nbsp;(${parseFloat(gasFee*eth).toFixed(2)})</td>
+                          </tr>
+                          <tr>
+                            <td className='left'>Network Fee:</td>
+                            <td className='right'>FREE</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </AccordionDetails>
+                  </Accordion>
+                </div>
+              </>
+              :
+                []
+              }
+              <div className="col-md-12 wallet-btn-wrapper">
               {!userAddress?
               <>
-                <Wallet/>  
+                {loading === false?
+                  <div className='wallet-btn'>
+                    <ConnectWalletButton/>
+                  </div>
+                  :
+                  <Skeleton variant="rectangular" />
+                }
               </>
               :
               <>
                 {status == 'SWAP'?
                 <div>
-                  {sellSelectedTokenADDR != "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" && sellAllowanceApprove == 0?
-                    <div className='btn-wallet'>
-                      <span>{status}</span>
-                    </div>
-                    :
+                  {loading === false?
                     <>
-                    {loading === false?
-                      <div onClick={e => swapToken()} className='btn-wallet-approve'>
-                            <span>{status}</span>
-                      </div>
-                      :
-                      <Skeleton variant="rectangular" width={140} height={30} />
-                    }
+                      {sellSelectedTokenADDR != "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" && sellAllowanceApprove == 0?
+                        <div className='wallet-btn'>
+                          <button>
+                            {status}
+                          </button>
+                        </div>
+                        :
+                        <>
+                        
+                          <div onClick={e => swapToken()} className='btn-wallet-approve'>
+                            <button>
+                              {status}
+                            </button>
+                          </div>
+                        </>
+                      }
                     </>
+                    :
+                    <Skeleton variant="rectangular" />
                   }
                 </div>
                 :            
                   <>
                   {loading === false?
-                    <button className="btn-wallet">
-                      <span>{status}</span>
-                    </button>
+                    <div className='wallet-btn'>
+                      <button>{status}</button>
+                    </div>
                     :
-                    <Skeleton variant="rectangular" width={140} height={30} />
+                    <Skeleton variant="rectangular" />
                   }
                   </>
                 }

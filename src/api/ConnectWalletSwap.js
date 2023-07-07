@@ -7,7 +7,7 @@ import {
 import {
     fetchNetwork,
 } from '../features/network/rpcUrlReducer';
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+
 import Button from '@mui/material/Button';
 import {ethers} from 'ethers';
 import MetamaskLogo from '../images/metamask.png';
@@ -31,6 +31,7 @@ import { providerOptions } from "../providerOptions";
 import Eth from'../images/eth.png';
 import BnbChain from'../images/bnbchain.png';
 import Arbitrum from'../images/arbitrum.png';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
 import ButtonGroup from '@mui/material/ButtonGroup';
@@ -39,20 +40,13 @@ import ClickAwayListener from '@mui/material/ClickAwayListener';
 import Grow from '@mui/material/Grow';
 import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import Snackbar from '@mui/material/Snackbar';
-import MuiAlert, { AlertProps } from '@mui/material/Alert';
 
 const web3Modal = new Web3Modal({
   cacheProvider: true, // optional
   providerOptions // required
 });
 
-const Alert = React.forwardRef(function Alert(props, ref) {
-    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
-  });
-
-const  Metamask = () =>{
+const ConnectWalletSwap = () =>{
     let userAddress = window.localStorage.getItem('userAccount');
     const [open, setOpen] = React.useState(false);
     const [openWallet, setOpenWallet] = React.useState(false);
@@ -130,19 +124,6 @@ const  Metamask = () =>{
         boxShadow: 24,
         p: 1,
     };
-
-    const [openS, setOpenS] = React.useState(false);
-    const handleCloseS = (event, reason) => {
-        if (reason === 'clickaway') {
-        return;
-        }
-
-        setOpenS(false);
-    };
-
-    const handleClickS = () => {
-        setOpenS(true);
-    };
   
     const handleMenuItemClickNet = (event, index) => {
       setSelectedIndexNet(index);
@@ -196,6 +177,10 @@ const  Metamask = () =>{
 
     const disconnect = async () => {
         await web3Modal.clearCachedProvider();
+        window.localStorage.clear();
+        setTimeout(() => {
+            window.location.reload()
+        },1300)
         refreshState();
     };
 
@@ -206,16 +191,18 @@ const  Metamask = () =>{
             const library = new ethers.providers.Web3Provider(provider);
             const accounts = await library.listAccounts();
             const network = await library.getNetwork();
-            console.log(network)
+            console.log(provider)
             setProvider(provider);
             setLibrary(library);
             if (accounts) setAccount(accounts[0]);
             setNetwork(network);
             setAccountCheck(true)
             setBoolIcon(true);
-            // getUserBalance(accounts[0]);
+            getUserBalance(accounts[0]);
             window.localStorage.setItem('userAccount', accounts[0]);
-        
+            setTimeout(() => {
+                window.location.reload()
+            },1300)
         } catch (error) {
             console.error(error);
         }
@@ -263,51 +250,51 @@ const  Metamask = () =>{
         return (Math.floor(v * Math.pow(10, d)) / Math.pow(10, d)).toFixed(d);
     }
 
-    // const getUserBalance = async (address) => {
-    //     const rpcUrls = {
-    //         ethereum: 'https://mainnet.infura.io/v3/529670718fd74cd2a041466303daecd7',
-    //         bnb: 'https://bsc-dataseed.binance.org/',
-    //         Arbitrum: 'https://arb1.arbitrum.io/rpc'
-    //     }
-    //     const web3Provider = new Web3.providers.HttpProvider(rpcUrls[rpcUrl]);
-    //     const web3 = new Web3(web3Provider);
-    //     const tokenABI = [{
-    //         "constant": true,
-    //         "inputs": [
-    //             {
-    //             "name": "_owner",
-    //             "type": "address"
-    //             }
-    //         ],
-    //         "name": "balanceOf",
-    //         "outputs": [
-    //             {
-    //             "name": "balance",
-    //             "type": "uint256"
-    //             }
-    //         ],
-    //         "payable": false,
-    //         "type": "function"
-    //     }]
+    const getUserBalance = async (address) => {
+        const rpcUrls = {
+            ethereum: 'https://mainnet.infura.io/v3/529670718fd74cd2a041466303daecd7',
+            bnb: 'https://bsc-dataseed.binance.org/',
+            Arbitrum: 'https://arb1.arbitrum.io/rpc'
+        }
+        const web3Provider = new Web3.providers.HttpProvider(rpcUrls[rpcUrl]);
+        const web3 = new Web3(web3Provider);
+        const tokenABI = [{
+            "constant": true,
+            "inputs": [
+                {
+                "name": "_owner",
+                "type": "address"
+                }
+            ],
+            "name": "balanceOf",
+            "outputs": [
+                {
+                "name": "balance",
+                "type": "uint256"
+                }
+            ],
+            "payable": false,
+            "type": "function"
+        }]
 
-    //     const tokenInst = new web3.eth.Contract(tokenABI, rpc);
-    //     if(window.ethereum){
-    //         window.ethereum.request({ method: 'eth_getBalance', params: [address, 'latest']})
-    //         .then(balance => {
-    //             dispatch(fetchBalance(getFlooredFixed(parseFloat(ethers.utils.formatEther(balance)), 4)));
-    //             userBalance(getFlooredFixed(parseFloat(ethers.utils.formatEther(balance)), 4));
-    //         })
-    //     }
-    //     else{
-    //         try{
-    //             dispatch(fetchBalance(getFlooredFixed(parseFloat(await tokenInst.methods.balanceOf(address).call() / 1e9 / 1e9), 4)));
-    //             userBalance(getFlooredFixed(parseFloat(await tokenInst.methods.balanceOf(address).call() / 1e9 / 1e9), 4))
-    //         }catch(error){
-    //             console.log(error)
-    //         }
-    //     }
+        const tokenInst = new web3.eth.Contract(tokenABI, rpc);
+        if(window.ethereum){
+            window.ethereum.request({ method: 'eth_getBalance', params: [address, 'latest']})
+            .then(balance => {
+                dispatch(fetchBalance(getFlooredFixed(parseFloat(ethers.utils.formatEther(balance)), 4)));
+                userBalance(getFlooredFixed(parseFloat(ethers.utils.formatEther(balance)), 4));
+            })
+        }
+        else{
+            try{
+                dispatch(fetchBalance(getFlooredFixed(parseFloat(await tokenInst.methods.balanceOf(address).call() / 1e9 / 1e9), 4)));
+                userBalance(getFlooredFixed(parseFloat(await tokenInst.methods.balanceOf(address).call() / 1e9 / 1e9), 4))
+            }catch(error){
+                console.log(error)
+            }
+        }
 
-    // }
+    }
 
     const userBalance = (balance) => {
         window.localStorage.setItem('userBalance', balance); //user persisted data
@@ -343,140 +330,82 @@ const  Metamask = () =>{
     const handleCloseWallet = () => setOpenWallet(false);
 
     return (
-        <div style={{float: 'right'}}>
-            <Box sx={{ display: {md: 'flex' } }}>
-                <Snackbar open={openS} autoHideDuration={6000} onClose={handleCloseS}>
-                    <Alert onClose={handleCloseS} severity="warning" sx={{ width: '100%' }}>
-                    Coming soon...
-                    </Alert>
-                </Snackbar>   
+        <div>
+            {accountCheck === true
+            ?
+            <>
                 <button 
-                className="btn-dashboard" 
-                onClick={handleClickS}
+                className="wallet-btn"
+                onClick={handleOpenWallet}
                 >
-                    <DashboardIcon/>
-                    Dashboard
-                </button>&nbsp;    
-                {accountCheck === true
-                ?
-                <>
-                    <div>
-                        <ButtonGroup variant="outlined" ref={anchorRefNet} aria-label="split button">
-                            <Button onClick={handleToggleNet}><img alt={'Logo'} src={optionsIMGNet[selectedIndexNet]} width={30} height={30} />&nbsp;{optionsNet[selectedIndexNet][0]}<ArrowDropDownIcon /></Button>
-                        </ButtonGroup>
-                        <Popper
-                            sx={{
-                            zIndex: 1,
-                            }}
-                            open={openNet}
-                            anchorEl={anchorRefNet.current}
-                            role={undefined}
-                            transition
-                            disablePortal
-                        >
-                            {({ TransitionProps, placement }) => (
-                            <Grow
-                                {...TransitionProps}
-                                style={{
-                                transformOrigin:
-                                    placement === 'bottom' ? 'center top' : 'center bottom',
-                                }}
-                            >
-                                <Paper>
-                                <ClickAwayListener onClickAway={handleCloseNet}>
-                                    <MenuList id="split-button-menu" autoFocusItem>
-                                    {optionsNet.map((option, index) => (
-                                        <MenuItem
-                                        key={option}
-                                        selected={index === selectedIndexNet}
-                                        onClick={(event) => handleMenuItemClickNet(event, index)}
-                                        >
-                                        <img alt={'Logo'} src={optionsIMGNet[index]} width={30} height={30} />&nbsp;{option[0]}
-                                        </MenuItem>
-                                    ))}
-                                    </MenuList>
-                                </ClickAwayListener>
-                                </Paper>
-                            </Grow>
-                            )}
-                        </Popper>
-
-                        &nbsp;
-                    </div>
-                    <button 
-                    className="btn-wallet"
-                    onClick={handleOpenWallet}
-                    >
-                        {boolIcon ? (
-                            <img src={MetamaskLogo} alt={'Logo'} width={30} height={30} />
-                        ) : (
-                            <div className="conn-wallet"></div>
-                        )}
-                        &nbsp;
-                        <span>{`${truncateAddress(account)}`}</span>
-                    </button>
-                </>
-                :
-                <>
-                    <button 
-                    className="btn-wallet" 
-                    onClick={connectWalletList}
-                    // ref={anchorRef}
-                    >
-                        
-                        {boolIcon ? (
-                            <img src={MetamaskLogo} alt={'Logo'} width={30} height={30} />
-                        ) : (
-                            <AccountBalanceWalletIcon/>
-                        )}
-                        Connect Wallet
-                    </button>
-                </>
-                }
-
-                <Modal
-                aria-labelledby="spring-modal-title"
-                aria-describedby="spring-modal-description"
-                open={openWallet}
-                onClose={handleCloseWallet}
+                    {boolIcon ? (
+                        []
+                    ) : (
+                        <AccountBalanceWalletIcon/>
+                    )}
+                    <span>{`${truncateAddress(account)}`}</span>
+                </button>
+            </>
+            :
+            <>
+                <button 
+                className="wallet-btn" 
+                onClick={connectWalletList}
+                // ref={anchorRef}
                 >
-                <Fade in={openWallet}>
-                    <Box sx={style} id="token-modal">
-                    <Grid container spacing={0}>
-                        <Grid item xs={4}>
-                        <Button onClick={handleCloseWallet}><ArrowBackIosIcon style={{fontSize: '15px'}}/></Button>
-                        </Grid>
-                        <Grid item xs={8}>
-                        <h3>Account</h3>
-                        </Grid>
+                    
+                    {boolIcon ? (
+                        []
+                    ) : (
+                        <AccountBalanceWalletIcon/>
+                    )}
+                    Connect Wallet
+                </button>
+            </>
+            }
+
+            <Modal
+              aria-labelledby="spring-modal-title"
+              aria-describedby="spring-modal-description"
+              open={openWallet}
+              onClose={handleCloseWallet}
+            >
+              <Fade in={openWallet}>
+                <Box sx={style} id="token-modal">
+                  <Grid container spacing={0}>
+                    <Grid item xs={4}>
+                      <Button onClick={handleCloseWallet}><ArrowBackIosIcon style={{fontSize: '15px'}}/></Button>
                     </Grid>
-                    <Grid container spacing={0}>
-                        <Grid item xs={6}>
-                            {accountCheck === true?
-                                <>
-                                <Chip style={{color: '#fff'}} label={`${truncateAddress(account)}`}/>
-                                </>
-                            :
-                                <>
-                                
-                                </>
-                            }
+                    <Grid item xs={8}>
+                      <h3>Account</h3>
+                    </Grid>
+                  </Grid>
+                  <Grid container spacing={0}>
+                    <Grid item xs={6}>
+                        {accountCheck === true?
+                            <>
+                            <Chip style={{color: '#fff'}} label={`${truncateAddress(account)}`}/>
+                            </>
+                        :
+                            <>
                             
-                        </Grid>
-                        <Grid item xs={6}>
-                            <Tooltip title="Disconnect">
-                                <Button style={{float: 'right'}} onClick={disconnect}>
-                                    <LogoutIcon/>
-                                </Button>
-                            </Tooltip>
-                        </Grid>
+                            </>
+                        }
+                        
                     </Grid>
-                    </Box>
-                </Fade>
-                </Modal>
-            </Box>
+                    <Grid item xs={6}>
+                        <Tooltip title="Disconnect">
+                            <Button style={{float: 'right'}} onClick={disconnect}>
+                                <LogoutIcon/>
+                            </Button>
+                        </Tooltip>
+                    </Grid>
+                  </Grid>
+                </Box>
+              </Fade>
+            </Modal>
         </div>
     );
 }
 
-export default Metamask;
+export default ConnectWalletSwap;
